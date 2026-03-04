@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Virtual Environment
 venv/
 
@@ -10,10 +11,18 @@ kubo/
 *.tar.gz
 
 # Sensitive Project Data (Private Keys & Personal Docs)
+=======
+# SSI & IPFS Specific
+>>>>>>> f0f299c9c5391e303455078c207005b38468010f
 data/keys/
 data/documents/
 data/qr_codes/
 data/credentials.json
+<<<<<<< HEAD
 
 # Environment secrets
 .env
+=======
+kubo/
+*.tar.gz
+>>>>>>> f0f299c9c5391e303455078c207005b38468010f
