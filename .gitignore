@@ -1,0 +1,19 @@
+# Virtual Environment
+venv/
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# IPFS/Kubo specific
+kubo/
+*.tar.gz
+
+# Sensitive Project Data (Private Keys & Personal Docs)
+data/keys/
+data/documents/
+data/qr_codes/
+data/credentials.json
+
+# Environment secrets
+.env
