@@ -3,8 +3,8 @@ Konya E-Ruhsat System - Main Application
 """
 import sys
 from pathlib import Path
-from services.issuer import RuhsatIssuer
-from services.verifier import RuhsatVerifier
+from services.issuer import LicenseIssuer  # ✅ LicenseIssuer (RuhsatIssuer değil)
+from services.verifier import LicenseVerifier  # ✅ Bunu da ekleyelim
 
 
 def print_menu():
@@ -12,30 +12,27 @@ def print_menu():
     print("\n" + "="*60)
     print("🏛️  KONYA E-RUHSAT SYSTEM")
     print("="*60)
-    print("\n1. Issue new ruhsat")
-    print("2. Verify ruhsat (offline)")
-    print("3. Verify ruhsat (online)")
-    print("4. Verify ruhsat (authority - full access)")
-    print("5. Revoke ruhsat")
-    print("6. Get ruhsat info")
-    print("7. Exit")
+    print("\n1. Issue new license (Ruhsat ver)")
+    print("2. Verify license (Ruhsat doğrula)")
+    print("3. Get license info (Ruhsat bilgisi)")
+    print("4. Exit (Çıkış)")
     print("\n" + "="*60)
 
 
-def issue_ruhsat_interactive(issuer: RuhsatIssuer):
-    """Interactive ruhsat issuance"""
-    print("\n📜 ISSUE NEW E-RUHSAT")
+def issue_license_interactive(issuer: LicenseIssuer):
+    """Interactive license issuance"""
+    print("\n📜 ISSUE NEW LICENSE")
     print("-" * 60)
     
-    # Get ruhsat data
-    ruhsat_data = {
-        'ruhsat_no': input("Ruhsat Number (e.g., 2024-KON-001): ").strip(),
-        'ruhsat_turu': input("Ruhsat Type (e.g., Restoran Isletme): ").strip(),
-        'ad_soyad': input("Owner Name: ").strip(),
-        'tc_kimlik': input("TC Kimlik No: ").strip(),
-        'bolge': input("District/Area (e.g., Selcuklu): ").strip(),
-        'verilme_tarihi': input("Issue Date (YYYY-MM-DD): ").strip(),
-        'gecerlilik_tarihi': input("Expiry Date (YYYY-MM-DD): ").strip(),
+    # Get license data
+    license_data = {
+        'license_id': input("License ID (e.g., 2024-KON-001): ").strip(),
+        'license_type': input("License Type (e.g., Restaurant): ").strip(),
+        'owner_name': input("Owner Name: ").strip(),
+        'citizen_id': input("TC ID: ").strip(),
+        'region': input("Region (e.g., Selcuklu): ").strip(),
+        'issue_date': input("Issue Date (YYYY-MM-DD): ").strip(),
+        'expiry_date': input("Expiry Date (YYYY-MM-DD): ").strip(),
     }
     
     # Ask for PDF
@@ -47,168 +44,115 @@ def issue_ruhsat_interactive(issuer: RuhsatIssuer):
         print(f"⚠️  PDF file not found: {pdf_path}")
         pdf_path = None
     
-    # Issue ruhsat
+    # Issue license
     try:
-        result = issuer.issue_ruhsat(ruhsat_data, pdf_path)
+        result = issuer.issue_license(license_data, pdf_path)
         
         if result['success']:
-            print(f"\n✅ Ruhsat issued successfully!")
-            print(f"📱 QR Code saved at: {result['qr_code_path']}")
+            print(f"\n✅ License issued successfully!")
+            print(f"📱 QR Code: {result['qr_url']}")
+            if result.get('ipfs_hash'):
+                print(f"🌐 IPFS: {result['ipfs_hash']}")
             
             # Ask to view QR code
             view = input("\nOpen QR code image? (y/n): ").strip().lower()
             if view == 'y':
                 import os
-                os.system(f"xdg-open {result['qr_code_path']}")
+                qr_file = Path(f"data/qr_codes/{license_data['license_id']}.png")
+                if qr_file.exists():
+                    os.system(f"xdg-open {qr_file}")
     
     except Exception as e:
-        print(f"\n❌ Error issuing ruhsat: {e}")
+        print(f"\n❌ Error issuing license: {e}")
+        import traceback
+        traceback.print_exc()
 
 
-def verify_ruhsat_interactive(verifier: RuhsatVerifier, mode: str):
-    """Interactive ruhsat verification"""
-    print(f"\n🔍 VERIFY E-RUHSAT ({mode.upper()})")
+def verify_license_interactive(issuer: LicenseIssuer):
+    """Interactive license verification"""
+    print(f"\n🔍 VERIFY LICENSE")
     print("-" * 60)
     
-    # For demo, we'll read QR data from a saved file
-    # In real app, this would come from QR scanner
+    license_id = input("Enter License ID to verify: ").strip()
     
-    ruhsat_no = input("Enter Ruhsat Number to verify: ").strip()
+    # Get license info
+    info = issuer.get_license_info(license_id)
     
-    # Find QR code file
-    qr_file = Path(f"data/qr_codes/{ruhsat_no}.png")
-    
-    if not qr_file.exists():
-        print(f"❌ QR code not found for: {ruhsat_no}")
-        return
-    
-    # For demo, we'll reconstruct the QR data from database
-    # In real app, you'd scan the actual QR code
-    
-    print(f"📱 Reading QR code from: {qr_file}")
-    
-    # Load credential from database to get QR data
-    import json
-    db_path = Path("data/credentials.json")
-    
-    if not db_path.exists():
-        print("❌ No credentials database found")
-        return
-    
-    with open(db_path, 'r', encoding='utf-8') as f:
-        credentials_db = json.load(f)
-    
-    credential = None
-    for cred in credentials_db:
-        if cred['ruhsat_no'] == ruhsat_no:
-            credential = cred
-            break
-    
-    if not credential:
-        print(f"❌ Credential not found: {ruhsat_no}")
-        return
-    
-    # Reconstruct QR data (in real app, this comes from scanning)
-    from utils.crypto import CryptoManager
-    from services.issuer import RuhsatIssuer
-    
-    # Need issuer to sign (for demo purposes)
-    issuer = RuhsatIssuer()
-    
-    qr_public_data = {
-        'ruhsat_no': credential['ruhsat_no'],
-        'ruhsat_turu': credential['ruhsat_turu'],
-        'belediye': credential['belediye'],
-        'verilme_tarihi': credential['verilme_tarihi'],
-        'gecerlilik_tarihi': credential['gecerlilik_tarihi'],
-        'bolge': credential['bolge'],
-        'durum': 'Gecerli' if credential['status'] == 'active' else 'Iptal'
-    }
-    
-    signature = CryptoManager.sign_data(qr_public_data, issuer.private_key)
-    
-    qr_payload = {
-        "version": "1.0",
-        "type": "konya_eruhsat",
-        "offline_data": qr_public_data,
-        "signature": signature,
-        "signed_by": "did:indy:konya:KBB",
-        "online_refs": {
-            "ipfs_hash": credential.get('ipfs_hash', ''),
-            "document_hash": credential.get('document_hash', ''),
-        }
-    }
-    
-    qr_data_string = json.dumps(qr_payload)
-    
-    # Verify based on mode
-    try:
-        if mode == 'offline':
-            result = verifier.verify_offline(qr_data_string)
-        elif mode == 'online':
-            result = verifier.verify_online(qr_data_string)
-        elif mode == 'authority':
-            download = input("Download PDF document? (y/n): ").strip().lower() == 'y'
-            result = verifier.verify_with_authority(qr_data_string, download_pdf=download)
+    if info:
+        print(f"\n✅ LICENSE FOUND")
+        print(f"\n📋 License Information:")
+        print(f"   License ID: {info.get('license_id')}")
+        print(f"   Type: {info.get('license_type')}")
+        print(f"   Owner: {info.get('owner_name')}")
+        print(f"   TC ID: {info.get('citizen_id')}")
+        print(f"   Region: {info.get('region')}")
+        print(f"   Issue Date: {info.get('issue_date')}")
+        print(f"   Expiry Date: {info.get('expiry_date')}")
+        print(f"   Authority: {info.get('authority')}")
         
-        print(f"\n📊 Verification Result:")
-        print(f"   Status: {result['message']}")
-        
-        if result.get('pdf_path'):
-            print(f"   PDF: {result['pdf_path']}")
+        if info.get('ipfs_hash'):
+            print(f"\n🌐 IPFS Hash: {info['ipfs_hash']}")
+            print(f"   Gateway: https://ipfs.io/ipfs/{info['ipfs_hash']}")
             
-            view = input("\nOpen PDF? (y/n): ").strip().lower()
-            if view == 'y':
-                import os
-                os.system(f"xdg-open {result['pdf_path']}")
-    
-    except Exception as e:
-        print(f"\n❌ Verification error: {e}")
+            # Offer to download PDF
+            download = input("\nDownload and decrypt PDF? (y/n): ").strip().lower()
+            if download == 'y':
+                from utils.ipfs_manager import IPFSManager
+                ipfs = IPFSManager()
+                
+                output_file = Path(f"data/documents/{license_id}_decrypted.pdf")
+                
+                success = ipfs.download_and_decrypt(
+                    info['ipfs_hash'],
+                    license_id,
+                    str(output_file)
+                )
+                
+                if success:
+                    print(f"✅ PDF downloaded: {output_file}")
+                    
+                    view = input("Open PDF? (y/n): ").strip().lower()
+                    if view == 'y':
+                        import os
+                        os.system(f"xdg-open {output_file}")
+    else:
+        print(f"\n❌ License not found: {license_id}")
 
 
 def main():
     """Main application loop"""
     print("\n🚀 Starting Konya E-Ruhsat System...")
     
-    # Initialize services
+    # Initialize issuer
     try:
-        issuer = RuhsatIssuer()
-        verifier = RuhsatVerifier()
+        issuer = LicenseIssuer()
     except Exception as e:
-        print(f"❌ Failed to initialize services: {e}")
+        print(f"❌ Failed to initialize: {e}")
+        import traceback
+        traceback.print_exc()
         return
     
     # Main loop
     while True:
         print_menu()
-        choice = input("\nSelect option (1-7): ").strip()
+        choice = input("\nSelect option (1-4): ").strip()
         
         if choice == '1':
-            issue_ruhsat_interactive(issuer)
+            issue_license_interactive(issuer)
         
         elif choice == '2':
-            verify_ruhsat_interactive(verifier, 'offline')
+            verify_license_interactive(issuer)
         
         elif choice == '3':
-            verify_ruhsat_interactive(verifier, 'online')
-        
-        elif choice == '4':
-            verify_ruhsat_interactive(verifier, 'authority')
-        
-        elif choice == '5':
-            ruhsat_no = input("Enter Ruhsat Number to revoke: ").strip()
-            issuer.revoke_ruhsat(ruhsat_no)
-        
-        elif choice == '6':
-            ruhsat_no = input("Enter Ruhsat Number: ").strip()
-            info = issuer.get_ruhsat_info(ruhsat_no)
+            license_id = input("Enter License ID: ").strip()
+            info = issuer.get_license_info(license_id)
             if info:
                 import json
                 print(json.dumps(info, indent=2, ensure_ascii=False))
             else:
-                print("❌ Ruhsat not found")
+                print("❌ License not found")
         
-        elif choice == '7':
+        elif choice == '4':
             print("\n👋 Goodbye!")
             break
         

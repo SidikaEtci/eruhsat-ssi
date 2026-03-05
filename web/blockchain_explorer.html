@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Explorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0e27;
+            color: #00ff00;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 30px;
+            border-radius: 10px;
+            border: 2px solid #00ff00;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .header h1 {
+            color: #00ff00;
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .header p {
+            text-align: center;
+            color: #888;
+            margin-bottom: 15px;
+        }
+
+        .back-link {
+            display: inline-block;
+            background: #00ff00;
+            color: #0a0e27;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: #00cc00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #1a1a2e;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #00ff00;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .stat-card h3 {
+            color: #888;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card .value {
+            color: #00ff00;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .stat-card.valid {
+            border-color: #2ecc71;
+        }
+
+        .stat-card.valid .value {
+            color: #2ecc71;
+        }
+
+        .stat-card.invalid {
+            border-color: #e74c3c;
+        }
+
+        .stat-card.invalid .value {
+            color: #e74c3c;
+        }
+
+        .blocks-container {
+            background: #0f1419;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #00ff00;
+        }
+
+        .block {
+            background: #16213e;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #00ff00;
+            transition: all 0.3s;
+        }
+
+        .block:hover {
+            background: #1c2a48;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+            transform: translateX(5px);
+        }
+
+        .block.genesis {
+            border-left-color: #f39c12;
+            background: #1a1410;
+        }
+
+        .block.genesis:hover {
+            background: #221a14;
+        }
+
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #00ff00;
+        }
+
+        .block-number {
+            color: #00ff00;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .block.genesis .block-number {
+            color: #f39c12;
+        }
+
+        .block-time {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .hash {
+            background: #0a0e27;
+            padding: 10px;
+            border-radius: 5px;
+            word-break: break-all;
+            font-size: 0.85em;
+            border: 1px solid #00ff00;
+            margin: 10px 0;
+        }
+
+        .hash-label {
+            color: #888;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            margin-top: 10px;
+        }
+
+        .block-data {
+            background: #0a0e27;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #00ff00;
+            margin-top: 15px;
+        }
+
+        .block-data pre {
+            color: #00ff00;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            font-size: 0.9em;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #1a1a2e;
+            border-top: 4px solid #00ff00;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .chain-line {
+            text-align: center;
+            color: #00ff00;
+            font-size: 2em;
+            margin: 10px 0;
+        }
+
+        .info-badge {
+            display: inline-block;
+            background: #00ff00;
+            color: #0a0e27;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .block-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⛓️ BLOCKCHAIN EXPLORER</h1>
+            <p>Konya E-Ruhsat Distributed Ledger</p>
+            <div style="text-align: center;">
+                <a href="/" class="back-link">⬅️ Ana Sayfaya Dön</a>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Toplam Block</h3>
+                <div class="value" id="totalBlocks">-</div>
+            </div>
+            <div class="stat-card" id="validityCard">
+                <h3>Blockchain Durumu</h3>
+                <div class="value" id="validityStatus">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Genesis Time</h3>
+                <div class="value" id="genesisTime" style="font-size: 1em;">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Son Block</h3>
+                <div class="value" id="latestTime" style="font-size: 1em;">-</div>
+            </div>
+        </div>
+
+        <div class="blocks-container">
+            <h2 style="color: #00ff00; margin-bottom: 20px; text-align: center;">📦 BLOCK ZİNCİRİ</h2>
+            <div id="blocksContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Blockchain yükleniyor...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadBlockchain() {
+            try {
+                const response = await fetch('/api/blockchain');
+                const data = await response.json();
+                
+                // Update stats
+                document.getElementById('totalBlocks').textContent = data.stats.total_blocks;
+                
+                const validityCard = document.getElementById('validityCard');
+                const validityStatus = document.getElementById('validityStatus');
+                
+                if (data.stats.is_valid) {
+                    validityCard.className = 'stat-card valid';
+                    validityStatus.textContent = '✅ GEÇERLİ';
+                } else {
+                    validityCard.className = 'stat-card invalid';
+                    validityStatus.textContent = '❌ GEÇERSİZ';
+                }
+                
+                if (data.stats.genesis_time) {
+                    const genesisDate = new Date(data.stats.genesis_time);
+                    document.getElementById('genesisTime').textContent = 
+                        genesisDate.toLocaleString('tr-TR', { 
+                            month: 'short', 
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                }
+                
+                if (data.stats.latest_time) {
+                    const latestDate = new Date(data.stats.latest_time);
+                    document.getElementById('latestTime').textContent = 
+                        latestDate.toLocaleString('tr-TR', { 
+                            month: 'short', 
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                }
+                
+                // Display blocks (reverse order - newest first)
+                const container = document.getElementById('blocksContainer');
+                let html = '';
+                
+                const blocks = [...data.ledger].reverse();
+                
+                blocks.forEach((block, index) => {
+                    const isGenesis = block.block_number === 0;
+                    const blockDate = new Date(block.timestamp);
+                    
+                    html += `
+                        <div class="block ${isGenesis ? 'genesis' : ''}">
+                            <div class="block-header">
+                                <div class="block-number">
+                                    ${isGenesis ? '🌟 GENESIS BLOCK' : '📦 Block #' + block.block_number}
+                                    ${isGenesis ? '<span class="info-badge">İLK BLOCK</span>' : ''}
+                                </div>
+                                <div class="block-time">
+                                    ${blockDate.toLocaleString('tr-TR')}
+                                </div>
+                            </div>
+                            
+                            <div class="hash-label">🔐 Block Hash:</div>
+                            <div class="hash">${block.hash}</div>
+                            
+                            <div class="hash-label">🔗 Previous Hash:</div>
+                            <div class="hash">${block.previous_hash}</div>
+                            
+                            <div class="block-data">
+                                <div class="hash-label">📊 Block Data:</div>
+                                <pre>${JSON.stringify(block.data, null, 2)}</pre>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add chain connector (except for last block)
+                    if (index < blocks.length - 1) {
+                        html += '<div class="chain-line">⬇️</div>';
+                    }
+                });
+                
+                container.innerHTML = html;
+                
+            } catch (error) {
+                document.getElementById('blocksContainer').innerHTML = 
+                    `<div class="loading">❌ Hata: ${error.message}<br><br>Backend çalışıyor mu kontrol edin.</div>`;
+            }
+        }
+
+        // Load on page load
+        loadBlockchain();
+        
+        // Auto-refresh every 5 seconds
+        setInterval(loadBlockchain, 5000);
+    </script>
+</body>
+</html>

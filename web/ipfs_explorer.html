@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPFS Belge Gezgini</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #1e3c72;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .back-link {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+
+        .back-link:hover {
+            transform: translateY(-2px);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .stat-card .value {
+            color: #1e3c72;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .file-list {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .file-list h2 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #1e3c72;
+            padding-bottom: 10px;
+        }
+
+        .file-item {
+            background: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 5px solid #1e3c72;
+            transition: all 0.3s;
+        }
+
+        .file-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .file-item h3 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .file-item p {
+            color: #555;
+            margin: 5px 0;
+            font-size: 0.95em;
+        }
+
+        .hash-code {
+            background: #1e3c72;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            word-break: break-all;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .btn {
+            background: #1e3c72;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px 5px 5px 0;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .btn:hover {
+            background: #2a5298;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-success {
+            background: #2ecc71;
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1e3c72;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            color: #856404;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .file-item {
+                padding: 15px;
+            }
+            
+            .btn {
+                display: block;
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗂️ IPFS Belge Gezgini</h1>
+            <p>Şifreli Belgeler - IPFS Distributed Storage</p>
+            <a href="/" class="back-link">⬅️ Ana Sayfaya Dön</a>
+        </div>
+
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <h3>Toplam Belge</h3>
+                <div class="value" id="totalFiles">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>IPFS Bağlantısı</h3>
+                <div class="value" id="ipfsStatus">✅</div>
+            </div>
+            <div class="stat-card">
+                <h3>Son Güncelleme</h3>
+                <div class="value" id="lastUpdate" style="font-size: 1em;">-</div>
+            </div>
+        </div>
+
+        <div class="file-list">
+            <h2>📄 IPFS'te Saklanan Belgeler</h2>
+            <div id="fileListContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Belgeler yükleniyor...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadIPFSFiles() {
+            try {
+                const response = await fetch('/api/ipfs-files');
+                const data = await response.json();
+                
+                // Update stats
+                document.getElementById('totalFiles').textContent = data.files.length;
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('tr-TR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                const container = document.getElementById('fileListContainer');
+                
+                if (data.files.length === 0) {
+                    container.innerHTML = '<div class="empty">📭 Henüz IPFS\'te belge yok</div>';
+                    return;
+                }
+                
+                let html = '';
+                data.files.forEach(file => {
+                    html += `
+                        <div class="file-item">
+                            <h3>📄 ${file.license_id}</h3>
+                            <p><strong>Tür:</strong> ${file.license_type}</p>
+                            
+                            <p style="margin-top: 10px;"><strong>IPFS Hash:</strong></p>
+                            <div class="hash-code">${file.ipfs_hash}</div>
+                            
+                            <p style="margin-top: 10px;"><strong>Belge Hash (SHA-256):</strong></p>
+                            <div class="hash-code">${file.document_hash.substring(0, 48)}...</div>
+                            
+                            <p style="margin-top: 10px;"><strong>Yüklenme:</strong> ${new Date(file.created_at).toLocaleString('tr-TR')}</p>
+                            
+                            <div class="warning-box">
+                                ⚠️ <strong>Güvenlik:</strong> Bu belge AES-256 ile şifrelenmiştir. IPFS'ten indirilebilir ancak sadece yetkili kişiler açabilir.
+                            </div>
+                            
+                            <div style="margin-top: 15px;">
+                                <a href="https://ipfs.io/ipfs/${file.ipfs_hash}" target="_blank" class="btn">
+                                    🌐 IPFS Gateway'de Görüntüle (Şifreli)
+                                </a>
+                                <a href="http://localhost:5001/webui#/files/ipfs/${file.ipfs_hash}" target="_blank" class="btn btn-success">
+                                    🔧 IPFS WebUI'da Aç
+                                </a>
+                                <button onclick="downloadFromIPFS('${file.license_id}')" class="btn btn-danger">
+                                    🔓 Şifresini Çöz ve İndir
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            } catch (error) {
+                document.getElementById('fileListContainer').innerHTML = 
+                    `<div class="empty">❌ Hata: ${error.message}</div>`;
+            }
+        }
+
+        // Download and decrypt from IPFS
+        async function downloadFromIPFS(licenseId) {
+            const username = prompt("Kullanıcı Adı:\n\nzabita (yetkili erişim)\nadmin (tam erişim)", "zabita");
+            if (!username) {
+                alert("İptal edildi");
+                return;
+            }
+            
+            const password = prompt("Şifre:", "zabita123");
+            if (!password) {
+                alert("İptal edildi");
+                return;
+            }
+            
+            // Show loading on button
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '⏳ İndiriliyor ve şifre çözülüyor...';
+            btn.disabled = true;
+            
+            try {
+                const formData = new FormData();
+                formData.append('license_id', licenseId);
+                formData.append('username', username);
+                formData.append('password', password);
+                
+                const response = await fetch('/api/download-pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail);
+                }
+                
+                // Download file
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${licenseId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+                
+                // Reset button
+                btn.textContent = originalText;
+                btn.disabled = false;
+                
+                alert('✅ PDF başarıyla indirildi ve şifresi çözüldü!\n\nİndirilen dosya artık orijinal halinde açılabilir.');
+                
+            } catch (error) {
+                // Reset button
+                btn.textContent = originalText;
+                btn.disabled = false;
+                
+                alert('❌ Hata: ' + error.message);
+            }
+        }
+
+        // Load on page load
+        loadIPFSFiles();
+        
+        // Auto-refresh every 10 seconds
+        setInterval(loadIPFSFiles, 10000);
+    </script>
+</body>
+</html>

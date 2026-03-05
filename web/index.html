@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konya E-Ruhsat Sistemi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .header-links {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .header-links a {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        .header-links a:nth-child(2) {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .header-links a:hover {
+            transform: translateY(-3px);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+
+        .qr-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .qr-container img {
+            max-width: 300px;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .info-box h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .license-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .license-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .license-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-links {
+                flex-direction: column;
+            }
+            
+            .header-links a {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ Konya E-Ruhsat Sistemi</h1>
+            <p>Blockchain Tabanlı Dijital Ruhsat Yönetimi</p>
+            
+            <div class="header-links">
+                <a href="/web/ipfs_explorer.html" target="_blank">
+                    🗂️ IPFS Explorer
+                </a>
+                <a href="/web/blockchain_explorer.html" target="_blank">
+                    ⛓️ Blockchain Explorer
+                </a>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Issue License Card -->
+            <div class="card">
+                <h2>📜 Yeni Ruhsat Ver</h2>
+                <form id="issueForm">
+                    <div class="form-group">
+                        <label>Ruhsat No *</label>
+                        <input type="text" name="license_id" placeholder="Örn: 2024-KON-001" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ruhsat Türü *</label>
+                        <select name="license_type" required>
+                            <option value="">Seçiniz...</option>
+                            <option value="Restoran İşletme Ruhsatı">Restoran İşletme Ruhsatı</option>
+                            <option value="Cafe İşletme Ruhsatı">Cafe İşletme Ruhsatı</option>
+                            <option value="Gıda İşletmesi Ruhsatı">Gıda İşletmesi Ruhsatı</option>
+                            <option value="İşyeri Açma Ruhsatı">İşyeri Açma Ruhsatı</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>İşletme Sahibi *</label>
+                        <input type="text" name="owner_name" placeholder="Ad Soyad" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>TC Kimlik No *</label>
+                        <input type="text" name="citizen_id" placeholder="11 haneli TC No" maxlength="11" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bölge *</label>
+                        <select name="region" required>
+                            <option value="">Seçiniz...</option>
+                            <option value="Selçuklu">Selçuklu</option>
+                            <option value="Meram">Meram</option>
+                            <option value="Karatay">Karatay</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Verilme Tarihi *</label>
+                        <input type="date" name="issue_date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Geçerlilik Tarihi *</label>
+                        <input type="date" name="expiry_date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>PDF Belgesi (Opsiyonel)</label>
+                        <input type="file" name="pdf_file" accept=".pdf">
+                    </div>
+
+                    <button type="submit" class="btn">🚀 Ruhsat Ver</button>
+                </form>
+
+                <div class="loading" id="issueLoading">
+                    <div class="spinner"></div>
+                    <p>İşlem yapılıyor...</p>
+                </div>
+
+                <div class="result" id="issueResult"></div>
+
+                <div class="qr-container" id="qrContainer" style="display:none;">
+                    <h3>QR Kod</h3>
+                    <img id="qrImage" src="" alt="QR Code">
+                    <p style="margin-top: 10px; color: #666;">Vatandaşa gösterilebilir</p>
+                </div>
+            </div>
+
+            <!-- Verify License Card -->
+            <div class="card">
+                <h2>🔍 Ruhsat Doğrula</h2>
+                <form id="verifyForm">
+                    <div class="form-group">
+                        <label>Ruhsat No</label>
+                        <input type="text" name="verify_license_id" placeholder="Örn: 2024-KON-001" required>
+                    </div>
+
+                    <button type="submit" class="btn">🔎 Doğrula</button>
+                </form>
+
+                <div class="loading" id="verifyLoading">
+                    <div class="spinner"></div>
+                    <p>Doğrulanıyor...</p>
+                </div>
+
+                <div class="result" id="verifyResult"></div>
+
+                <div class="info-box" id="licenseInfo" style="display:none;"></div>
+
+                <!-- Recent Licenses -->
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">Son Verilen Ruhsatlar</h3>
+                    <div class="license-list" id="licenseList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Issue License Form
+        document.getElementById('issueForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const form = e.target;
+            const formData = new FormData(form);
+            
+            // Show loading
+            document.getElementById('issueLoading').style.display = 'block';
+            document.getElementById('issueResult').style.display = 'none';
+            document.getElementById('qrContainer').style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/issue', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                // Hide loading
+                document.getElementById('issueLoading').style.display = 'none';
+                
+                if (data.success) {
+                    // Show success
+                    const resultDiv = document.getElementById('issueResult');
+                    resultDiv.className = 'result success';
+                    resultDiv.style.display = 'block';
+                    resultDiv.innerHTML = `
+                        <h3>✅ ${data.message}</h3>
+                        <p><strong>Ruhsat No:</strong> ${formData.get('license_id')}</p>
+                        ${data.data.ipfs_hash ? `<p><strong>IPFS Hash:</strong> ${data.data.ipfs_hash}</p>` : ''}
+                    `;
+                    
+                    // Show QR code
+                    const qrContainer = document.getElementById('qrContainer');
+                    const qrImage = document.getElementById('qrImage');
+                    qrImage.src = `/api/qr/${formData.get('license_id')}?t=${Date.now()}`;
+                    qrContainer.style.display = 'block';
+                    
+                    // Reset form
+                    form.reset();
+                    
+                    // Refresh license list
+                    loadLicenses();
+                } else {
+                    throw new Error(data.message || 'İşlem başarısız');
+                }
+            } catch (error) {
+                document.getElementById('issueLoading').style.display = 'none';
+                const resultDiv = document.getElementById('issueResult');
+                resultDiv.className = 'result error';
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `<h3>❌ Hata</h3><p>${error.message}</p>`;
+            }
+        });
+
+        // Verify License Form
+        document.getElementById('verifyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const licenseId = e.target.verify_license_id.value;
+            
+            // Show loading
+            document.getElementById('verifyLoading').style.display = 'block';
+            document.getElementById('verifyResult').style.display = 'none';
+            document.getElementById('licenseInfo').style.display = 'none';
+            
+            try {
+                const response = await fetch(`/api/verify/${licenseId}`);
+                const data = await response.json();
+                
+                // Hide loading
+                document.getElementById('verifyLoading').style.display = 'none';
+                
+                const resultDiv = document.getElementById('verifyResult');
+                resultDiv.style.display = 'block';
+                
+                if (data.valid) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `<h3>✅ Ruhsat Geçerli</h3>`;
+                    
+                    // Show info
+                    const infoDiv = document.getElementById('licenseInfo');
+                    infoDiv.style.display = 'block';
+                    infoDiv.innerHTML = `
+                        <h4>📋 Ruhsat Bilgileri</h4>
+                        <p><strong>Ruhsat No:</strong> ${data.data.license_id}</p>
+                        <p><strong>Tür:</strong> ${data.data.license_type}</p>
+                        <p><strong>Sahibi:</strong> ${data.data.owner_name}</p>
+                        <p><strong>Bölge:</strong> ${data.data.region}</p>
+                        <p><strong>Geçerlilik:</strong> ${data.data.expiry_date}</p>
+                        ${data.data.ipfs_hash ? `
+                            <p><strong>IPFS Hash:</strong> <code style="font-size: 0.8em; background: #f0f0f0; padding: 2px 5px; border-radius: 3px;">${data.data.ipfs_hash}</code></p>
+                            <p style="color: #e74c3c; margin-top: 10px;">
+                                ⚠️ Belge IPFS'te AES-256 ile şifreli olarak saklanmaktadır
+                            </p>
+                            <div style="margin-top: 15px;">
+                                <button onclick="downloadPDF('${data.data.license_id}')" class="btn" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+                                    📄 PDF Belgesini İndir (Yetkili Girişi Gerekli)
+                                </button>
+                            </div>
+                        ` : '<p style="color: #999; margin-top: 10px;">Bu ruhsat için PDF belgesi yok</p>'}
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<h3>❌ Ruhsat Bulunamadı</h3><p>${data.message}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('verifyLoading').style.display = 'none';
+                const resultDiv = document.getElementById('verifyResult');
+                resultDiv.className = 'result error';
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `<h3>❌ Hata</h3><p>${error.message}</p>`;
+            }
+        });
+
+        // Download PDF Function
+        async function downloadPDF(licenseId) {
+            // Ask for credentials
+            const username = prompt("Kullanıcı Adı:\n\nvatandas (sınırlı erişim)\nzabita (tam erişim)\nadmin (tam erişim)", "zabita");
+            
+            if (!username) {
+                alert("İptal edildi");
+                return;
+            }
+            
+            const password = prompt("Şifre:", "zabita123");
+            
+            if (!password) {
+                alert("İptal edildi");
+                return;
+            }
+            
+            try {
+                // Show loading
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '⏳ İndiriliyor ve şifre çözülüyor...';
+                btn.disabled = true;
+                
+                // Send download request
+                const formData = new FormData();
+                formData.append('license_id', licenseId);
+                formData.append('username', username);
+                formData.append('password', password);
+                
+                const response = await fetch('/api/download-pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'İndirme başarısız');
+                }
+                
+                // Download file
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${licenseId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+                
+                // Reset button
+                btn.textContent = originalText;
+                btn.disabled = false;
+                
+                alert('✅ PDF başarıyla indirildi ve şifresi çözüldü!\n\nİndirilen dosya artık orijinal halinde açılabilir.');
+                
+            } catch (error) {
+                alert('❌ Hata: ' + error.message);
+                
+                // Reset button
+                const btn = event.target;
+                btn.textContent = '📄 PDF Belgesini İndir (Yetkili Girişi Gerekli)';
+                btn.disabled = false;
+            }
+        }
+
+        // Load recent licenses
+        async function loadLicenses() {
+            try {
+                const response = await fetch('/api/licenses');
+                const data = await response.json();
+                
+                const listDiv = document.getElementById('licenseList');
+                
+                if (data.licenses.length === 0) {
+                    listDiv.innerHTML = '<p style="color: #999;">Henüz ruhsat verilmedi</p>';
+                    return;
+                }
+                
+                listDiv.innerHTML = data.licenses.slice(-10).reverse().map(lic => `
+                    <div class="license-item" onclick="document.getElementById('verifyForm').verify_license_id.value = '${lic.license_id}'; document.getElementById('verifyForm').dispatchEvent(new Event('submit'));">
+                        <strong>${lic.license_id}</strong> - ${lic.license_type}<br>
+                        <small>${lic.owner_name} | ${lic.region}</small>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading licenses:', error);
+            }
+        }
+
+        // Load licenses on page load
+        loadLicenses();
+    </script>
+</body>
+</html>

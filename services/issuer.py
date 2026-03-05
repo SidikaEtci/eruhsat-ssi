@@ -6,37 +6,39 @@ import config
 from utils.crypto import CryptoManager
 from utils.ipfs_manager import IPFSManager
 from utils.qr_generator import QRCodeManager
+from utils.blockchain_logger import BlockchainLogger
+
 
 class LicenseIssuer:
     """Issue digital licenses with QR codes and IPFS storage"""
-    
+
     def __init__(self):
         # Initialize keys and IPFS
         self.private_key, self.public_key = CryptoManager.generate_keypair(
             seed=config.ISSUER_SEED
         )
         self.ipfs = IPFSManager()
+        self.blockchain = BlockchainLogger()  # ✅ NEW
         print("✅ License Issuer Initialized")
 
     def issue_license(self, license_data: dict, pdf_path: str = None) -> dict:
         """Process and issue a new decentralized license"""
         print(f"\n--- ISSUING LICENSE: {license_data['license_id']} ---")
-        
+
         # Add authority info
         license_data['authority'] = config.ISSUER_NAME
-        
+
         # 1. Upload PDF to IPFS (Encrypted)
         ipfs_data = None
         if pdf_path:
             ipfs_data = self.ipfs.upload_encrypted_document(
-                pdf_path, 
+                pdf_path,
                 license_data['license_id']
             )
             license_data['ipfs_hash'] = ipfs_data['ipfs_hash']
             license_data['document_hash'] = ipfs_data['document_hash']
 
         # 2. Digital Signing
-        # We sign the core data to ensure integrity
         signing_payload = {
             "license_id": license_data['license_id'],
             "license_type": license_data['license_type'],
@@ -52,9 +54,22 @@ class LicenseIssuer:
             self.private_key
         )
 
-        # 4. Save to Local Database (Simulation of Ledger)
+        # 4. Add to blockchain ✅ NEW
+        self.blockchain.add_block({
+            "action": "ISSUE_LICENSE",
+            "license_id": license_data['license_id'],
+            "license_type": license_data['license_type'],
+            "owner_name": license_data['owner_name'],
+            "region": license_data['region'],
+            "ipfs_hash": license_data.get('ipfs_hash', ''),
+            "document_hash": license_data.get('document_hash', ''),
+            "issue_date": license_data['issue_date'],
+            "expiry_date": license_data['expiry_date']
+        })
+
+        # 5. Save to Local Database
         self._save_to_db(license_data, qr_url)
-        
+
         return {
             "success": True,
             "ipfs_hash": license_data.get('ipfs_hash'),
@@ -62,22 +77,53 @@ class LicenseIssuer:
         }
 
     def _save_to_db(self, data, qr_url):
+        """Save license to database"""
         db_path = config.DATA_DIR / "credentials.json"
         db = []
+        
         if db_path.exists():
-            with open(db_path, 'r') as f: db = json.load(f)
+            try:
+                with open(db_path, 'r', encoding='utf-8') as f:
+                    db = json.load(f)
+            except:
+                db = []
+        
         data['created_at'] = datetime.now().isoformat()
+        data['qr_url'] = qr_url
         db.append(data)
-        with open(db_path, 'w') as f: json.dump(db, f, indent=2)
+        
+        with open(db_path, 'w', encoding='utf-8') as f:
+            json.dump(db, f, indent=2, ensure_ascii=False)
+        
+        print(f"✅ Saved to database: {data['license_id']}")
 
-# services/issuer.py içinde bul ve değiştir:
-def get_license_info(self, license_id: str):
-    db_path = config.DATA_DIR / "credentials.json"
-    if not db_path.exists(): return None
-    with open(db_path, 'r') as f:
-        db = json.load(f)
-        for item in db:
-            # .get() kullanarak anahtar yoksa çökmesini engelliyoruz
-            if item.get('license_id') == license_id: 
-                return item
-    return None
+    def get_license_info(self, license_id: str):
+        """Get license information by ID"""
+        db_path = config.DATA_DIR / "credentials.json"
+        
+        if not db_path.exists():
+            print(f"❌ Database not found: {db_path}")
+            return None
+        
+        try:
+            with open(db_path, 'r', encoding='utf-8') as f:
+                db = json.load(f)
+            
+            print(f"🔍 Searching for: '{license_id}'")
+            
+            for item in db:
+                if not item:
+                    continue
+                
+                item_id = item.get('license_id', '')
+                
+                if str(item_id).strip() == str(license_id).strip():
+                    print(f"✅ Found: {license_id}")
+                    return item
+            
+            print(f"❌ Not found: {license_id}")
+            return None
+            
+        except Exception as e:
+            print(f"❌ Database error: {e}")
+            return None

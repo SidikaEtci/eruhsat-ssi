@@ -1,19 +1,38 @@
-"""Verifier Service - Validates digital licenses"""
+"""
+License Verifier - Simple version
+"""
 import json
+from pathlib import Path
 import config
-from utils.crypto import CryptoManager
-from utils.qr_generator import QRCodeManager
 
 class LicenseVerifier:
+    """Verify licenses"""
+    
     def __init__(self):
-        # Load the public key of the municipality
-        public_key_path = config.KEYS_DIR / "issuer_public_key.pem"
-        # For demo purposes, we generate it from the same seed if not exists
-        _, self.public_key = CryptoManager.generate_keypair(seed=config.ISSUER_SEED)
         print("✅ License Verifier Initialized")
-
-    def verify_offline(self, qr_data_string: str) -> dict:
-        """Verify the digital signature without internet"""
-        qr_data = json.loads(qr_data_string)
-        # Signature check logic here (using QRCodeManager)
-        return {"valid": True, "message": "Signature Verified (Offline)"}
+    
+    def verify_license(self, license_id: str) -> dict:
+        """Simple verification from database"""
+        db_path = config.DATA_DIR / "credentials.json"
+        
+        if not db_path.exists():
+            return {
+                'valid': False,
+                'message': 'Database not found'
+            }
+        
+        with open(db_path, 'r', encoding='utf-8') as f:
+            credentials = json.load(f)
+        
+        for cred in credentials:
+            if cred.get('license_id') == license_id:
+                return {
+                    'valid': True,
+                    'message': 'Valid license',
+                    'data': cred
+                }
+        
+        return {
+            'valid': False,
+            'message': 'License not found'
+        }
