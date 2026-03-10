@@ -14,6 +14,7 @@ class LicenseIssuer:
 
     def __init__(self):
         # Initialize keys and IPFS
+        self.vc_manager = VerifiableCredentialManager()
         self.private_key, self.public_key = CryptoManager.generate_keypair(
             seed=config.ISSUER_SEED
         )
@@ -25,7 +26,6 @@ class LicenseIssuer:
         """Process and issue a new decentralized license"""
         print(f"\n--- ISSUING LICENSE: {license_data['license_id']} ---")
 
-        # Add authority info
         license_data['authority'] = config.ISSUER_NAME
 
         # 1. Upload PDF to IPFS (Encrypted)
@@ -38,42 +38,29 @@ class LicenseIssuer:
             license_data['ipfs_hash'] = ipfs_data['ipfs_hash']
             license_data['document_hash'] = ipfs_data['document_hash']
 
-        # 2. Digital Signing
-        signing_payload = {
-            "license_id": license_data['license_id'],
-            "license_type": license_data['license_type'],
-            "authority": license_data['authority'],
-            "status": "Active"
-        }
-        signature = CryptoManager.sign_data(signing_payload, self.private_key)
+        # 2. Create Verifiable Credential (W3C Standard) ✅ YENİ
+        credential = self.vc_manager.create_credential(license_data)
+        print("✅ Verifiable Credential created (privacy-preserving)")
 
-        # 3. Generate QR Code
-        qr_url = QRCodeManager.generate_qr_code(
-            license_data,
-            signature,
-            self.private_key
-        )
+        # 3. Generate QR Code (with VC, NO sensitive data) ✅ DEĞİŞTİ
+        qr_url = QRCodeManager.generate_qr_code(credential, license_data['license_id'])
 
-        # 4. Add to blockchain ✅ NEW
+        # 4. Add to blockchain
         self.blockchain.add_block({
             "action": "ISSUE_LICENSE",
-            "license_id": license_data['license_id'],
-            "license_type": license_data['license_type'],
-            "owner_name": license_data['owner_name'],
-            "region": license_data['region'],
+            "credential": credential,  # Store VC in blockchain
             "ipfs_hash": license_data.get('ipfs_hash', ''),
-            "document_hash": license_data.get('document_hash', ''),
-            "issue_date": license_data['issue_date'],
-            "expiry_date": license_data['expiry_date']
         })
 
-        # 5. Save to Local Database
+        # 5. Save to Local Database (include VC)
+        license_data['verifiable_credential'] = credential  # ✅ EKLE
         self._save_to_db(license_data, qr_url)
 
         return {
             "success": True,
             "ipfs_hash": license_data.get('ipfs_hash'),
-            "qr_url": f"/data/qr_codes/{license_data['license_id']}.png"
+            "qr_url": f"/data/qr_codes/{license_data['license_id']}.png",
+            "credential": credential  # ✅ EKLE
         }
 
     def _save_to_db(self, data, qr_url):

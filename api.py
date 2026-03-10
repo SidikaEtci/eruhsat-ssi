@@ -1,24 +1,40 @@
 """
 FastAPI Backend for E-Ruhsat System
+Konya Blockchain-Based Digital License Management
 """
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends, status
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
+# --- PATH FIX İÇİN EKLENEN KISIM BAŞLANGICI ---
+import sys
+import os
+# Betiğin bulunduğu dizini bul ve ana dizini (bir üst klasörü) Python yoluna ekle
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Eğer api.py ana dizindeyse burayı aktif et:
+sys.path.append(current_dir) 
+# Eğer api.py bir alt klasördeyse (örn: src/api.py), aşağıdaki satırı kullan:
+# sys.path.append(os.path.dirname(current_dir))
+# --- PATH FIX İÇİN EKLENEN KISIM BİTİŞİ ---
+
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
+from fastapi.responses import HTMLResponse, FileResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import json
 import shutil
-import secrets
 from datetime import datetime
+import io
 
 from services.issuer import LicenseIssuer
 from utils.ipfs_manager import IPFSManager
 import config
 
-app = FastAPI(title="Konya E-Ruhsat API")
+# Initialize FastAPI app
+app = FastAPI(
+    title="Konya E-Ruhsat API",
+    description="Blockchain-based digital license management system",
+    version="1.0.0"
+)
 
-# CORS - web arayüzü için
+# CORS middleware - allow web interface
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -34,52 +50,14 @@ app.mount("/data", StaticFiles(directory="data"), name="data")
 try:
     issuer = LicenseIssuer()
     ipfs = IPFSManager()
+    print("✅ All services initialized successfully")
 except Exception as e:
-    print(f"⚠️  Warning: {e}")
+    print(f"⚠️  Warning during initialization: {e}")
     issuer = None
     ipfs = None
 
 
-# ==========================================
-# KULLANICI DOĞRULAMA (AUTHENTICATION) SİSTEMİ
-# ==========================================
-USERS = {
-    "vatandas": {"password": "1234", "role": "citizen"},
-    "zabita": {"password": "zabita123", "role": "officer"},
-    "admin": {"password": "admin123", "role": "admin"}
-}
-
-security = HTTPBasic()
-
-def get_current_user(credentials: HTTPBasicCredentials = Depends(security)):
-    """Authenticate user"""
-    username = credentials.username
-    
-    if username not in USERS:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-    
-    user = USERS[username]
-    
-    if not secrets.compare_digest(
-        credentials.password.encode("utf8"),
-        user["password"].encode("utf8")
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-    
-    return {"username": username, "role": user["role"]}
-
-
-# ==========================================
-# API ENDPOINT'LERİ
-# ==========================================
+# ==================== WEB PAGES ====================
 
 @app.get("/", response_class=HTMLResponse)
 async def root():
@@ -87,8 +65,42 @@ async def root():
     html_file = Path("web/index.html")
     if html_file.exists():
         return html_file.read_text(encoding='utf-8')
-    return "<h1>E-Ruhsat System</h1><p>Web interface not found</p>"
+    return HTMLResponse("""
+        <html>
+            <body style="font-family: Arial; text-align: center; padding: 50px;">
+                <h1>🏛️ Konya E-Ruhsat System</h1>
+                <p>Web interface not found. Please check web/index.html</p>
+            </body>
+        </html>
+    """)
 
+
+@app.get("/ipfs_explorer.html", response_class=HTMLResponse)
+async def ipfs_explorer():
+    """Serve IPFS Explorer page"""
+    html_file = Path("web/ipfs_explorer.html")
+    if html_file.exists():
+        return html_file.read_text(encoding='utf-8')
+    raise HTTPException(status_code=404, detail="IPFS Explorer not found")
+
+
+@app.get("/blockchain_explorer.html", response_class=HTMLResponse)
+async def blockchain_explorer():
+    """Serve Blockchain Explorer page"""
+    html_file = Path("web/blockchain_explorer.html")
+    if html_file.exists():
+        return html_file.read_text(encoding='utf-8')
+    raise HTTPException(status_code=404, detail="Blockchain Explorer not found")
+
+@app.get("/blockchain_detailed.html", response_class=HTMLResponse)
+async def blockchain_detailed():
+    """Serve Detailed Blockchain Explorer page"""
+    html_file = Path("web/blockchain_detailed.html")
+    if html_file.exists():
+        return html_file.read_text(encoding='utf-8')
+    raise HTTPException(status_code=404, detail="Blockchain Detailed Explorer not found")
+    
+# ==================== LICENSE MANAGEMENT API ====================
 
 @app.post("/api/issue")
 async def issue_license(
@@ -101,7 +113,22 @@ async def issue_license(
     expiry_date: str = Form(...),
     pdf_file: UploadFile = File(None)
 ):
-    """Issue new license"""
+    """
+    Issue new digital license
+    
+    Args:
+        license_id: Unique license identifier
+        license_type: Type of license
+        owner_name: License owner's name
+        citizen_id: TC identification number
+        region: District/region
+        issue_date: Issue date (YYYY-MM-DD)
+        expiry_date: Expiry date (YYYY-MM-DD)
+        pdf_file: Optional PDF document
+        
+    Returns:
+        Success status, IPFS hash, and QR code URL
+    """
     try:
         # Prepare license data
         license_data = {
@@ -120,6 +147,7 @@ async def issue_license(
             pdf_path = config.DOCUMENTS_DIR / f"{license_id}.pdf"
             with open(pdf_path, 'wb') as f:
                 shutil.copyfileobj(pdf_file.file, f)
+            print(f"📄 PDF saved: {pdf_path}")
         
         # Issue license
         result = issuer.issue_license(license_data, str(pdf_path) if pdf_path else None)
@@ -131,120 +159,53 @@ async def issue_license(
         }
     
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/verify/{license_id}")
-async def verify_license(
-    license_id: str,
-    user: dict = Depends(get_current_user)  # ✅ Kimlik doğrulama gerekli
-):
-    """Verify license with role-based access"""
+async def verify_license(license_id: str):
+    """
+    Verify license by ID
+    
+    Args:
+        license_id: License identifier to verify
+        
+    Returns:
+        Validation status and license information
+    """
     try:
         info = issuer.get_license_info(license_id)
         
-        if not info:
+        if info:
+            return {
+                'success': True,
+                'valid': True,
+                'data': info,
+                'message': 'Ruhsat geçerli'
+            }
+        else:
             return {
                 'success': True,
                 'valid': False,
                 'message': 'Ruhsat bulunamadı'
             }
-        
-        # Role-based data filtering
-        if user["role"] == "citizen":
-            # Minimal data for citizens
-            filtered_data = {
-                'license_id': info.get('license_id'),
-                'license_type': info.get('license_type'),
-                'authority': info.get('authority'),
-                'expiry_date': info.get('expiry_date'),
-                'region': info.get('region')
-                # NO: owner_name, citizen_id, ipfs_hash
-            }
-            return {
-                'success': True,
-                'valid': True,
-                'role': 'citizen',
-                'message': 'Ruhsat geçerli (sınırlı bilgi)',
-                'data': filtered_data
-            }
-        
-        elif user["role"] == "officer":
-            # More data for officers
-            filtered_data = {
-                'license_id': info.get('license_id'),
-                'license_type': info.get('license_type'),
-                'owner_name': info.get('owner_name'),  # ✅ Can see
-                'citizen_id': info.get('citizen_id'),  # ✅ Can see
-                'authority': info.get('authority'),
-                'expiry_date': info.get('expiry_date'),
-                'region': info.get('region'),
-                'ipfs_hash': info.get('ipfs_hash'),  # ✅ Can download
-                'can_download_pdf': True
-            }
-            return {
-                'success': True,
-                'valid': True,
-                'role': 'officer',
-                'message': 'Ruhsat geçerli (yetkili erişim)',
-                'data': filtered_data
-            }
-        
-        else:  # admin
-            # Full access
-            return {
-                'success': True,
-                'valid': True,
-                'role': 'admin',
-                'message': 'Ruhsat geçerli (tam erişim)',
-                'data': info
-            }
     
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/api/download-pdf/{license_id}")
-async def download_pdf(
-    license_id: str,
-    user: dict = Depends(get_current_user)
-):
-    """Download and decrypt PDF - ONLY for officers and admins"""
-    
-    # Check permission
-    if user["role"] not in ["officer", "admin"]:
-        raise HTTPException(
-            status_code=403,
-            detail="Bu işlem için yetkiniz yok (Sadece zabıta/admin)"
-        )
-    
-    info = issuer.get_license_info(license_id)
-    
-    if not info or not info.get('ipfs_hash'):
-        raise HTTPException(status_code=404, detail="Belge bulunamadı veya IPFS kaydı yok")
-    
-    # Download and decrypt
-    output_file = config.DOCUMENTS_DIR / f"{license_id}_decrypted.pdf"
-    
-    success = ipfs.download_and_decrypt(
-        info['ipfs_hash'],
-        license_id,
-        str(output_file)
-    )
-    
-    if not success:
-        raise HTTPException(status_code=500, detail="Belge indirilemedi veya şifresi çözülemedi")
-    
-    return FileResponse(
-        output_file,
-        media_type='application/pdf',
-        filename=f"{license_id}.pdf"
-    )
 
 
 @app.get("/api/licenses")
 async def get_all_licenses():
-    """Get all licenses"""
+    """
+    Get all licenses from database
+    
+    Returns:
+        List of all licenses
+    """
     try:
         db_path = config.DATA_DIR / "credentials.json"
         
@@ -262,32 +223,61 @@ async def get_all_licenses():
 
 @app.get("/api/qr/{license_id}")
 async def get_qr_code(license_id: str):
-    """Get QR code image"""
+    """
+    Get QR code image for a license
+    
+    Args:
+        license_id: License identifier
+        
+    Returns:
+        QR code PNG image
+    """
     qr_path = config.QR_CODES_DIR / f"{license_id}.png"
     
     if not qr_path.exists():
         raise HTTPException(status_code=404, detail="QR kodu bulunamadı")
     
-    return FileResponse(qr_path)
+    return FileResponse(qr_path, media_type="image/png")
+
+
+# ==================== BLOCKCHAIN API ====================
 
 @app.get("/api/blockchain")
 async def get_blockchain():
-    """Get blockchain ledger"""
+    """
+    Get blockchain ledger and statistics
+    
+    Returns:
+        Complete blockchain ledger with stats
+    """
     from utils.blockchain_logger import BlockchainLogger
     
-    blockchain = BlockchainLogger()
-    ledger = blockchain.get_ledger()
-    stats = blockchain.get_stats()
+    try:
+        blockchain = BlockchainLogger()
+        ledger = blockchain.get_ledger()
+        stats = blockchain.get_stats()
+        
+        return {
+            'ledger': ledger,
+            'stats': stats
+        }
     
-    return {
-        'ledger': ledger,
-        'stats': stats
-    }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 
+
+# ==================== IPFS API ====================
 
 @app.get("/api/ipfs-files")
 async def get_ipfs_files():
-    """Get all files on IPFS"""
+    """
+    Get all files stored on IPFS
+    
+    Returns:
+        List of files with IPFS hashes
+    """
     try:
         db_path = config.DATA_DIR / "credentials.json"
         
@@ -313,103 +303,17 @@ async def get_ipfs_files():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# ==================== PDF DOWNLOAD SYSTEM ====================
-
-from fastapi.responses import StreamingResponse
-import io
-
-
-@app.post("/api/download-pdf")
-async def download_pdf_endpoint(
-    license_id: str = Form(...),
-    username: str = Form(None),
-    password: str = Form(None)
-):
-    """
-    Download and decrypt PDF from IPFS
-    
-    Access levels:
-    - Citizen: Can download their own license
-    - Officer: Can download any license
-    - Admin: Can download any license
-    """
-    
-    # Simple authentication (in production, use proper auth)
-    USERS = {
-        "vatandas": {"password": "1234", "role": "citizen"},
-        "zabita": {"password": "zabita123", "role": "officer"},
-        "admin": {"password": "admin123", "role": "admin"}
-    }
-    
-    # Check credentials
-    if username and password:
-        if username not in USERS:
-            raise HTTPException(status_code=401, detail="Geçersiz kullanıcı")
-        
-        if USERS[username]["password"] != password:
-            raise HTTPException(status_code=401, detail="Hatalı şifre")
-        
-        user_role = USERS[username]["role"]
-    else:
-        # No auth provided
-        user_role = None
-    
-    # Get license info
-    info = issuer.get_license_info(license_id)
-    
-    if not info:
-        raise HTTPException(status_code=404, detail="Ruhsat bulunamadı")
-    
-    if not info.get('ipfs_hash'):
-        raise HTTPException(status_code=404, detail="Bu ruhsat için PDF belgesi yok")
-    
-    # Check permission
-    if user_role not in ["officer", "admin"]:
-        raise HTTPException(
-            status_code=403, 
-            detail="Bu işlem için yetkili (zabıta/admin) girişi gereklidir"
-        )
-    
-    try:
-        # Download and decrypt from IPFS
-        output_file = config.DOCUMENTS_DIR / f"{license_id}_decrypted.pdf"
-        
-        success = ipfs.download_and_decrypt(
-            info['ipfs_hash'],
-            license_id,
-            str(output_file)
-        )
-        
-        if not success:
-            raise HTTPException(status_code=500, detail="Belge indirilemedi")
-        
-        # Read file
-        with open(output_file, 'rb') as f:
-            pdf_data = f.read()
-        
-        # Clean up
-        output_file.unlink()
-        
-        # Return as downloadable file
-        return StreamingResponse(
-            io.BytesIO(pdf_data),
-            media_type='application/pdf',
-            headers={
-                'Content-Disposition': f'attachment; filename="{license_id}.pdf"'
-            }
-        )
-    
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"İndirme hatası: {str(e)}")
-
 
 @app.get("/api/preview-encrypted/{ipfs_hash}")
 async def preview_encrypted_file(ipfs_hash: str):
     """
     Preview encrypted file info (without decrypting)
-    Shows that file exists on IPFS
+    
+    Args:
+        ipfs_hash: IPFS content hash
+        
+    Returns:
+        File existence status and metadata
     """
     try:
         # Verify file exists on IPFS
@@ -431,6 +335,146 @@ async def preview_encrypted_file(ipfs_hash: str):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== PDF DOWNLOAD & DECRYPTION ====================
+
+@app.post("/api/download-pdf")
+async def download_pdf_endpoint(
+    license_id: str = Form(...),
+    username: str = Form(None),
+    password: str = Form(None)
+):
+    """
+    Download and decrypt PDF from IPFS
+    
+    Access levels:
+    - Officer (zabita): Can download any license
+    - Admin: Can download any license
+    
+    Args:
+        license_id: License identifier
+        username: User's username
+        password: User's password
+        
+    Returns:
+        Decrypted PDF file
+    """
+    
+    # Simple authentication (in production, use proper auth system)
+    USERS = {
+        "vatandas": {"password": "1234", "role": "citizen"},
+        "zabita": {"password": "zabita123", "role": "officer"},
+        "admin": {"password": "admin123", "role": "admin"}
+    }
+    
+    # Check credentials
+    if username and password:
+        if username not in USERS:
+            raise HTTPException(status_code=401, detail="Geçersiz kullanıcı adı")
+        
+        if USERS[username]["password"] != password:
+            raise HTTPException(status_code=401, detail="Hatalı şifre")
+        
+        user_role = USERS[username]["role"]
+    else:
+        raise HTTPException(status_code=401, detail="Kimlik doğrulama gerekli")
+    
+    # Check permission
+    if user_role not in ["officer", "admin"]:
+        raise HTTPException(
+            status_code=403, 
+            detail="Bu işlem için yetkili (zabıta/admin) girişi gereklidir"
+        )
+    
+    # Get license info
+    info = issuer.get_license_info(license_id)
+    
+    if not info:
+        raise HTTPException(status_code=404, detail="Ruhsat bulunamadı")
+    
+    if not info.get('ipfs_hash'):
+        raise HTTPException(status_code=404, detail="Bu ruhsat için PDF belgesi yok")
+    
+    try:
+        # Download and decrypt from IPFS
+        output_file = config.DOCUMENTS_DIR / f"{license_id}_decrypted.pdf"
+        
+        print(f"\n📥 Downloading PDF for {license_id}...")
+        print(f"   User: {username} ({user_role})")
+        print(f"   IPFS Hash: {info['ipfs_hash']}")
+        
+        success = ipfs.download_and_decrypt(
+            info['ipfs_hash'],
+            license_id,
+            str(output_file)
+        )
+        
+        if not success:
+            raise HTTPException(status_code=500, detail="Belge indirilemedi veya şifresi çözülemedi")
+        
+        # Read file
+        with open(output_file, 'rb') as f:
+            pdf_data = f.read()
+        
+        # Clean up
+        output_file.unlink()
+        
+        print(f"✅ PDF successfully decrypted and sent to user")
+        
+        # Return as downloadable file
+        return StreamingResponse(
+            io.BytesIO(pdf_data),
+            media_type='application/pdf',
+            headers={
+                'Content-Disposition': f'attachment; filename="{license_id}.pdf"'
+            }
+        )
+    
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"İndirme hatası: {str(e)}")
+
+
+# ==================== HEALTH CHECK ====================
+
+@app.get("/api/health")
+async def health_check():
+    """
+    System health check
+    
+    Returns:
+        Service status information
+    """
+    return {
+        'status': 'healthy',
+        'services': {
+            'issuer': issuer is not None,
+            'ipfs': ipfs is not None
+        },
+        'timestamp': datetime.now().isoformat()
+    }
+
+
+# ==================== MAIN ====================
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    
+    print("\n" + "="*60)
+    print("🚀 Starting Konya E-Ruhsat System")
+    print("="*60)
+    print("\n📍 Endpoints:")
+    print("   • Main Page:        http://localhost:8000")
+    print("   • IPFS Explorer:    http://localhost:8000/ipfs_explorer.html")
+    print("   • Blockchain:       http://localhost:8000/blockchain_explorer.html")
+    print("   • API Docs:         http://localhost:8000/docs")
+    print("\n" + "="*60 + "\n")
+    
+    uvicorn.run(
+        app, 
+        host="0.0.0.0", 
+        port=8000,
+        log_level="info"
+    )

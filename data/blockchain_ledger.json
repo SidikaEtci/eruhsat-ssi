@@ -76,5 +76,22 @@
     },
     "previous_hash": "2c63b14f4af5dc2d695b995730baaca8012fb49e70bc5b615bc906968cd6fdfb",
     "hash": "4f8b76b4c6dcdf36144887b78266f9d58f685ff877b746882460498a78fa4dbd"
+  },
+  {
+    "block_number": 5,
+    "timestamp": "2026-03-09T14:07:01.419251",
+    "data": {
+      "action": "ISSUE_LICENSE",
+      "license_id": "2024-KON-001",
+      "license_type": "Restoran İşletme Ruhsatı",
+      "owner_name": " Ahmet Yılmaz",
+      "region": "Selçuklu",
+      "ipfs_hash": "QmQKshQ2jq5W6RHibs7qjwii5Bxz6VBCcbY79kjkZmXTgT",
+      "document_hash": "69cb20ea31e1d10351f6005de75af6769360422b4141bf45897209f6677b3533",
+      "issue_date": "2020-08-28",
+      "expiry_date": "2026-08-28"
+    },
+    "previous_hash": "4f8b76b4c6dcdf36144887b78266f9d58f685ff877b746882460498a78fa4dbd",
+    "hash": "7719d39b92847ccc0845dde29638f76c4cd1c9df3f130d8c98d61c1900126a0f"
   }
 ]
