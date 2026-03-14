@@ -1,0 +1,14 @@
+{
+  "admin": {
+    "password_hash": "e194c727fd2f936a28f669bff828b511334f61abd2ae666080eb52c2a0382823",
+    "role": "admin",
+    "name": "Sistem Yöneticisi",
+    "created_at": "2026-03-15T00:39:36.848218"
+  },
+  "zabita": {
+    "password_hash": "c9bb45d2bf46e3c034d44f3ca7a4a1dfd8c844ef77ff9075cd232720171644a7",
+    "role": "officer",
+    "name": "Zabıta Görevlisi",
+    "created_at": "2026-03-15T00:39:36.848230"
+  }
+}

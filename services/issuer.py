@@ -7,6 +7,8 @@ from utils.crypto import CryptoManager
 from utils.ipfs_manager import IPFSManager
 from utils.qr_generator import QRCodeManager
 from utils.blockchain_logger import BlockchainLogger
+from utils.verifiable_credentials import VerifiableCredentialManager
+from contracts.license_contract import LicenseSmartContract
 
 
 class LicenseIssuer:
@@ -14,18 +16,34 @@ class LicenseIssuer:
 
     def __init__(self):
         # Initialize keys and IPFS
-        self.vc_manager = VerifiableCredentialManager()
         self.private_key, self.public_key = CryptoManager.generate_keypair(
             seed=config.ISSUER_SEED
         )
         self.ipfs = IPFSManager()
-        self.blockchain = BlockchainLogger()  # ✅ NEW
+        self.blockchain = BlockchainLogger()
+        self.vc_manager = VerifiableCredentialManager()
+        self.contract = LicenseSmartContract()
         print("✅ License Issuer Initialized")
+        print("✅ Smart Contract initialized")
 
     def issue_license(self, license_data: dict, pdf_path: str = None) -> dict:
         """Process and issue a new decentralized license"""
         print(f"\n--- ISSUING LICENSE: {license_data['license_id']} ---")
 
+        # Smart Contract Validation FIRST
+        contract_result = self.contract.issue_license(
+            license_data,
+            config.ISSUER_DID
+        )
+        
+        if not contract_result["success"]:
+            # Business rules failed!
+            print(f"❌ Smart Contract Rejected: {contract_result['message']}")
+            raise Exception(f"Smart Contract: {contract_result['message']}")
+        
+        print(f"✅ Smart Contract Approved")
+
+        # Add authority info
         license_data['authority'] = config.ISSUER_NAME
 
         # 1. Upload PDF to IPFS (Encrypted)
@@ -38,29 +56,29 @@ class LicenseIssuer:
             license_data['ipfs_hash'] = ipfs_data['ipfs_hash']
             license_data['document_hash'] = ipfs_data['document_hash']
 
-        # 2. Create Verifiable Credential (W3C Standard) ✅ YENİ
+        # 2. Create Verifiable Credential (W3C Standard)
         credential = self.vc_manager.create_credential(license_data)
         print("✅ Verifiable Credential created (privacy-preserving)")
 
-        # 3. Generate QR Code (with VC, NO sensitive data) ✅ DEĞİŞTİ
+        # 3. Generate QR Code (with VC, NO sensitive data)
         qr_url = QRCodeManager.generate_qr_code(credential, license_data['license_id'])
 
         # 4. Add to blockchain
         self.blockchain.add_block({
             "action": "ISSUE_LICENSE",
-            "credential": credential,  # Store VC in blockchain
+            "credential": credential,
             "ipfs_hash": license_data.get('ipfs_hash', ''),
         })
 
         # 5. Save to Local Database (include VC)
-        license_data['verifiable_credential'] = credential  # ✅ EKLE
+        license_data['verifiable_credential'] = credential
         self._save_to_db(license_data, qr_url)
 
         return {
             "success": True,
             "ipfs_hash": license_data.get('ipfs_hash'),
             "qr_url": f"/data/qr_codes/{license_data['license_id']}.png",
-            "credential": credential  # ✅ EKLE
+            "credential": credential
         }
 
     def _save_to_db(self, data, qr_url):

@@ -2,20 +2,9 @@
 FastAPI Backend for E-Ruhsat System
 Konya Blockchain-Based Digital License Management
 """
-# --- PATH FIX İÇİN EKLENEN KISIM BAŞLANGICI ---
-import sys
-import os
-# Betiğin bulunduğu dizini bul ve ana dizini (bir üst klasörü) Python yoluna ekle
-current_dir = os.path.dirname(os.path.abspath(__file__))
-# Eğer api.py ana dizindeyse burayı aktif et:
-sys.path.append(current_dir) 
-# Eğer api.py bir alt klasördeyse (örn: src/api.py), aşağıdaki satırı kullan:
-# sys.path.append(os.path.dirname(current_dir))
-# --- PATH FIX İÇİN EKLENEN KISIM BİTİŞİ ---
-
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, FileResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import json
@@ -25,16 +14,17 @@ import io
 
 from services.issuer import LicenseIssuer
 from utils.ipfs_manager import IPFSManager
+from utils.auth import AuthManager
 import config
 
 # Initialize FastAPI app
 app = FastAPI(
     title="Konya E-Ruhsat API",
-    description="Blockchain-based digital license management system",
-    version="1.0.0"
+    description="Blockchain-based digital license management system with Smart Contracts",
+    version="2.0.0"
 )
 
-# CORS middleware - allow web interface
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -50,11 +40,13 @@ app.mount("/data", StaticFiles(directory="data"), name="data")
 try:
     issuer = LicenseIssuer()
     ipfs = IPFSManager()
-    print("✅ All services initialized successfully")
+    auth_manager = AuthManager()
+    print("\n✅ All services initialized successfully\n")
 except Exception as e:
-    print(f"⚠️  Warning during initialization: {e}")
+    print(f"\n⚠️  Warning during initialization: {e}\n")
     issuer = None
     ipfs = None
+    auth_manager = None
 
 
 # ==================== WEB PAGES ====================
@@ -75,6 +67,15 @@ async def root():
     """)
 
 
+@app.get("/login.html", response_class=HTMLResponse)
+async def login_page():
+    """Serve login page"""
+    html_file = Path("web/login.html")
+    if html_file.exists():
+        return html_file.read_text(encoding='utf-8')
+    raise HTTPException(status_code=404, detail="Login page not found")
+
+
 @app.get("/ipfs_explorer.html", response_class=HTMLResponse)
 async def ipfs_explorer():
     """Serve IPFS Explorer page"""
@@ -92,14 +93,72 @@ async def blockchain_explorer():
         return html_file.read_text(encoding='utf-8')
     raise HTTPException(status_code=404, detail="Blockchain Explorer not found")
 
-@app.get("/blockchain_detailed.html", response_class=HTMLResponse)
-async def blockchain_detailed():
-    """Serve Detailed Blockchain Explorer page"""
-    html_file = Path("web/blockchain_detailed.html")
+
+@app.get("/verify-qr/{license_id}", response_class=HTMLResponse)
+async def verify_qr_page(license_id: str):
+    """Serve QR verification page"""
+    html_file = Path("web/verify_qr.html")
     if html_file.exists():
         return html_file.read_text(encoding='utf-8')
-    raise HTTPException(status_code=404, detail="Blockchain Detailed Explorer not found")
+    raise HTTPException(status_code=404, detail="Verification page not found")
+
+
+@app.get("/qr-gallery", response_class=HTMLResponse)
+async def qr_gallery():
+    """QR Code gallery page"""
+    html_file = Path("web/qr_gallery.html")
+    if html_file.exists():
+        return html_file.read_text(encoding='utf-8')
+    raise HTTPException(status_code=404, detail="Gallery not found")
+
+@app.get("/qr-reader", response_class=HTMLResponse)
+async def qr_reader():
+    """Offline QR code reader page"""
+    html_file = Path("web/verify_qr_offline.html")
+    if html_file.exists():
+        return html_file.read_text(encoding='utf-8')
+    raise HTTPException(status_code=404, detail="QR reader not found")
     
+# ==================== AUTHENTICATION API ====================
+
+@app.post("/api/login")
+async def login(username: str = Form(...), password: str = Form(...)):
+    """
+    User login endpoint
+    
+    Returns session token if successful
+    """
+    result = auth_manager.login(username, password)
+    
+    if not result:
+        raise HTTPException(
+            status_code=401,
+            detail="Hatalı kullanıcı adı veya şifre"
+        )
+    
+    return {
+        "success": True,
+        "token": result["token"],
+        "user": {
+            "username": result["username"],
+            "role": result["role"],
+            "name": result["name"]
+        },
+        "expires_at": result["expires_at"]
+    }
+
+
+@app.post("/api/logout")
+async def logout(token: str = Form(...)):
+    """User logout endpoint"""
+    success = auth_manager.logout(token)
+    
+    return {
+        "success": success,
+        "message": "Çıkış yapıldı" if success else "Token bulunamadı"
+    }
+
+
 # ==================== LICENSE MANAGEMENT API ====================
 
 @app.post("/api/issue")
@@ -116,18 +175,7 @@ async def issue_license(
     """
     Issue new digital license
     
-    Args:
-        license_id: Unique license identifier
-        license_type: Type of license
-        owner_name: License owner's name
-        citizen_id: TC identification number
-        region: District/region
-        issue_date: Issue date (YYYY-MM-DD)
-        expiry_date: Expiry date (YYYY-MM-DD)
-        pdf_file: Optional PDF document
-        
-    Returns:
-        Success status, IPFS hash, and QR code URL
+    Smart Contract validates business rules before issuance
     """
     try:
         # Prepare license data
@@ -149,7 +197,7 @@ async def issue_license(
                 shutil.copyfileobj(pdf_file.file, f)
             print(f"📄 PDF saved: {pdf_path}")
         
-        # Issue license
+        # Issue license (Smart Contract will validate)
         result = issuer.issue_license(license_data, str(pdf_path) if pdf_path else None)
         
         return {
@@ -161,7 +209,7 @@ async def issue_license(
     except Exception as e:
         import traceback
         traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @app.get("/api/verify/{license_id}")
@@ -169,27 +217,29 @@ async def verify_license(license_id: str):
     """
     Verify license by ID
     
-    Args:
-        license_id: License identifier to verify
-        
-    Returns:
-        Validation status and license information
+    Uses Smart Contract verification
     """
     try:
-        info = issuer.get_license_info(license_id)
+        # Smart Contract verification
+        contract_result = issuer.contract.verify_license(license_id)
         
-        if info:
+        if contract_result["valid"]:
+            # Get full info
+            info = issuer.get_license_info(license_id)
+            
             return {
                 'success': True,
                 'valid': True,
                 'data': info,
-                'message': 'Ruhsat geçerli'
+                'message': contract_result["message"],
+                'contract_status': contract_result["status"]
             }
         else:
             return {
                 'success': True,
                 'valid': False,
-                'message': 'Ruhsat bulunamadı'
+                'message': contract_result["message"],
+                'contract_status': contract_result["status"]
             }
     
     except Exception as e:
@@ -200,12 +250,7 @@ async def verify_license(license_id: str):
 
 @app.get("/api/licenses")
 async def get_all_licenses():
-    """
-    Get all licenses from database
-    
-    Returns:
-        List of all licenses
-    """
+    """Get all licenses from database"""
     try:
         db_path = config.DATA_DIR / "credentials.json"
         
@@ -223,15 +268,7 @@ async def get_all_licenses():
 
 @app.get("/api/qr/{license_id}")
 async def get_qr_code(license_id: str):
-    """
-    Get QR code image for a license
-    
-    Args:
-        license_id: License identifier
-        
-    Returns:
-        QR code PNG image
-    """
+    """Get QR code image for a license"""
     qr_path = config.QR_CODES_DIR / f"{license_id}.png"
     
     if not qr_path.exists():
@@ -244,12 +281,7 @@ async def get_qr_code(license_id: str):
 
 @app.get("/api/blockchain")
 async def get_blockchain():
-    """
-    Get blockchain ledger and statistics
-    
-    Returns:
-        Complete blockchain ledger with stats
-    """
+    """Get blockchain ledger and statistics"""
     from utils.blockchain_logger import BlockchainLogger
     
     try:
@@ -268,16 +300,22 @@ async def get_blockchain():
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/api/contract/stats")
+async def get_contract_stats():
+    """Get smart contract statistics"""
+    stats = issuer.contract.get_license_count()
+    
+    return {
+        "success": True,
+        "stats": stats
+    }
+
+
 # ==================== IPFS API ====================
 
 @app.get("/api/ipfs-files")
 async def get_ipfs_files():
-    """
-    Get all files stored on IPFS
-    
-    Returns:
-        List of files with IPFS hashes
-    """
+    """Get all files stored on IPFS"""
     try:
         db_path = config.DATA_DIR / "credentials.json"
         
@@ -304,87 +342,34 @@ async def get_ipfs_files():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/preview-encrypted/{ipfs_hash}")
-async def preview_encrypted_file(ipfs_hash: str):
-    """
-    Preview encrypted file info (without decrypting)
-    
-    Args:
-        ipfs_hash: IPFS content hash
-        
-    Returns:
-        File existence status and metadata
-    """
-    try:
-        # Verify file exists on IPFS
-        exists = ipfs.verify_file_exists(ipfs_hash)
-        
-        if exists:
-            return {
-                'success': True,
-                'message': 'Şifreli belge IPFS\'te mevcut',
-                'ipfs_hash': ipfs_hash,
-                'gateway_url': f'https://ipfs.io/ipfs/{ipfs_hash}',
-                'note': 'Bu belge AES-256 ile şifrelenmiştir'
-            }
-        else:
-            return {
-                'success': False,
-                'message': 'Belge IPFS\'te bulunamadı'
-            }
-    
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
 # ==================== PDF DOWNLOAD & DECRYPTION ====================
 
 @app.post("/api/download-pdf")
 async def download_pdf_endpoint(
     license_id: str = Form(...),
-    username: str = Form(None),
-    password: str = Form(None)
+    token: str = Form(...)
 ):
     """
     Download and decrypt PDF from IPFS
     
-    Access levels:
-    - Officer (zabita): Can download any license
-    - Admin: Can download any license
-    
-    Args:
-        license_id: License identifier
-        username: User's username
-        password: User's password
-        
-    Returns:
-        Decrypted PDF file
+    Requires valid authentication token
+    Only officers and admins can download
     """
     
-    # Simple authentication (in production, use proper auth system)
-    USERS = {
-        "vatandas": {"password": "1234", "role": "citizen"},
-        "zabita": {"password": "zabita123", "role": "officer"},
-        "admin": {"password": "admin123", "role": "admin"}
-    }
+    # Verify token
+    user = auth_manager.verify_token(token)
     
-    # Check credentials
-    if username and password:
-        if username not in USERS:
-            raise HTTPException(status_code=401, detail="Geçersiz kullanıcı adı")
-        
-        if USERS[username]["password"] != password:
-            raise HTTPException(status_code=401, detail="Hatalı şifre")
-        
-        user_role = USERS[username]["role"]
-    else:
-        raise HTTPException(status_code=401, detail="Kimlik doğrulama gerekli")
-    
-    # Check permission
-    if user_role not in ["officer", "admin"]:
+    if not user:
         raise HTTPException(
-            status_code=403, 
-            detail="Bu işlem için yetkili (zabıta/admin) girişi gereklidir"
+            status_code=401,
+            detail="Geçersiz veya süresi dolmuş token. Lütfen tekrar giriş yapın."
+        )
+    
+    # Check role
+    if user["role"] not in ["officer", "admin"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Bu işlem için zabıta veya admin yetkisi gereklidir"
         )
     
     # Get license info
@@ -401,7 +386,7 @@ async def download_pdf_endpoint(
         output_file = config.DOCUMENTS_DIR / f"{license_id}_decrypted.pdf"
         
         print(f"\n📥 Downloading PDF for {license_id}...")
-        print(f"   User: {username} ({user_role})")
+        print(f"   User: {user['username']} ({user['role']})")
         print(f"   IPFS Hash: {info['ipfs_hash']}")
         
         success = ipfs.download_and_decrypt(
@@ -420,7 +405,7 @@ async def download_pdf_endpoint(
         # Clean up
         output_file.unlink()
         
-        print(f"✅ PDF successfully decrypted and sent to user")
+        print(f"✅ PDF successfully decrypted and sent to {user['username']}")
         
         # Return as downloadable file
         return StreamingResponse(
@@ -441,36 +426,44 @@ async def download_pdf_endpoint(
 
 @app.get("/api/health")
 async def health_check():
-    """
-    System health check
-    
-    Returns:
-        Service status information
-    """
+    """System health check"""
     return {
         'status': 'healthy',
         'services': {
             'issuer': issuer is not None,
-            'ipfs': ipfs is not None
+            'ipfs': ipfs is not None,
+            'auth': auth_manager is not None
         },
         'timestamp': datetime.now().isoformat()
     }
-
+    
+@app.get("/qr-reader", response_class=HTMLResponse)
+async def qr_reader():
+    """Offline QR code reader page"""
+    html_file = Path("web/verify_qr_offline.html")
+    if html_file.exists():
+        return html_file.read_text(encoding='utf-8')
+    raise HTTPException(status_code=404, detail="QR reader not found")
 
 # ==================== MAIN ====================
 
 if __name__ == "__main__":
     import uvicorn
     
-    print("\n" + "="*60)
-    print("🚀 Starting Konya E-Ruhsat System")
-    print("="*60)
+    print("\n" + "="*70)
+    print("🚀 Starting Konya E-Ruhsat System v2.0")
+    print("="*70)
     print("\n📍 Endpoints:")
-    print("   • Main Page:        http://localhost:8000")
-    print("   • IPFS Explorer:    http://localhost:8000/ipfs_explorer.html")
-    print("   • Blockchain:       http://localhost:8000/blockchain_explorer.html")
-    print("   • API Docs:         http://localhost:8000/docs")
-    print("\n" + "="*60 + "\n")
+    print("   • Main Page:         http://localhost:8000")
+    print("   • Login:             http://localhost:8000/login.html")
+    print("   • IPFS Explorer:     http://localhost:8000/ipfs_explorer.html")
+    print("   • Blockchain:        http://localhost:8000/blockchain_explorer.html")
+    print("   • QR Gallery:        http://localhost:8000/qr-gallery")
+    print("   • API Docs:          http://localhost:8000/docs")
+    print("\n👤 Default Users:")
+    print("   • admin / admin123")
+    print("   • zabita / zabita123")
+    print("\n" + "="*70 + "\n")
     
     uvicorn.run(
         app, 

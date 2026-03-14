@@ -1,0 +1,72 @@
+{
+  "2024-KON-001": {
+    "license_id": "2024-KON-001",
+    "license_type": "Restoran İşletme Ruhsatı",
+    "owner_name": " Ahmet Yılmaz",
+    "citizen_id": "12345678901",
+    "region": "Selçuklu",
+    "issue_date": "2020-08-28",
+    "expiry_date": "2026-08-28",
+    "status": "ACTIVE",
+    "issuer": "did:indy:konya:KBB",
+    "issued_at": "2026-03-15T00:41:22.716830",
+    "revoked": false,
+    "contract_version": "1.0"
+  },
+  "2024-KON-002": {
+    "license_id": "2024-KON-002",
+    "license_type": "Cafe İşletme Ruhsatı",
+    "owner_name": " Ahmet Yılmaz",
+    "citizen_id": "12345678901",
+    "region": "Selçuklu",
+    "issue_date": "2020-08-28",
+    "expiry_date": "2026-08-28",
+    "status": "ACTIVE",
+    "issuer": "did:indy:konya:KBB",
+    "issued_at": "2026-03-15T00:54:56.515765",
+    "revoked": false,
+    "contract_version": "1.0"
+  },
+  "2024-KON-003": {
+    "license_id": "2024-KON-003",
+    "license_type": "Cafe İşletme Ruhsatı",
+    "owner_name": " Ahmet Yılmaz",
+    "citizen_id": "12345678901",
+    "region": "Selçuklu",
+    "issue_date": "2020-08-28",
+    "expiry_date": "2026-08-28",
+    "status": "ACTIVE",
+    "issuer": "did:indy:konya:KBB",
+    "issued_at": "2026-03-15T01:29:34.816754",
+    "revoked": false,
+    "contract_version": "1.0"
+  },
+  "2024-KON-008": {
+    "license_id": "2024-KON-008",
+    "license_type": "Cafe İşletme Ruhsatı",
+    "owner_name": " Ahmet Yılmaz",
+    "citizen_id": "12345678901",
+    "region": "Selçuklu",
+    "issue_date": "2020-08-28",
+    "expiry_date": "2026-08-28",
+    "status": "ACTIVE",
+    "issuer": "did:indy:konya:KBB",
+    "issued_at": "2026-03-15T01:30:04.461622",
+    "revoked": false,
+    "contract_version": "1.0"
+  },
+  "2024-KON-005": {
+    "license_id": "2024-KON-005",
+    "license_type": "Restoran İşletme Ruhsatı",
+    "owner_name": " Ahmet Yılmaz",
+    "citizen_id": "12345678901",
+    "region": "Meram",
+    "issue_date": "2020-08-28",
+    "expiry_date": "2026-08-28",
+    "status": "ACTIVE",
+    "issuer": "did:indy:konya:KBB",
+    "issued_at": "2026-03-15T01:32:58.953063",
+    "revoked": false,
+    "contract_version": "1.0"
+  }
+}

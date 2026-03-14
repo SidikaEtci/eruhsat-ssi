@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruhsat Doğrulama</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .verification-card {
+            background: white;
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .status-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .status-icon.valid {
+            color: #2ecc71;
+        }
+
+        .status-icon.invalid {
+            color: #e74c3c;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        .license-id {
+            background: #f0f0f0;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .info-grid {
+            text-align: left;
+            margin: 30px 0;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .verified-badge {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: bold;
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .back-button {
+            margin-top: 20px;
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="verification-card">
+        <div id="loadingDiv" class="loading">
+            <div class="spinner"></div>
+            <p>Ruhsat doğrulanıyor...</p>
+        </div>
+
+        <div id="resultDiv" style="display: none;">
+            <!-- Content will be inserted by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Get license ID from URL
+        const pathParts = window.location.pathname.split('/');
+        const licenseId = pathParts[pathParts.length - 1];
+
+        async function verifyLicense() {
+            try {
+                const response = await fetch(`/api/verify/${licenseId}`);
+                const data = await response.json();
+
+                document.getElementById('loadingDiv').style.display = 'none';
+                const resultDiv = document.getElementById('resultDiv');
+                resultDiv.style.display = 'block';
+
+                if (data.valid) {
+                    resultDiv.innerHTML = `
+                        <div class="status-icon valid">✅</div>
+                        <h1>Ruhsat Geçerli</h1>
+                        <div class="license-id">${data.data.license_id}</div>
+                        
+                        <div class="info-grid">
+                            <div class="info-row">
+                                <span class="info-label">Ruhsat Türü:</span>
+                                <span class="info-value">${data.data.license_type}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Bölge:</span>
+                                <span class="info-value">${data.data.region}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Düzenleyen:</span>
+                                <span class="info-value">${data.data.authority}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Geçerlilik:</span>
+                                <span class="info-value">${data.data.expiry_date}</span>
+                            </div>
+                        </div>
+
+                        <div class="verified-badge">
+                            🛡️ Blockchain ile Doğrulanmıştır
+                        </div>
+
+                        <a href="/" class="back-button">Ana Sayfaya Dön</a>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="status-icon invalid">❌</div>
+                        <h1>Ruhsat Bulunamadı</h1>
+                        <div class="license-id">${licenseId}</div>
+                        <p style="color: #666; margin: 20px 0;">
+                            Bu ruhsat numarası sistemde kayıtlı değil veya iptal edilmiş olabilir.
+                        </p>
+                        <a href="/" class="back-button">Ana Sayfaya Dön</a>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('loadingDiv').style.display = 'none';
+                document.getElementById('resultDiv').innerHTML = `
+                    <div class="status-icon invalid">⚠️</div>
+                    <h1>Doğrulama Hatası</h1>
+                    <p style="color: #666; margin: 20px 0;">
+                        Ruhsat doğrulanamadı. Lütfen daha sonra tekrar deneyin.
+                    </p>
+                    <a href="/" class="back-button">Ana Sayfaya Dön</a>
+                `;
+                document.getElementById('resultDiv').style.display = 'block';
+            }
+        }
+
+        verifyLicense();
+    </script>
+</body>
+</html>

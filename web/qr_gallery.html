@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Kod Galerisi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .back-link {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 15px;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .qr-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .qr-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .qr-card img {
+            width: 100%;
+            max-width: 250px;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .qr-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .qr-card p {
+            color: #666;
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+
+        .download-btn {
+            background: #2ecc71;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .download-btn:hover {
+            background: #27ae60;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 60px;
+            background: white;
+            border-radius: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 QR Kod Galerisi</h1>
+            <p>Verilen tüm ruhsatların QR kodları</p>
+            <a href="/" class="back-link">⬅️ Ana Sayfaya Dön</a>
+        </div>
+
+        <div class="gallery" id="qrGallery">
+            <div class="empty">Yükleniyor...</div>
+        </div>
+    </div>
+
+    <script>
+        async function loadQRCodes() {
+            try {
+                const response = await fetch('/api/licenses');
+                const data = await response.json();
+
+                const gallery = document.getElementById('qrGallery');
+
+                if (data.licenses.length === 0) {
+                    gallery.innerHTML = '<div class="empty">Henüz QR kod yok</div>';
+                    return;
+                }
+
+                let html = '';
+                data.licenses.forEach(license => {
+                    html += `
+                        <div class="qr-card">
+                            <h3>${license.license_id}</h3>
+                            <p><strong>${license.license_type}</strong></p>
+                            <p>${license.owner_name}</p>
+                            <p>Bölge: ${license.region}</p>
+                            <img src="/api/qr/${license.license_id}" alt="QR Code">
+                            <p style="font-size: 0.8em; color: #999;">
+                                QR kodunu tarat → Ruhsat bilgilerini gör
+                            </p>
+                            <a href="/api/qr/${license.license_id}" download="${license.license_id}.png" class="download-btn">
+                                📥 İndir
+                            </a>
+                        </div>
+                    `;
+                });
+
+                gallery.innerHTML = html;
+            } catch (error) {
+                document.getElementById('qrGallery').innerHTML = 
+                    '<div class="empty">Hata: ' + error.message + '</div>';
+            }
+        }
+
+        loadQRCodes();
+    </script>
+</body>
+</html>

@@ -1,26 +1,22 @@
-# Blockchain & Identity
-python3-indy==1.16.0.post286
-indy-vdr==0.4.2
-indy-credx==1.1.1
-aries-askar==0.3.2
+# Core dependencies
+indy-vdr==0.3.3
+indy-credx==1.0.0
+aries-askar==0.3.0
 
 # IPFS
 ipfshttpclient==0.8.0a2
 
 # Cryptography
-cryptography==41.0.7
-pycryptodome==3.19.0
+cryptography>=41.0.0
 
 # QR Code
-qrcode==7.4.2
-Pillow==10.1.0
+qrcode[pil]>=7.4.2
+Pillow>=10.0.0
 
 # Web Framework
-fastapi==0.108.0
-uvicorn==0.25.0
-pydantic==2.5.3
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
 
 # Utilities
-python-dotenv==1.0.0
-requests==2.31.0
-python-multipart
+python-dotenv>=1.0.0

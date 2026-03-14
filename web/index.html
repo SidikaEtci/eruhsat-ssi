@@ -43,6 +43,33 @@
             font-size: 1.1em;
         }
 
+        #userStatus {
+            margin-top: 15px;
+        }
+
+        .user-info {
+            background: #d4edda;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: inline-block;
+            color: #155724;
+        }
+
+        .logout-btn {
+            margin-left: 15px;
+            padding: 5px 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+
         .header-links {
             margin-top: 20px;
             display: flex;
@@ -65,6 +92,11 @@
         .header-links a:nth-child(2) {
             background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
             box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .header-links a:nth-child(3) {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
         }
 
         .header-links a:hover {
@@ -256,15 +288,27 @@
             <h1>🏛️ Konya E-Ruhsat Sistemi</h1>
             <p>Blockchain Tabanlı Dijital Ruhsat Yönetimi</p>
             
-            <div class="header-links">
-                <a href="/web/ipfs_explorer.html" target="_blank">
-                    🗂️ IPFS Explorer
-                </a>
-                <a href="/web/blockchain_explorer.html" target="_blank">
-                    ⛓️ Blockchain Explorer
+            <!-- User Status -->
+            <div id="userStatus">
+                <a href="/login.html" class="btn" style="display: inline-block; padding: 8px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 5px;">
+                    🔐 Giriş Yap
                 </a>
             </div>
-        </div>
+            
+            <div class="header-links">
+                <a href="/ipfs_explorer.html" target="_blank">
+                    🗂️ IPFS Explorer
+                </a>
+                <a href="/blockchain_explorer.html" target="_blank">
+                    ⛓️ Blockchain Explorer
+                </a>
+                <a href="/qr-gallery" target="_blank">
+                    📱 QR Kodlar
+                </a>
+                <a href="/qr-reader" target="_blank" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);">
+                    📷 QR Okuyucu
+                </a>
+            </div>
 
         <div class="main-content">
             <!-- Issue License Card -->
@@ -370,6 +414,44 @@
     </div>
 
     <script>
+        // Check login status
+        window.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('auth_token');
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            
+            const statusDiv = document.getElementById('userStatus');
+            
+            if (token && user) {
+                statusDiv.innerHTML = `
+                    <div class="user-info">
+                        👤 <strong>${user.name}</strong> (${user.role === 'admin' ? 'Yönetici' : 'Zabıta'})
+                        <button onclick="logout()" class="logout-btn">Çıkış</button>
+                    </div>
+                `;
+            }
+        });
+        
+        async function logout() {
+            const token = localStorage.getItem('auth_token');
+            
+            if (token) {
+                try {
+                    await fetch('/api/logout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `token=${token}`
+                    });
+                } catch (e) {
+                    console.error('Logout error:', e);
+                }
+            }
+            
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user');
+            
+            window.location.reload();
+        }
+
         // Issue License Form
         document.getElementById('issueForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -393,7 +475,7 @@
                 // Hide loading
                 document.getElementById('issueLoading').style.display = 'none';
                 
-                if (data.success) {
+                if (response.ok && data.success) {
                     // Show success
                     const resultDiv = document.getElementById('issueResult');
                     resultDiv.className = 'result success';
@@ -401,7 +483,10 @@
                     resultDiv.innerHTML = `
                         <h3>✅ ${data.message}</h3>
                         <p><strong>Ruhsat No:</strong> ${formData.get('license_id')}</p>
-                        ${data.data.ipfs_hash ? `<p><strong>IPFS Hash:</strong> ${data.data.ipfs_hash}</p>` : ''}
+                        ${data.data.ipfs_hash ? `<p><strong>IPFS Hash:</strong> ${data.data.ipfs_hash.substring(0, 20)}...</p>` : ''}
+                        <div style="background: #d4edda; padding: 10px; border-radius: 5px; margin-top: 10px; border-left: 4px solid #28a745;">
+                            <strong>🤖 Smart Contract:</strong> Tüm iş kuralları geçildi ✓
+                        </div>
                     `;
                     
                     // Show QR code
@@ -416,14 +501,101 @@
                     // Refresh license list
                     loadLicenses();
                 } else {
-                    throw new Error(data.message || 'İşlem başarısız');
+                    // Smart Contract or other error
+                    throw new Error(data.detail || data.message || 'İşlem başarısız');
                 }
             } catch (error) {
                 document.getElementById('issueLoading').style.display = 'none';
                 const resultDiv = document.getElementById('issueResult');
                 resultDiv.className = 'result error';
                 resultDiv.style.display = 'block';
-                resultDiv.innerHTML = `<h3>❌ Hata</h3><p>${error.message}</p>`;
+                
+                // Parse error message to identify Smart Contract errors
+                const errorMsg = error.message;
+                let displayHTML = '';
+                
+                if (errorMsg.includes('Smart Contract:')) {
+                    // Smart Contract error - show detailed explanation
+                    const contractError = errorMsg.replace('Smart Contract: ', '');
+                    
+                    displayHTML = `
+                        <h3>🤖 Akıllı Sözleşme Hatası</h3>
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #ffc107;">
+                            <p style="font-size: 1.1em; margin-bottom: 10px;">
+                                <strong>❌ ${contractError}</strong>
+                            </p>
+                        </div>
+                    `;
+                    
+                    // Add specific guidance based on error type
+                    if (contractError.includes('zaten sistemde kayıtlı')) {
+                        displayHTML += `
+                            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                                <p><strong>💡 Çözüm:</strong></p>
+                                <ul style="margin: 10px 0; padding-left: 20px;">
+                                    <li>Farklı bir ruhsat numarası kullanın</li>
+                                    <li>Örnek: <code>2024-KON-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}</code></li>
+                                </ul>
+                            </div>
+                        `;
+                    } else if (contractError.includes('tarih')) {
+                        displayHTML += `
+                            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                                <p><strong>💡 Çözüm:</strong></p>
+                                <ul style="margin: 10px 0; padding-left: 20px;">
+                                    <li>Geçerlilik tarihi, düzenlenme tarihinden SONRA olmalı</li>
+                                    <li>Tarih formatı doğru olmalı (YYYY-MM-DD)</li>
+                                </ul>
+                            </div>
+                        `;
+                    } else if (contractError.includes('TC Kimlik')) {
+                        displayHTML += `
+                            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                                <p><strong>💡 Çözüm:</strong></p>
+                                <ul style="margin: 10px 0; padding-left: 20px;">
+                                    <li>TC Kimlik numarası tam olarak 11 haneli olmalı</li>
+                                    <li>Sadece rakam içermelidir</li>
+                                    <li>Örnek: 12345678901</li>
+                                </ul>
+                            </div>
+                        `;
+                    } else if (contractError.includes('Eksik alanlar')) {
+                        displayHTML += `
+                            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                                <p><strong>💡 Çözüm:</strong></p>
+                                <ul style="margin: 10px 0; padding-left: 20px;">
+                                    <li>Tüm zorunlu alanları doldurun</li>
+                                    <li>Yıldız (*) ile işaretli alanlar zorunludur</li>
+                                </ul>
+                            </div>
+                        `;
+                    } else if (contractError.includes('yetkili değil')) {
+                        displayHTML += `
+                            <div style="background: #ffebee; padding: 15px; border-radius: 8px; border-left: 4px solid #f44336;">
+                                <p><strong>🔒 Yetkilendirme Hatası:</strong></p>
+                                <p style="margin: 10px 0;">Bu işlem için yetkiniz yok. Sadece yetkili kurumlar ruhsat verebilir.</p>
+                            </div>
+                        `;
+                    }
+                    
+                    displayHTML += `
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                            <p style="color: #666; font-size: 0.9em;">
+                                <strong>ℹ️ Akıllı Sözleşme Nedir?</strong><br>
+                                Blockchain üzerinde çalışan otomatik kural kontrol sistemidir. 
+                                Hatalı veya yanlış veri girilmesini engeller.
+                            </p>
+                        </div>
+                    `;
+                } else {
+                    // Generic error
+                    displayHTML = `
+                        <h3>❌ Hata</h3>
+                        <p style="margin: 15px 0; font-size: 1.1em;">${errorMsg}</p>
+                    `;
+                }
+                
+                resultDiv.innerHTML = displayHTML;
             }
         });
 
@@ -463,7 +635,7 @@
                         <p><strong>Bölge:</strong> ${data.data.region}</p>
                         <p><strong>Geçerlilik:</strong> ${data.data.expiry_date}</p>
                         ${data.data.ipfs_hash ? `
-                            <p><strong>IPFS Hash:</strong> <code style="font-size: 0.8em; background: #f0f0f0; padding: 2px 5px; border-radius: 3px;">${data.data.ipfs_hash}</code></p>
+                            <p><strong>IPFS Hash:</strong> <code style="font-size: 0.8em; background: #f0f0f0; padding: 2px 5px; border-radius: 3px;">${data.data.ipfs_hash.substring(0, 30)}...</code></p>
                             <p style="color: #e74c3c; margin-top: 10px;">
                                 ⚠️ Belge IPFS'te AES-256 ile şifreli olarak saklanmaktadır
                             </p>
@@ -489,38 +661,37 @@
 
         // Download PDF Function
         async function downloadPDF(licenseId) {
-            // Ask for credentials
-            const username = prompt("Kullanıcı Adı:\n\nvatandas (sınırlı erişim)\nzabita (tam erişim)\nadmin (tam erişim)", "zabita");
+            // Get token
+            const token = localStorage.getItem('auth_token');
             
-            if (!username) {
-                alert("İptal edildi");
-                return;
-            }
-            
-            const password = prompt("Şifre:", "zabita123");
-            
-            if (!password) {
-                alert("İptal edildi");
+            if (!token) {
+                alert('⚠️ PDF indirmek için giriş yapmalısınız');
+                window.location.href = '/login.html';
                 return;
             }
             
             try {
-                // Show loading
                 const btn = event.target;
                 const originalText = btn.textContent;
                 btn.textContent = '⏳ İndiriliyor ve şifre çözülüyor...';
                 btn.disabled = true;
                 
-                // Send download request
                 const formData = new FormData();
                 formData.append('license_id', licenseId);
-                formData.append('username', username);
-                formData.append('password', password);
+                formData.append('token', token);
                 
                 const response = await fetch('/api/download-pdf', {
                     method: 'POST',
                     body: formData
                 });
+                
+                if (response.status === 401) {
+                    localStorage.removeItem('auth_token');
+                    localStorage.removeItem('user');
+                    alert('⚠️ Oturumunuz sona erdi. Lütfen tekrar giriş yapın.');
+                    window.location.href = '/login.html';
+                    return;
+                }
                 
                 if (!response.ok) {
                     const error = await response.json();
