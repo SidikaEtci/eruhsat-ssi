@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruhsat Doğrulama</title>
+    <title>E-Ruhsat Doğrulama</title>
     <style>
         * {
             margin: 0;
@@ -21,85 +21,16 @@
             padding: 20px;
         }
 
-        .verification-card {
+        .container {
             background: white;
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
             padding: 40px;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            text-align: center;
         }
 
-        .status-icon {
-            font-size: 80px;
-            margin-bottom: 20px;
-        }
-
-        .status-icon.valid {
-            color: #2ecc71;
-        }
-
-        .status-icon.invalid {
-            color: #e74c3c;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 1.8em;
-        }
-
-        .license-id {
-            background: #f0f0f0;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-family: 'Courier New', monospace;
-            font-size: 1.2em;
-            color: #667eea;
-            margin: 20px 0;
-        }
-
-        .info-grid {
-            text-align: left;
-            margin: 30px 0;
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .info-row:last-child {
-            border-bottom: none;
-        }
-
-        .info-label {
-            font-weight: 600;
-            color: #666;
-        }
-
-        .info-value {
-            color: #333;
-            font-weight: 500;
-        }
-
-        .verified-badge {
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-weight: bold;
-            margin-top: 20px;
-            display: inline-block;
-        }
-
-        .loading {
+        .loader {
             text-align: center;
             padding: 40px;
         }
@@ -119,31 +50,124 @@
             100% { transform: rotate(360deg); }
         }
 
-        .back-button {
-            margin-top: 20px;
+        .status-icon {
+            font-size: 80px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .info-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #667eea;
+            min-width: 140px;
+        }
+
+        .info-value {
+            color: #333;
+            flex: 1;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #856404;
+        }
+
+        .btn {
             display: inline-block;
             background: #667eea;
             color: white;
             padding: 12px 30px;
             border-radius: 8px;
             text-decoration: none;
+            text-align: center;
+            margin: 10px 5px;
             transition: transform 0.2s;
         }
 
-        .back-button:hover {
+        .btn:hover {
+            background: #5568d3;
             transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .blockchain-badge {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        .footer-note {
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
         }
     </style>
 </head>
 <body>
-    <div class="verification-card">
-        <div id="loadingDiv" class="loading">
+    <div class="container">
+        <div id="loader" class="loader">
             <div class="spinner"></div>
             <p>Ruhsat doğrulanıyor...</p>
         </div>
 
-        <div id="resultDiv" style="display: none;">
-            <!-- Content will be inserted by JavaScript -->
+        <div id="content" style="display: none;">
+            <!-- Content will be loaded here -->
         </div>
     </div>
 
@@ -152,71 +176,157 @@
         const pathParts = window.location.pathname.split('/');
         const licenseId = pathParts[pathParts.length - 1];
 
+        // Fetch license data
         async function verifyLicense() {
             try {
                 const response = await fetch(`/api/verify/${licenseId}`);
                 const data = await response.json();
 
-                document.getElementById('loadingDiv').style.display = 'none';
-                const resultDiv = document.getElementById('resultDiv');
-                resultDiv.style.display = 'block';
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
 
                 if (data.valid) {
-                    resultDiv.innerHTML = `
-                        <div class="status-icon valid">✅</div>
-                        <h1>Ruhsat Geçerli</h1>
-                        <div class="license-id">${data.data.license_id}</div>
-                        
-                        <div class="info-grid">
-                            <div class="info-row">
-                                <span class="info-label">Ruhsat Türü:</span>
-                                <span class="info-value">${data.data.license_type}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">Bölge:</span>
-                                <span class="info-value">${data.data.region}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">Düzenleyen:</span>
-                                <span class="info-value">${data.data.authority}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">Geçerlilik:</span>
-                                <span class="info-value">${data.data.expiry_date}</span>
-                            </div>
-                        </div>
-
-                        <div class="verified-badge">
-                            🛡️ Blockchain ile Doğrulanmıştır
-                        </div>
-
-                        <a href="/" class="back-button">Ana Sayfaya Dön</a>
-                    `;
+                    showValid(data);
                 } else {
-                    resultDiv.innerHTML = `
-                        <div class="status-icon invalid">❌</div>
-                        <h1>Ruhsat Bulunamadı</h1>
-                        <div class="license-id">${licenseId}</div>
-                        <p style="color: #666; margin: 20px 0;">
-                            Bu ruhsat numarası sistemde kayıtlı değil veya iptal edilmiş olabilir.
-                        </p>
-                        <a href="/" class="back-button">Ana Sayfaya Dön</a>
-                    `;
+                    showInvalid(data);
                 }
             } catch (error) {
-                document.getElementById('loadingDiv').style.display = 'none';
-                document.getElementById('resultDiv').innerHTML = `
-                    <div class="status-icon invalid">⚠️</div>
-                    <h1>Doğrulama Hatası</h1>
-                    <p style="color: #666; margin: 20px 0;">
-                        Ruhsat doğrulanamadı. Lütfen daha sonra tekrar deneyin.
-                    </p>
-                    <a href="/" class="back-button">Ana Sayfaya Dön</a>
-                `;
-                document.getElementById('resultDiv').style.display = 'block';
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+                showError();
             }
         }
 
+        function showValid(data) {
+            const license = data.license;
+            const daysRemaining = Math.ceil((new Date(license.valid_until) - new Date()) / (1000 * 60 * 60 * 24));
+            
+            let statusAlert = '';
+            if (daysRemaining < 30) {
+                statusAlert = `<div class="alert alert-warning">⚠️ Dikkat: Ruhsatın süresi ${daysRemaining} gün içinde dolacak!</div>`;
+            } else {
+                statusAlert = `<div class="alert alert-success">✅ Ruhsat geçerli (${daysRemaining} gün kaldı)</div>`;
+            }
+
+            document.getElementById('content').innerHTML = `
+                <div class="status-icon">✅</div>
+                <h1>Ruhsat Geçerli</h1>
+
+                ${statusAlert}
+
+                <div class="info-card">
+                    <div class="info-row">
+                        <div class="info-label">🆔 Ruhsat No:</div>
+                        <div class="info-value"><strong>${license.license_id}</strong></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">🏢 İşletme Türü:</div>
+                        <div class="info-value">${license.license_type}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">📍 Bölge:</div>
+                        <div class="info-value">${license.region}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">📅 Başlangıç:</div>
+                        <div class="info-value">${formatDate(license.valid_from)}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">📅 Bitiş:</div>
+                        <div class="info-value">${formatDate(license.valid_until)}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">🏛️ Düzenleyen:</div>
+                        <div class="info-value">${license.authority}</div>
+                    </div>
+                </div>
+
+                <div class="blockchain-badge">
+                    🔐 Blockchain ile Doğrulandı
+                </div>
+
+                <div class="footer-note">
+                    <strong>🔒 Gizlilik Notu:</strong><br>
+                    İşletme sahibinin TC kimlik ve kişisel bilgileri privacy koruması için 
+                    bu sayfada gösterilmemektedir.
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <a href="/" class="btn">← Ana Sayfa</a>
+                    <a href="/qr-reader" class="btn btn-secondary">📷 QR Okuyucu</a>
+                </div>
+            `;
+        }
+
+        function showInvalid(data) {
+            let reason = '';
+            if (data.reason === 'not_found') {
+                reason = 'Bu ruhsat numarası sistemde kayıtlı değil.';
+            } else if (data.reason === 'expired') {
+                reason = 'Bu ruhsatın süresi dolmuş.';
+            } else if (data.reason === 'revoked') {
+                reason = 'Bu ruhsat iptal edilmiş.';
+            } else {
+                reason = 'Ruhsat geçersiz.';
+            }
+
+            document.getElementById('content').innerHTML = `
+                <div class="status-icon">❌</div>
+                <h1>Ruhsat Geçersiz</h1>
+
+                <div class="alert alert-error">
+                    <strong>❌ ${reason}</strong>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-row">
+                        <div class="info-label">🆔 Aranan Ruhsat:</div>
+                        <div class="info-value">${licenseId}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">📅 Kontrol Zamanı:</div>
+                        <div class="info-value">${new Date().toLocaleString('tr-TR')}</div>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning">
+                    <strong>⚠️ Uyarı:</strong><br>
+                    Bu ruhsatla işletme yapılamaz. Lütfen belediye ile iletişime geçin.
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <a href="/" class="btn">← Ana Sayfa</a>
+                </div>
+            `;
+        }
+
+        function showError() {
+            document.getElementById('content').innerHTML = `
+                <div class="status-icon">⚠️</div>
+                <h1>Doğrulama Hatası</h1>
+
+                <div class="alert alert-error">
+                    <strong>Ruhsat doğrulanamadı.</strong><br>
+                    Lütfen internet bağlantınızı kontrol edin veya daha sonra tekrar deneyin.
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button onclick="location.reload()" class="btn">🔄 Tekrar Dene</button>
+                    <a href="/" class="btn btn-secondary">← Ana Sayfa</a>
+                </div>
+            `;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('tr-TR', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
+
+        // Run verification
         verifyLicense();
     </script>
 </body>

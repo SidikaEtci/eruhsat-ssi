@@ -99,6 +99,11 @@
             box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
         }
 
+        .header-links a:nth-child(4) {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
         .header-links a:hover {
             transform: translateY(-3px);
         }
@@ -300,15 +305,16 @@
                     🗂️ IPFS Explorer
                 </a>
                 <a href="/blockchain_explorer.html" target="_blank">
-                    ⛓️ Blockchain Explorer
+                    ⛓️ Blockchain
                 </a>
                 <a href="/qr-gallery" target="_blank">
                     📱 QR Kodlar
                 </a>
-                <a href="/qr-reader" target="_blank" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);">
+                <a href="/qr-reader" target="_blank">
                     📷 QR Okuyucu
                 </a>
             </div>
+        </div>
 
         <div class="main-content">
             <!-- Issue License Card -->
@@ -389,7 +395,7 @@
                 <form id="verifyForm">
                     <div class="form-group">
                         <label>Ruhsat No</label>
-                        <input type="text" name="verify_license_id" placeholder="Örn: 2024-KON-001" required>
+                        <input type="text" id="verifyLicenseId" name="verify_license_id" placeholder="Örn: 2024-KON-001" required>
                     </div>
 
                     <button type="submit" class="btn">🔎 Doğrula</button>
@@ -401,8 +407,6 @@
                 </div>
 
                 <div class="result" id="verifyResult"></div>
-
-                <div class="info-box" id="licenseInfo" style="display:none;"></div>
 
                 <!-- Recent Licenses -->
                 <div style="margin-top: 30px;">
@@ -603,12 +607,16 @@
         document.getElementById('verifyForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const licenseId = e.target.verify_license_id.value;
+            const licenseId = document.getElementById('verifyLicenseId').value.trim();
+            
+            if (!licenseId) {
+                alert('Lütfen ruhsat numarası girin');
+                return;
+            }
             
             // Show loading
             document.getElementById('verifyLoading').style.display = 'block';
             document.getElementById('verifyResult').style.display = 'none';
-            document.getElementById('licenseInfo').style.display = 'none';
             
             try {
                 const response = await fetch(`/api/verify/${licenseId}`);
@@ -617,47 +625,128 @@
                 // Hide loading
                 document.getElementById('verifyLoading').style.display = 'none';
                 
+                // Show result
                 const resultDiv = document.getElementById('verifyResult');
                 resultDiv.style.display = 'block';
                 
                 if (data.valid) {
-                    resultDiv.className = 'result success';
-                    resultDiv.innerHTML = `<h3>✅ Ruhsat Geçerli</h3>`;
+                    // Valid license
+                    const license = data.license;
+                    const expiryDate = new Date(license.valid_until);
+                    const now = new Date();
+                    const daysRemaining = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
                     
-                    // Show info
-                    const infoDiv = document.getElementById('licenseInfo');
-                    infoDiv.style.display = 'block';
-                    infoDiv.innerHTML = `
-                        <h4>📋 Ruhsat Bilgileri</h4>
-                        <p><strong>Ruhsat No:</strong> ${data.data.license_id}</p>
-                        <p><strong>Tür:</strong> ${data.data.license_type}</p>
-                        <p><strong>Sahibi:</strong> ${data.data.owner_name}</p>
-                        <p><strong>Bölge:</strong> ${data.data.region}</p>
-                        <p><strong>Geçerlilik:</strong> ${data.data.expiry_date}</p>
-                        ${data.data.ipfs_hash ? `
-                            <p><strong>IPFS Hash:</strong> <code style="font-size: 0.8em; background: #f0f0f0; padding: 2px 5px; border-radius: 3px;">${data.data.ipfs_hash.substring(0, 30)}...</code></p>
-                            <p style="color: #e74c3c; margin-top: 10px;">
-                                ⚠️ Belge IPFS'te AES-256 ile şifreli olarak saklanmaktadır
+                    let statusBadge = '';
+                    if (daysRemaining < 30) {
+                        statusBadge = `<span style="background: #ffc107; color: white; padding: 5px 10px; border-radius: 5px;">⚠️ ${daysRemaining} gün kaldı</span>`;
+                    } else {
+                        statusBadge = `<span style="background: #28a745; color: white; padding: 5px 10px; border-radius: 5px;">✅ ${daysRemaining} gün geçerli</span>`;
+                    }
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="font-size: 60px; margin-bottom: 10px;">✅</div>
+                            <h3 style="margin-bottom: 10px;">Ruhsat Geçerli</h3>
+                            ${statusBadge}
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                            <p style="margin: 8px 0;"><strong>🆔 Ruhsat No:</strong> ${license.license_id}</p>
+                            <p style="margin: 8px 0;"><strong>🏢 İşletme Türü:</strong> ${license.license_type}</p>
+                            <p style="margin: 8px 0;"><strong>📍 Bölge:</strong> ${license.region}</p>
+                            <p style="margin: 8px 0;"><strong>📅 Başlangıç:</strong> ${formatDate(license.valid_from)}</p>
+                            <p style="margin: 8px 0;"><strong>📅 Bitiş:</strong> ${formatDate(license.valid_until)}</p>
+                            <p style="margin: 8px 0;"><strong>🏛️ Düzenleyen:</strong> ${license.authority}</p>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+                            <a href="/verify-qr/${license.license_id}" target="_blank" 
+                               style="background: #667eea; color: white; padding: 12px 20px; border-radius: 5px; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center;">
+                                📄 Detaylı Görünüm
+                            </a>
+                            <button onclick="downloadPDF('${license.license_id}')" 
+                                    style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
+                                🔐 PDF İndir
+                            </button>
+                        </div>
+                        
+                        <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #ffc107;">
+                            <p style="color: #856404; font-size: 0.9em; margin: 0;">
+                                <strong>ℹ️ PDF İndirme:</strong> IPFS'ten şifreli PDF'i indirir ve otomatik çözer. Sadece yetkili kullanıcılar (zabıta/yönetici) erişebilir.
                             </p>
-                            <div style="margin-top: 15px;">
-                                <button onclick="downloadPDF('${data.data.license_id}')" class="btn" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
-                                    📄 PDF Belgesini İndir (Yetkili Girişi Gerekli)
-                                </button>
-                            </div>
-                        ` : '<p style="color: #999; margin-top: 10px;">Bu ruhsat için PDF belgesi yok</p>'}
+                        </div>
                     `;
                 } else {
+                    // Invalid license
+                    let reason = 'Ruhsat geçersiz';
+                    let icon = '❌';
+                    
+                    if (data.reason === 'not_found') {
+                        reason = 'Bu ruhsat numarası sistemde kayıtlı değil';
+                        icon = '🔍';
+                    } else if (data.reason === 'expired') {
+                        reason = 'Ruhsatın süresi dolmuş';
+                        icon = '⏰';
+                    } else if (data.reason === 'revoked') {
+                        reason = 'Ruhsat iptal edilmiş';
+                        icon = '🚫';
+                    }
+                    
                     resultDiv.className = 'result error';
-                    resultDiv.innerHTML = `<h3>❌ Ruhsat Bulunamadı</h3><p>${data.message}</p>`;
+                    resultDiv.innerHTML = `
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="font-size: 60px; margin-bottom: 10px;">${icon}</div>
+                            <h3>${reason}</h3>
+                        </div>
+                        
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107;">
+                            <p style="margin: 0;">
+                                <strong>⚠️ Uyarı:</strong> Bu ruhsatla işletme yapılamaz.
+                            </p>
+                        </div>
+                        
+                        ${data.license ? `
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                                <p style="margin: 8px 0;"><strong>🆔 Ruhsat No:</strong> ${data.license.license_id}</p>
+                                ${data.license.license_type ? `<p style="margin: 8px 0;"><strong>🏢 Tür:</strong> ${data.license.license_type}</p>` : ''}
+                                ${data.license.valid_until ? `<p style="margin: 8px 0;"><strong>📅 Son Geçerlilik:</strong> ${formatDate(data.license.valid_until)}</p>` : ''}
+                            </div>
+                        ` : ''}
+                    `;
                 }
+                
             } catch (error) {
                 document.getElementById('verifyLoading').style.display = 'none';
                 const resultDiv = document.getElementById('verifyResult');
                 resultDiv.className = 'result error';
                 resultDiv.style.display = 'block';
-                resultDiv.innerHTML = `<h3>❌ Hata</h3><p>${error.message}</p>`;
+                resultDiv.innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 60px; margin-bottom: 10px;">⚠️</div>
+                        <h3>Bağlantı Hatası</h3>
+                        <p style="margin: 15px 0; color: #666;">
+                            Ruhsat doğrulanamadı. Lütfen internet bağlantınızı kontrol edin.
+                        </p>
+                        <button onclick="document.getElementById('verifyForm').dispatchEvent(new Event('submit'))" 
+                                style="background: #667eea; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                            🔄 Tekrar Dene
+                        </button>
+                    </div>
+                `;
             }
         });
+
+        // Helper function for date formatting
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('tr-TR', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
 
         // Download PDF Function
         async function downloadPDF(licenseId) {
@@ -665,15 +754,16 @@
             const token = localStorage.getItem('auth_token');
             
             if (!token) {
-                alert('⚠️ PDF indirmek için giriş yapmalısınız');
+                alert('⚠️ PDF indirmek için giriş yapmalısınız\n\nSadece yetkili kullanıcılar (zabıta/yönetici) PDF indirebilir.');
                 window.location.href = '/login.html';
                 return;
             }
             
             try {
+                // Find and disable button
                 const btn = event.target;
                 const originalText = btn.textContent;
-                btn.textContent = '⏳ İndiriliyor ve şifre çözülüyor...';
+                btn.textContent = '⏳ İndiriliyor...';
                 btn.disabled = true;
                 
                 const formData = new FormData();
@@ -703,7 +793,7 @@
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `${licenseId}.pdf`;
+                a.download = `ruhsat_${licenseId}.pdf`;
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
@@ -713,15 +803,16 @@
                 btn.textContent = originalText;
                 btn.disabled = false;
                 
-                alert('✅ PDF başarıyla indirildi ve şifresi çözüldü!\n\nİndirilen dosya artık orijinal halinde açılabilir.');
+                alert('✅ PDF başarıyla indirildi!\n\n📄 IPFS\'ten şifreli PDF çekildi ve otomatik çözüldü.\n🔓 Dosya artık normal PDF olarak açılabilir.');
                 
             } catch (error) {
                 alert('❌ Hata: ' + error.message);
                 
                 // Reset button
-                const btn = event.target;
-                btn.textContent = '📄 PDF Belgesini İndir (Yetkili Girişi Gerekli)';
-                btn.disabled = false;
+                if (event.target) {
+                    event.target.textContent = '🔐 PDF İndir';
+                    event.target.disabled = false;
+                }
             }
         }
 
@@ -739,7 +830,7 @@
                 }
                 
                 listDiv.innerHTML = data.licenses.slice(-10).reverse().map(lic => `
-                    <div class="license-item" onclick="document.getElementById('verifyForm').verify_license_id.value = '${lic.license_id}'; document.getElementById('verifyForm').dispatchEvent(new Event('submit'));">
+                    <div class="license-item" onclick="fillVerifyForm('${lic.license_id}')">
                         <strong>${lic.license_id}</strong> - ${lic.license_type}<br>
                         <small>${lic.owner_name} | ${lic.region}</small>
                     </div>
@@ -747,6 +838,13 @@
             } catch (error) {
                 console.error('Error loading licenses:', error);
             }
+        }
+
+        // Fill verify form and submit
+        function fillVerifyForm(licenseId) {
+            const input = document.getElementById('verifyLicenseId');
+            input.value = licenseId;
+            document.getElementById('verifyForm').dispatchEvent(new Event('submit'));
         }
 
         // Load licenses on page load

@@ -298,5 +298,251 @@
     },
     "previous_hash": "584580fee8d68603dbf82cbdd3cdb54782d0097c284d4ae99f12599edec392fb",
     "hash": "3c1325cf7d9a4f15288fe9f73d64630db684bafa0026ed40ca429f5cd3ee5562"
+  },
+  {
+    "block_number": 11,
+    "timestamp": "2026-03-22T14:11:38.661888",
+    "data": {
+      "action": "ISSUE_LICENSE",
+      "credential": {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://konya.gov.tr/credentials/v1"
+        ],
+        "type": [
+          "VerifiableCredential",
+          "LicenseCredential"
+        ],
+        "issuer": {
+          "id": "did:indy:konya:KBB",
+          "name": "Konya Buyuksehir Belediyesi"
+        },
+        "issuanceDate": "2026-03-22T14:11:37.884661Z",
+        "expirationDate": "2027-03-22T14:11:37.884672Z",
+        "credentialSubject": {
+          "id": "did:indy:konya:254aa248acb47dd6",
+          "licenseId": "2024-KON-009",
+          "licenseType": "Restoran İşletme Ruhsatı",
+          "region": "Meram",
+          "validFrom": "2020-08-28",
+          "validUntil": "2026-08-28"
+        },
+        "proof": {
+          "type": "Ed25519Signature2020",
+          "created": "2026-03-22T14:11:37.896463Z",
+          "verificationMethod": "did:indy:konya:KBB#keys-1",
+          "proofPurpose": "assertionMethod",
+          "proofValue": "nlP+lYDF6XNFvBFy1VHPZUepmWh8CNPsvDRKd5bQ0ELbt5f/4ImGz7UReglqr0Q80Xn37vIOeo/wdLtZFzr+Cw=="
+        }
+      },
+      "ipfs_hash": "QmNtJ2U8HSE1N2pkS63nMPeZDRFL8XSXSzQHS1U2FPdeX4"
+    },
+    "previous_hash": "3c1325cf7d9a4f15288fe9f73d64630db684bafa0026ed40ca429f5cd3ee5562",
+    "hash": "aefab2b7cdf0af50f36f5dc4023458616a5d6e86411fdcc53be37196b5f317ba"
+  },
+  {
+    "block_number": 12,
+    "timestamp": "2026-03-22T14:26:46.795548",
+    "data": {
+      "action": "ISSUE_LICENSE",
+      "credential": {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://konya.gov.tr/credentials/v1"
+        ],
+        "type": [
+          "VerifiableCredential",
+          "LicenseCredential"
+        ],
+        "issuer": {
+          "id": "did:indy:konya:KBB",
+          "name": "Konya Buyuksehir Belediyesi"
+        },
+        "issuanceDate": "2026-03-22T14:26:46.686265Z",
+        "expirationDate": "2027-03-22T14:26:46.686296Z",
+        "credentialSubject": {
+          "id": "did:indy:konya:254aa248acb47dd6",
+          "licenseId": "2024-KON-010",
+          "licenseType": "Restoran İşletme Ruhsatı",
+          "region": "Meram",
+          "validFrom": "2020-08-28",
+          "validUntil": "2026-08-28"
+        },
+        "proof": {
+          "type": "Ed25519Signature2020",
+          "created": "2026-03-22T14:26:46.687072Z",
+          "verificationMethod": "did:indy:konya:KBB#keys-1",
+          "proofPurpose": "assertionMethod",
+          "proofValue": "XTap/CMT9Yvx88AiS4XHw0YjYAYyDwZEbRUuRlQ9GbV0H3GlCVsjzlrYRgxHovjpCTytn8NabeHE60ZNKXNBCA=="
+        }
+      },
+      "ipfs_hash": "QmTumV7EHxQ2aTj8D7YMYuFmSmZyz8Kw4Gx779NwFnZo24"
+    },
+    "previous_hash": "aefab2b7cdf0af50f36f5dc4023458616a5d6e86411fdcc53be37196b5f317ba",
+    "hash": "c6064e54ccd63f586e47b5a2726bbc48b95ed8d2190f1c8e782908e3a766e73a"
+  },
+  {
+    "block_number": 13,
+    "timestamp": "2026-03-22T14:35:48.178482",
+    "data": {
+      "action": "ISSUE_LICENSE",
+      "credential": {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://konya.gov.tr/credentials/v1"
+        ],
+        "type": [
+          "VerifiableCredential",
+          "LicenseCredential"
+        ],
+        "issuer": {
+          "id": "did:indy:konya:KBB",
+          "name": "Konya Buyuksehir Belediyesi"
+        },
+        "issuanceDate": "2026-03-22T14:35:48.041873Z",
+        "expirationDate": "2027-03-22T14:35:48.041886Z",
+        "credentialSubject": {
+          "id": "did:indy:konya:254aa248acb47dd6",
+          "licenseId": "2024-KON-011",
+          "licenseType": "Restoran İşletme Ruhsatı",
+          "region": "Karatay",
+          "validFrom": "2020-08-28",
+          "validUntil": "2026-08-28"
+        },
+        "proof": {
+          "type": "Ed25519Signature2020",
+          "created": "2026-03-22T14:35:48.042698Z",
+          "verificationMethod": "did:indy:konya:KBB#keys-1",
+          "proofPurpose": "assertionMethod",
+          "proofValue": "doKJ0OIfFGRU2qOyvKFrtQzGd5e5BT8+DzkrVM3hf65PG0oRkzW9BAo/Fy8P0cU/7XlVkpa3Uq3jzbDSdUl4Aw=="
+        }
+      },
+      "ipfs_hash": "QmaFVQuqpYEx1A8k8RrDvTZbNBmCbgaBpzAb73rc8B23TD"
+    },
+    "previous_hash": "c6064e54ccd63f586e47b5a2726bbc48b95ed8d2190f1c8e782908e3a766e73a",
+    "hash": "6ccd36301d2ae688a334e78e287c9f63aeb6641301e2f9b29cbb8688801db1b5"
+  },
+  {
+    "block_number": 14,
+    "timestamp": "2026-03-22T21:09:55.813253",
+    "data": {
+      "action": "ISSUE_LICENSE",
+      "credential": {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://konya.gov.tr/credentials/v1"
+        ],
+        "type": [
+          "VerifiableCredential",
+          "LicenseCredential"
+        ],
+        "issuer": {
+          "id": "did:indy:konya:KBB",
+          "name": "Konya Buyuksehir Belediyesi"
+        },
+        "issuanceDate": "2026-03-22T21:09:55.628767Z",
+        "expirationDate": "2027-03-22T21:09:55.628795Z",
+        "credentialSubject": {
+          "id": "did:indy:konya:254aa248acb47dd6",
+          "licenseId": "2024-KON-012",
+          "licenseType": "İşyeri Açma Ruhsatı",
+          "region": "Selçuklu",
+          "validFrom": "2020-08-28",
+          "validUntil": "2026-08-28"
+        },
+        "proof": {
+          "type": "Ed25519Signature2020",
+          "created": "2026-03-22T21:09:55.629960Z",
+          "verificationMethod": "did:indy:konya:KBB#keys-1",
+          "proofPurpose": "assertionMethod",
+          "proofValue": "rG3UCExIJGkKkaEf+Cw5GWIxiXJmAX77/Hlgc2jRcpYm3J/54y8NsvOnMROJ7Lq1AZ50QY8oFFpPxkzmPlfYBA=="
+        }
+      },
+      "ipfs_hash": "QmbFqDttsrhs2wAYMrbU2n8yUsA81WCiSb1YbuLwwFr17h"
+    },
+    "previous_hash": "6ccd36301d2ae688a334e78e287c9f63aeb6641301e2f9b29cbb8688801db1b5",
+    "hash": "2eb66493164222759ae616ba662e9b96265de3646f32f5c2ebaa0061a847951f"
+  },
+  {
+    "block_number": 15,
+    "timestamp": "2026-03-22T21:20:47.402710",
+    "data": {
+      "action": "ISSUE_LICENSE",
+      "credential": {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://konya.gov.tr/credentials/v1"
+        ],
+        "type": [
+          "VerifiableCredential",
+          "LicenseCredential"
+        ],
+        "issuer": {
+          "id": "did:indy:konya:KBB",
+          "name": "Konya Buyuksehir Belediyesi"
+        },
+        "issuanceDate": "2026-03-22T21:20:47.291383Z",
+        "expirationDate": "2027-03-22T21:20:47.291392Z",
+        "credentialSubject": {
+          "id": "did:indy:konya:254aa248acb47dd6",
+          "licenseId": "2024-KON-013",
+          "licenseType": "Restoran İşletme Ruhsatı",
+          "region": "Meram",
+          "validFrom": "2020-08-28",
+          "validUntil": "2026-08-28"
+        },
+        "proof": {
+          "type": "Ed25519Signature2020",
+          "created": "2026-03-22T21:20:47.292098Z",
+          "verificationMethod": "did:indy:konya:KBB#keys-1",
+          "proofPurpose": "assertionMethod",
+          "proofValue": "qvkqmznfTug0cSZfM+DwuxBX+pHAGEuf+tH/fR60B5+g421/1EAv0IKjTlQzh1tZnUsjA62xhX4TwBcSzt62Dg=="
+        }
+      },
+      "ipfs_hash": "QmQVxakwFamF3WW3MstzYTWBs7HERQ3SvsKmqJBCjmWWRt"
+    },
+    "previous_hash": "2eb66493164222759ae616ba662e9b96265de3646f32f5c2ebaa0061a847951f",
+    "hash": "0436e6141a086832cba88923e1f22127501c794bb777de76dfd066335a9309aa"
+  },
+  {
+    "block_number": 16,
+    "timestamp": "2026-03-22T22:33:30.095893",
+    "data": {
+      "action": "ISSUE_LICENSE",
+      "credential": {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://konya.gov.tr/credentials/v1"
+        ],
+        "type": [
+          "VerifiableCredential",
+          "LicenseCredential"
+        ],
+        "issuer": {
+          "id": "did:indy:konya:KBB",
+          "name": "Konya Buyuksehir Belediyesi"
+        },
+        "issuanceDate": "2026-03-22T22:33:29.980561Z",
+        "expirationDate": "2027-03-22T22:33:29.980578Z",
+        "credentialSubject": {
+          "id": "did:indy:konya:254aa248acb47dd6",
+          "licenseId": "2024-KON-014",
+          "licenseType": "Restoran İşletme Ruhsatı",
+          "region": "Meram",
+          "validFrom": "2020-08-28",
+          "validUntil": "2026-08-28"
+        },
+        "proof": {
+          "type": "Ed25519Signature2020",
+          "created": "2026-03-22T22:33:29.981537Z",
+          "verificationMethod": "did:indy:konya:KBB#keys-1",
+          "proofPurpose": "assertionMethod",
+          "proofValue": "CFiwaZhxVy9S5GeV4lcVs9rc5caFsoeGmoOowiPbx0NZ4SVnrFzL6fBIteQzeGg8XJnZGWp57djuVrjD9DRKCQ=="
+        }
+      },
+      "ipfs_hash": "QmXNsowaAYonajiUA7Vd2fQvC9eSR51gaWsDwgXBLs8yam"
+    },
+    "previous_hash": "0436e6141a086832cba88923e1f22127501c794bb777de76dfd066335a9309aa",
+    "hash": "dbbe6bd7a441d04d0c5e0033012fb79244c9f79613829f7aae7c08a467588477"
   }
 ]

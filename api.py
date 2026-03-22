@@ -96,11 +96,12 @@ async def blockchain_explorer():
 
 @app.get("/verify-qr/{license_id}", response_class=HTMLResponse)
 async def verify_qr_page(license_id: str):
-    """Serve QR verification page"""
+    """QR code verification page"""
     html_file = Path("web/verify_qr.html")
     if html_file.exists():
         return html_file.read_text(encoding='utf-8')
     raise HTTPException(status_code=404, detail="Verification page not found")
+
 
 
 @app.get("/qr-gallery", response_class=HTMLResponse)
@@ -211,43 +212,121 @@ async def issue_license(
         traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
 
-
 @app.get("/api/verify/{license_id}")
 async def verify_license(license_id: str):
-    """
-    Verify license by ID
-    
-    Uses Smart Contract verification
-    """
+    """API endpoint to verify license"""
     try:
-        # Smart Contract verification
-        contract_result = issuer.contract.verify_license(license_id)
+        # Get license info
+        license_info = issuer.get_license_info(license_id)
         
-        if contract_result["valid"]:
-            # Get full info
-            info = issuer.get_license_info(license_id)
-            
+        if not license_info:
             return {
-                'success': True,
-                'valid': True,
-                'data': info,
-                'message': contract_result["message"],
-                'contract_status': contract_result["status"]
+                "valid": False,
+                "reason": "not_found",
+                "message": "Ruhsat bulunamadı"
             }
-        else:
+        
+        # Check if revoked
+        if license_info.get('revoked', False):
             return {
-                'success': True,
-                'valid': False,
-                'message': contract_result["message"],
-                'contract_status': contract_result["status"]
+                "valid": False,
+                "reason": "revoked",
+                "message": "Ruhsat iptal edilmiş",
+                "license": license_info
             }
-    
+        
+        # Get dates - use actual field names from database
+        expiry_date_str = license_info.get('expiry_date')
+        issue_date_str = license_info.get('issue_date')
+        
+        if not expiry_date_str:
+            print(f"⚠️ Warning: No expiry_date in license {license_id}")
+            return {
+                "valid": True,
+                "message": "Ruhsat geçerli (süre bilgisi yok)",
+                "license": {
+                    "license_id": license_info.get('license_id'),
+                    "license_type": license_info.get('license_type'),
+                    "owner_name": license_info.get('owner_name'),
+                    "region": license_info.get('region'),
+                    "valid_from": issue_date_str,
+                    "valid_until": expiry_date_str,
+                    "authority": license_info.get('authority')
+                }
+            }
+        
+        # Parse expiry date
+        from datetime import datetime
+        
+        try:
+            # Try ISO format first
+            if 'T' in expiry_date_str or 'Z' in expiry_date_str:
+                expiry_date = datetime.fromisoformat(expiry_date_str.replace('Z', '+00:00'))
+            else:
+                # Simple date format
+                expiry_date = datetime.strptime(expiry_date_str, '%Y-%m-%d')
+        except Exception as e:
+            print(f"⚠️ Date parse error: {e}, trying another format...")
+            try:
+                # Try just the first 10 chars
+                expiry_date = datetime.strptime(expiry_date_str[:10], '%Y-%m-%d')
+            except:
+                print(f"❌ Cannot parse date: {expiry_date_str}")
+                # Return valid if can't parse
+                return {
+                    "valid": True,
+                    "message": "Ruhsat geçerli (tarih formatı hatalı)",
+                    "license": {
+                        "license_id": license_info.get('license_id'),
+                        "license_type": license_info.get('license_type'),
+                        "owner_name": license_info.get('owner_name'),
+                        "region": license_info.get('region'),
+                        "valid_from": issue_date_str,
+                        "valid_until": expiry_date_str,
+                        "authority": license_info.get('authority')
+                    }
+                }
+        
+        # Check if expired
+        now = datetime.now(expiry_date.tzinfo) if expiry_date.tzinfo else datetime.now()
+        
+        if now > expiry_date:
+            return {
+                "valid": False,
+                "reason": "expired",
+                "message": "Ruhsatın süresi dolmuş",
+                "license": {
+                    "license_id": license_info.get('license_id'),
+                    "license_type": license_info.get('license_type'),
+                    "owner_name": license_info.get('owner_name'),
+                    "region": license_info.get('region'),
+                    "valid_from": issue_date_str,
+                    "valid_until": expiry_date_str,
+                    "authority": license_info.get('authority')
+                }
+            }
+        
+        # Valid!
+        return {
+            "valid": True,
+            "message": "Ruhsat geçerli",
+            "license": {
+                "license_id": license_info.get('license_id'),
+                "license_type": license_info.get('license_type'),
+                "owner_name": license_info.get('owner_name'),
+                "region": license_info.get('region'),
+                "valid_from": issue_date_str,
+                "valid_until": expiry_date_str,
+                "authority": license_info.get('authority')
+            }
+        }
+        
     except Exception as e:
         import traceback
-        traceback.print_exc()
+        print(f"❌ Verification error: {e}")
+        print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
-
-
+        
 @app.get("/api/licenses")
 async def get_all_licenses():
     """Get all licenses from database"""

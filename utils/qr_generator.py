@@ -1,105 +1,112 @@
 """
-QR Code with Verifiable Credential
-Offline verification - no internet required
+QR Code Generator - Simple & Clean
 """
 import qrcode
 import json
 from pathlib import Path
 import config
-from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
 
 
 class QRCodeManager:
-    """Generate QR codes with Verifiable Credentials for offline verification"""
+    """Generate simple QR codes with essential info"""
     
     @staticmethod
     def generate_qr_code(credential: dict, license_id: str) -> str:
         """
-        Generate QR code containing Verifiable Credential
-        
-        QR contains FULL VC with cryptographic proof
-        Can be verified OFFLINE (no internet needed)
+        Generate clean QR code with:
+        - License number
+        - Validity period
+        - Digital signature
+        - Verification URL
         """
         
-        # Create compact VC for QR (remove unnecessary fields)
-        qr_credential = {
-            "@context": credential["@context"][0],
-            "type": credential["type"],
-            "issuer": {
-                "id": credential["issuer"]["id"],
-                "name": credential["issuer"]["name"]
-            },
-            "issuanceDate": credential["issuanceDate"],
-            "credentialSubject": {
-                "id": credential["credentialSubject"]["id"],
-                "licenseId": credential["credentialSubject"]["licenseId"],
-                "licenseType": credential["credentialSubject"]["licenseType"],
-                "region": credential["credentialSubject"]["region"],
-                "validFrom": credential["credentialSubject"]["validFrom"],
-                "validUntil": credential["credentialSubject"]["validUntil"]
-            },
-            "proof": {
-                "type": credential["proof"]["type"],
-                "created": credential["proof"]["created"],
-                "proofValue": credential["proof"]["proofValue"]
-            }
-        }
+        subject = credential["credentialSubject"]
         
-        # Convert to compact JSON (no whitespace)
-        qr_data = json.dumps(qr_credential, separators=(',', ':'), ensure_ascii=False)
+        # Create clean, readable text
+        qr_text = f"""━━━━━━━━━━━━━━━━━━━━━━━
+KONYA E-RUHSAT
+━━━━━━━━━━━━━━━━━━━━━━━
+
+🆔 Ruhsat No:
+{subject["licenseId"]}
+
+📅 Geçerlilik:
+{subject["validUntil"]}
+
+🔐 Dijital İmza:
+{credential["proof"]["proofValue"][:30]}...
+
+━━━━━━━━━━━━━━━━━━━━━━━
+✅ Online Doğrulama:
+http://localhost:8000/verify-qr/{subject["licenseId"]}
+
+📱 Herhangi bir QR okuyucu
+ile taranabilir.
+━━━━━━━━━━━━━━━━━━━━━━━"""
         
-        print(f"\n📏 QR Data Size: {len(qr_data)} bytes")
-        
-        # Generate QR code
+        # Generate QR
         qr = qrcode.QRCode(
-            version=None,  # Auto-size
+            version=None,
             error_correction=qrcode.constants.ERROR_CORRECT_M,
-            box_size=8,
+            box_size=7,
             border=4,
         )
         
-        qr.add_data(qr_data)
+        qr.add_data(qr_text)
         qr.make(fit=True)
         
         # Create image
         img = qr.make_image(fill_color="black", back_color="white")
         img = img.convert('RGB')
         
-        # Add label
-        draw = ImageDraw.Draw(img)
-        
-        try:
-            font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 14)
-        except:
-            font = ImageFont.load_default()
-        
-        # Add text
+        # Get size
         width, height = img.size
+        
+        # Add label at bottom
         new_img = Image.new('RGB', (width, height + 50), 'white')
         new_img.paste(img, (0, 0))
         
+        # Add text
         draw = ImageDraw.Draw(new_img)
         
-        # License ID
-        text1 = f"Ruhsat No: {license_id}"
-        bbox = draw.textbbox((0, 0), text1, font=font)
-        text_width = bbox[2] - bbox[0]
-        draw.text(((width - text_width) // 2, height + 5), text1, fill='black', font=font)
+        try:
+            font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 13)
+        except:
+            font = ImageFont.load_default()
         
-        # Offline verification label
-        text2 = "✓ Çevrimdışı Doğrulanabilir"
-        bbox2 = draw.textbbox((0, 0), text2, font=font)
-        text_width2 = bbox2[2] - bbox2[0]
-        draw.text(((width - text_width2) // 2, height + 25), text2, fill='green', font=font)
+        # License number
+        text1 = f"Ruhsat: {license_id}"
+        try:
+            bbox = draw.textbbox((0, 0), text1, font=font)
+            text_width = bbox[2] - bbox[0]
+        except:
+            text_width = len(text1) * 8
+        
+        draw.text(((width - text_width) // 2, height + 8), text1, fill='black', font=font)
+        
+        # URL hint
+        try:
+            font_small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 10)
+        except:
+            font_small = ImageFont.load_default()
+        
+        text2 = "Tarayın → Bilgileri Görün"
+        try:
+            bbox2 = draw.textbbox((0, 0), text2, font=font_small)
+            text_width2 = bbox2[2] - bbox2[0]
+        except:
+            text_width2 = len(text2) * 6
+        
+        draw.text(((width - text_width2) // 2, height + 30), text2, fill='#667eea', font=font_small)
         
         # Save
         qr_path = config.QR_CODES_DIR / f"{license_id}.png"
         new_img.save(qr_path)
         
-        print(f"✅ QR Code generated: {qr_path}")
-        print(f"   Contains: Verifiable Credential (offline verification)")
-        print(f"   Privacy: NO personal data (TC, name)")
+        print(f"\n✅ QR Code generated: {qr_path}")
+        print(f"   📱 Scannable with any QR reader")
+        print(f"   🔗 URL: http://localhost:8000/verify-qr/{license_id}")
         
         return str(qr_path)
     
