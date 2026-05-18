@@ -259,10 +259,10 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>⛓️ BLOCKCHAIN EXPLORER</h1>
+            <h1> ️ BLOCKCHAIN EXPLORER</h1>
             <p>Konya E-Ruhsat Distributed Ledger</p>
             <div style="text-align: center;">
-                <a href="/" class="back-link">⬅️ Ana Sayfaya Dön</a>
+                <a href="/" class="back-link">⬅ Ana Sayfaya Dön</a>
             </div>
         </div>
 
@@ -286,7 +286,7 @@
         </div>
 
         <div class="blocks-container">
-            <h2 style="color: #00ff00; margin-bottom: 20px; text-align: center;">📦 BLOCK ZİNCİRİ</h2>
+            <h2 style="color: #00ff00; margin-bottom: 20px; text-align: center;">  BLOCK ZİNCİRİ</h2>
             <div id="blocksContainer">
                 <div class="loading">
                     <div class="spinner"></div>
@@ -310,10 +310,10 @@
                 
                 if (data.stats.is_valid) {
                     validityCard.className = 'stat-card valid';
-                    validityStatus.textContent = '✅ GEÇERLİ';
+                    validityStatus.textContent = '   GEÇERLİ';
                 } else {
                     validityCard.className = 'stat-card invalid';
-                    validityStatus.textContent = '❌ GEÇERSİZ';
+                    validityStatus.textContent = '   GEÇERSİZ';
                 }
                 
                 if (data.stats.genesis_time) {
@@ -352,7 +352,7 @@
                         <div class="block ${isGenesis ? 'genesis' : ''}">
                             <div class="block-header">
                                 <div class="block-number">
-                                    ${isGenesis ? '🌟 GENESIS BLOCK' : '📦 Block #' + block.block_number}
+                                    ${isGenesis ? '  GENESIS BLOCK' : '  Block #' + block.block_number}
                                     ${isGenesis ? '<span class="info-badge">İLK BLOCK</span>' : ''}
                                 </div>
                                 <div class="block-time">
@@ -360,14 +360,14 @@
                                 </div>
                             </div>
                             
-                            <div class="hash-label">🔐 Block Hash:</div>
+                            <div class="hash-label">  Block Hash:</div>
                             <div class="hash">${block.hash}</div>
                             
-                            <div class="hash-label">🔗 Previous Hash:</div>
+                            <div class="hash-label">  Previous Hash:</div>
                             <div class="hash">${block.previous_hash}</div>
                             
                             <div class="block-data">
-                                <div class="hash-label">📊 Block Data:</div>
+                                <div class="hash-label">  Block Data:</div>
                                 <pre>${JSON.stringify(block.data, null, 2)}</pre>
                             </div>
                         </div>
@@ -383,7 +383,7 @@
                 
             } catch (error) {
                 document.getElementById('blocksContainer').innerHTML = 
-                    `<div class="loading">❌ Hata: ${error.message}<br><br>Backend çalışıyor mu kontrol edin.</div>`;
+                    `<div class="loading">   Hata: ${error.message}<br><br>Backend çalışıyor mu kontrol edin.</div>`;
             }
         }
 

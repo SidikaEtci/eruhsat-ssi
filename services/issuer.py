@@ -8,7 +8,7 @@ from utils.ipfs_manager import IPFSManager
 from utils.qr_generator import QRCodeManager
 from utils.blockchain_logger import BlockchainLogger
 from utils.verifiable_credentials import VerifiableCredentialManager
-from contracts.license_contract import LicenseSmartContract
+from contracts.license_contract import LicenseContract
 
 
 class LicenseIssuer:
@@ -22,9 +22,9 @@ class LicenseIssuer:
         self.ipfs = IPFSManager()
         self.blockchain = BlockchainLogger()
         self.vc_manager = VerifiableCredentialManager()
-        self.contract = LicenseSmartContract()
-        print("✅ License Issuer Initialized")
-        print("✅ Smart Contract initialized")
+        self.contract = LicenseContract()
+        print("   License Issuer Initialized")
+        print("   Smart Contract initialized")
 
     def issue_license(self, license_data: dict, pdf_path: str = None) -> dict:
         """Process and issue a new decentralized license"""
@@ -38,10 +38,10 @@ class LicenseIssuer:
         
         if not contract_result["success"]:
             # Business rules failed!
-            print(f"❌ Smart Contract Rejected: {contract_result['message']}")
+            print(f"   Smart Contract Rejected: {contract_result['message']}")
             raise Exception(f"Smart Contract: {contract_result['message']}")
         
-        print(f"✅ Smart Contract Approved")
+        print(f"   Smart Contract Approved")
 
         # Add authority info
         license_data['authority'] = config.ISSUER_NAME
@@ -58,7 +58,7 @@ class LicenseIssuer:
 
         # 2. Create Verifiable Credential (W3C Standard)
         credential = self.vc_manager.create_credential(license_data)
-        print("✅ Verifiable Credential created (privacy-preserving)")
+        print("   Verifiable Credential created (privacy-preserving)")
 
         # 3. Generate QR Code (with VC, NO sensitive data)
         qr_url = QRCodeManager.generate_qr_code(credential, license_data['license_id'])
@@ -100,21 +100,21 @@ class LicenseIssuer:
         with open(db_path, 'w', encoding='utf-8') as f:
             json.dump(db, f, indent=2, ensure_ascii=False)
         
-        print(f"✅ Saved to database: {data['license_id']}")
+        print(f"   Saved to database: {data['license_id']}")
 
     def get_license_info(self, license_id: str):
         """Get license information by ID"""
         db_path = config.DATA_DIR / "credentials.json"
         
         if not db_path.exists():
-            print(f"❌ Database not found: {db_path}")
+            print(f"   Database not found: {db_path}")
             return None
         
         try:
             with open(db_path, 'r', encoding='utf-8') as f:
                 db = json.load(f)
             
-            print(f"🔍 Searching for: '{license_id}'")
+            print(f"  Searching for: '{license_id}'")
             
             for item in db:
                 if not item:
@@ -123,12 +123,12 @@ class LicenseIssuer:
                 item_id = item.get('license_id', '')
                 
                 if str(item_id).strip() == str(license_id).strip():
-                    print(f"✅ Found: {license_id}")
+                    print(f"   Found: {license_id}")
                     return item
             
-            print(f"❌ Not found: {license_id}")
+            print(f"   Not found: {license_id}")
             return None
             
         except Exception as e:
-            print(f"❌ Database error: {e}")
+            print(f"   Database error: {e}")
             return None

@@ -13,7 +13,8 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: #f8fafc;
+            color: #334155;
             min-height: 100vh;
             padding: 20px;
         }
@@ -27,35 +28,38 @@
             background: white;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.06);
             text-align: center;
             margin-bottom: 30px;
+            border-top: 4px solid #0f172a;
         }
 
         .header h1 {
-            color: #1e3c72;
+            color: #0f172a;
             font-size: 2.5em;
             margin-bottom: 10px;
         }
 
         .header p {
-            color: #666;
+            color: #64748b;
             font-size: 1.1em;
             margin-bottom: 15px;
         }
 
         .back-link {
             display: inline-block;
-            background: #667eea;
+            background: #475569;
             color: white;
             padding: 10px 20px;
             border-radius: 8px;
             text-decoration: none;
-            transition: transform 0.2s;
+            transition: all 0.2s;
+            font-size: 0.95em;
         }
 
         .back-link:hover {
-            transform: translateY(-2px);
+            background: #334155;
+            transform: translateY(-1px);
         }
 
         .stats {
@@ -69,19 +73,21 @@
             background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
             text-align: center;
+            border: 1px solid #e2e8f0;
         }
 
         .stat-card h3 {
-            color: #666;
+            color: #64748b;
             font-size: 0.9em;
             margin-bottom: 10px;
             text-transform: uppercase;
+            tracking: 0.05em;
         }
 
         .stat-card .value {
-            color: #1e3c72;
+            color: #0f172a;
             font-size: 2em;
             font-weight: bold;
         }
@@ -90,46 +96,50 @@
             background: white;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
         }
 
         .file-list h2 {
-            color: #1e3c72;
+            color: #0f172a;
             margin-bottom: 20px;
-            border-bottom: 3px solid #1e3c72;
+            border-bottom: 2px solid #e2e8f0;
             padding-bottom: 10px;
+            font-size: 1.6em;
         }
 
         .file-item {
-            background: #f8f9fa;
+            background: #f8fafc;
             padding: 20px;
             margin-bottom: 15px;
             border-radius: 8px;
-            border-left: 5px solid #1e3c72;
-            transition: all 0.3s;
+            border-left: 5px solid #0f172a;
+            border: 1px solid #e2e8f0;
+            border-left-width: 5px;
+            transition: all 0.2s;
         }
 
         .file-item:hover {
-            background: #e9ecef;
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background: #f1f5f9;
+            transform: translateX(3px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
 
         .file-item h3 {
-            color: #1e3c72;
+            color: #0f172a;
             margin-bottom: 10px;
             font-size: 1.3em;
         }
 
         .file-item p {
-            color: #555;
+            color: #475569;
             margin: 5px 0;
             font-size: 0.95em;
         }
 
         .hash-code {
-            background: #1e3c72;
-            color: white;
+            background: #f1f5f9;
+            color: #0f172a;
             padding: 8px 12px;
             border-radius: 5px;
             font-family: 'Courier New', monospace;
@@ -137,10 +147,11 @@
             word-break: break-all;
             display: inline-block;
             margin-top: 5px;
+            border: 1px solid #e2e8f0;
         }
 
         .btn {
-            background: #1e3c72;
+            background: #0f172a;
             color: white;
             padding: 10px 20px;
             border: none;
@@ -149,46 +160,47 @@
             text-decoration: none;
             display: inline-block;
             margin: 5px 5px 5px 0;
-            transition: all 0.3s;
+            transition: all 0.2s;
             font-size: 0.9em;
         }
 
         .btn:hover {
-            background: #2a5298;
-            transform: translateY(-2px);
+            background: #1e293b;
+            transform: translateY(-1px);
         }
 
         .btn:disabled {
-            background: #999;
+            background: #cbd5e1;
+            color: #64748b;
             cursor: not-allowed;
         }
 
         .btn-danger {
-            background: #e74c3c;
+            background: #ef4444;
         }
 
         .btn-danger:hover {
-            background: #c0392b;
+            background: #dc2626;
         }
 
         .btn-success {
-            background: #2ecc71;
+            background: #10b981;
         }
 
         .btn-success:hover {
-            background: #27ae60;
+            background: #059669;
         }
 
         .loading {
             text-align: center;
             padding: 40px;
-            color: white;
+            color: #475569;
             font-size: 1.2em;
         }
 
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #1e3c72;
+            border: 4px solid #f1f5f9;
+            border-top: 4px solid #0f172a;
             border-radius: 50%;
             width: 50px;
             height: 50px;
@@ -204,16 +216,16 @@
         .empty {
             text-align: center;
             padding: 40px;
-            color: #999;
+            color: #64748b;
         }
 
         .warning-box {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
             border-radius: 5px;
-            padding: 10px;
-            margin-top: 10px;
-            color: #856404;
+            padding: 12px;
+            margin-top: 12px;
+            color: #78350f;
             font-size: 0.9em;
         }
 
@@ -234,6 +246,7 @@
                 display: block;
                 width: 100%;
                 margin: 5px 0;
+                text-align: center;
             }
         }
     </style>
@@ -241,9 +254,9 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🗂️ IPFS Belge Gezgini</h1>
+            <h1>IPFS Belge Gezgini</h1>
             <p>Şifreli Belgeler - IPFS Distributed Storage</p>
-            <a href="/" class="back-link">⬅️ Ana Sayfaya Dön</a>
+            <a href="/" class="back-link">Ana Sayfaya Dön</a>
         </div>
 
         <div class="stats" id="stats">
@@ -253,7 +266,7 @@
             </div>
             <div class="stat-card">
                 <h3>IPFS Bağlantısı</h3>
-                <div class="value" id="ipfsStatus">✅</div>
+                <div class="value" id="ipfsStatus" style="color: #10b981;">Aktif</div>
             </div>
             <div class="stat-card">
                 <h3>Son Güncelleme</h3>
@@ -262,7 +275,7 @@
         </div>
 
         <div class="file-list">
-            <h2>📄 IPFS'te Saklanan Belgeler</h2>
+            <h2>IPFS'te Saklanan Belgeler</h2>
             <div id="fileListContainer">
                 <div class="loading">
                     <div class="spinner"></div>
@@ -288,7 +301,7 @@
                 const container = document.getElementById('fileListContainer');
                 
                 if (data.files.length === 0) {
-                    container.innerHTML = '<div class="empty">📭 Henüz IPFS\'te belge yok</div>';
+                    container.innerHTML = '<div class="empty">Henüz IPFS\'te belge yok</div>';
                     return;
                 }
                 
@@ -296,7 +309,7 @@
                 data.files.forEach(file => {
                     html += `
                         <div class="file-item">
-                            <h3>📄 ${file.license_id}</h3>
+                            <h3>${file.license_id}</h3>
                             <p><strong>Tür:</strong> ${file.license_type}</p>
                             
                             <p style="margin-top: 10px;"><strong>IPFS Hash:</strong></p>
@@ -308,18 +321,18 @@
                             <p style="margin-top: 10px;"><strong>Yüklenme:</strong> ${new Date(file.created_at).toLocaleString('tr-TR')}</p>
                             
                             <div class="warning-box">
-                                ⚠️ <strong>Güvenlik:</strong> Bu belge AES-256 ile şifrelenmiştir. IPFS'ten indirilebilir ancak sadece yetkili kişiler açabilir.
+                                <strong>Güvenlik:</strong> Bu belge Asimetrik Hibrit Şifreleme (RSA-4096 ve AES) ile uçtan uca korunmaktadır. IPFS ağında tamamen şifreli saklanır ve sadece doğru kriptografik özel anahtara (Private Key) sahip dijital cüzdanlar/yetkililer tarafından çözülebilir.
                             </div>
                             
                             <div style="margin-top: 15px;">
                                 <a href="https://ipfs.io/ipfs/${file.ipfs_hash}" target="_blank" class="btn">
-                                    🌐 IPFS Gateway'de Görüntüle (Şifreli)
+                                    IPFS Gateway'de Görüntüle (Şifreli)
                                 </a>
                                 <a href="http://localhost:5001/webui#/files/ipfs/${file.ipfs_hash}" target="_blank" class="btn btn-success">
-                                    🔧 IPFS WebUI'da Aç
+                                    IPFS WebUI'da Aç
                                 </a>
                                 <button onclick="downloadFromIPFS('${file.license_id}')" class="btn btn-danger">
-                                    🔓 Şifresini Çöz ve İndir
+                                    Şifresini Çöz ve İndir
                                 </button>
                             </div>
                         </div>
@@ -329,20 +342,15 @@
                 container.innerHTML = html;
             } catch (error) {
                 document.getElementById('fileListContainer').innerHTML = 
-                    `<div class="empty">❌ Hata: ${error.message}</div>`;
+                    `<div class="empty">Hata: ${error.message}</div>`;
             }
         }
 
         // Download and decrypt from IPFS
         async function downloadFromIPFS(licenseId) {
-            const username = prompt("Kullanıcı Adı:\n\nzabita (yetkili erişim)\nadmin (tam erişim)", "zabita");
-            if (!username) {
-                alert("İptal edildi");
-                return;
-            }
-            
-            const password = prompt("Şifre:", "zabita123");
-            if (!password) {
+            // Swagger dökümanına göre username/password yerine doğrudan Token istiyoruz
+            const token = prompt("Lütfen Yetkilendirme Tokenini (Authentication Token) giriniz:");
+            if (!token) {
                 alert("İptal edildi");
                 return;
             }
@@ -350,23 +358,29 @@
             // Show loading on button
             const btn = event.target;
             const originalText = btn.textContent;
-            btn.textContent = '⏳ İndiriliyor ve şifre çözülüyor...';
+            btn.textContent = 'İndiriliyor ve şifre çözülüyor...';
             btn.disabled = true;
             
             try {
-                const formData = new FormData();
+                // Swagger'ın beklediği application/x-www-form-urlencoded formatını 
+                // tarayıcıda en doğru şekilde taklit etmek için URLSearchParams kullanılır.
+                const formData = new URLSearchParams();
                 formData.append('license_id', licenseId);
-                formData.append('username', username);
-                formData.append('password', password);
+                formData.append('token', token);
                 
                 const response = await fetch('/api/download-pdf', {
                     method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
                     body: formData
                 });
                 
                 if (!response.ok) {
                     const error = await response.json();
-                    throw new Error(error.detail);
+                    // Eğer backend hata detayını bir nesne olarak dönüyorsa onu string'e çeviriyoruz
+                    const errorMsg = typeof error.detail === 'object' ? JSON.stringify(error.detail) : error.detail;
+                    throw new Error(errorMsg || "Sunucu hatası oluştu");
                 }
                 
                 // Download file
@@ -384,14 +398,14 @@
                 btn.textContent = originalText;
                 btn.disabled = false;
                 
-                alert('✅ PDF başarıyla indirildi ve şifresi çözüldü!\n\nİndirilen dosya artık orijinal halinde açılabilir.');
+                alert('PDF başarıyla indirildi ve şifresi çözüldü!\n\nİndirilen dosya artık orijinal halinde açılabilir.');
                 
             } catch (error) {
                 // Reset button
                 btn.textContent = originalText;
                 btn.disabled = false;
                 
-                alert('❌ Hata: ' + error.message);
+                alert('Hata: ' + error.message);
             }
         }
 

@@ -138,7 +138,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>📱 QR Kod Okuyucu</h1>
+        <h1>  QR Kod Okuyucu</h1>
         <p class="subtitle">Verifiable Credential Doğrulama</p>
         <div style="text-align: center;">
             <span class="offline-badge">✓ Çevrimdışı Çalışır - İnternet Gerekmez</span>
@@ -227,44 +227,44 @@
                             </p>
                         </div>
                         <div class="vc-details">
-                            <p><strong>🆔 Ruhsat No:</strong> ${subject.licenseId}</p>
-                            <p><strong>🏢 İşletme Türü:</strong> ${subject.licenseType}</p>
-                            <p><strong>📍 Bölge:</strong> ${subject.region}</p>
-                            <p><strong>🏛️ Düzenleyen:</strong> ${vc.issuer.name}</p>
-                            <p><strong>📅 Geçerlilik Başlangıcı:</strong> ${formatDate(subject.validFrom)}</p>
+                            <p><strong>  Ruhsat No:</strong> ${subject.licenseId}</p>
+                            <p><strong>  İşletme Türü:</strong> ${subject.licenseType}</p>
+                            <p><strong>  Bölge:</strong> ${subject.region}</p>
+                            <p><strong> ️ Düzenleyen:</strong> ${vc.issuer.name}</p>
+                            <p><strong>  Geçerlilik Başlangıcı:</strong> ${formatDate(subject.validFrom)}</p>
                         </div>
                     `;
                 } else if (isExpired) {
                     resultDiv.innerHTML = `
                         <div style="text-align: center;">
-                            <div style="font-size: 80px; margin-bottom: 20px;">❌</div>
+                            <div style="font-size: 80px; margin-bottom: 20px;">  </div>
                             <h2 style="color: #dc3545; margin-bottom: 15px;">Ruhsatın Süresi Dolmuş</h2>
                             <p style="font-size: 1.1em; color: #666; margin-bottom: 20px;">
                                 Bu ruhsat ${subject.validUntil} tarihinde sona erdi
                             </p>
                         </div>
                         <div class="vc-details">
-                            <p><strong>🆔 Ruhsat No:</strong> ${subject.licenseId}</p>
-                            <p><strong>🏢 İşletme Türü:</strong> ${subject.licenseType}</p>
-                            <p><strong>📍 Bölge:</strong> ${subject.region}</p>
-                            <p><strong>🏛️ Düzenleyen:</strong> ${vc.issuer.name}</p>
-                            <p style="color: #dc3545;"><strong>⚠️ Sona Erme:</strong> ${formatDate(subject.validUntil)}</p>
+                            <p><strong>  Ruhsat No:</strong> ${subject.licenseId}</p>
+                            <p><strong>  İşletme Türü:</strong> ${subject.licenseType}</p>
+                            <p><strong>  Bölge:</strong> ${subject.region}</p>
+                            <p><strong> ️ Düzenleyen:</strong> ${vc.issuer.name}</p>
+                            <p style="color: #dc3545;"><strong> ️ Sona Erme:</strong> ${formatDate(subject.validUntil)}</p>
                         </div>
                         <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #ffc107;">
-                            <strong>⚠️ Uyarı:</strong> Bu ruhsatla işletme yapılamaz. Yenilenmesi gerekiyor.
+                            <strong> ️ Uyarı:</strong> Bu ruhsatla işletme yapılamaz. Yenilenmesi gerekiyor.
                         </div>
                     `;
                 } else {
                     // Valid license
                     const statusColor = daysRemaining < 30 ? '#e67e22' : '#28a745';
-                    const statusIcon = daysRemaining < 30 ? '⚠️' : '✅';
+                    const statusIcon = daysRemaining < 30 ? ' ️' : '  ';
                     const statusText = daysRemaining < 30 
                         ? `Dikkat: ${daysRemaining} gün sonra sona erecek!` 
                         : `${daysRemaining} gün daha geçerli`;
 
                     resultDiv.innerHTML = `
                         <div style="text-align: center;">
-                            <div style="font-size: 80px; margin-bottom: 20px;">✅</div>
+                            <div style="font-size: 80px; margin-bottom: 20px;">  </div>
                             <h2 style="color: #28a745; margin-bottom: 15px;">Ruhsat Geçerli</h2>
                             <p style="font-size: 1.2em; color: ${statusColor}; margin-bottom: 20px; font-weight: 600;">
                                 ${statusIcon} ${statusText}
@@ -273,48 +273,48 @@
                         
                         <div class="vc-details">
                             <h3 style="color: #667eea; margin-bottom: 15px; border-bottom: 2px solid #667eea; padding-bottom: 5px;">
-                                📋 Ruhsat Bilgileri
+                                  Ruhsat Bilgileri
                             </h3>
                             
                             <p style="font-size: 1.1em; margin: 12px 0;">
-                                <strong>🆔 Ruhsat No:</strong> 
+                                <strong>  Ruhsat No:</strong> 
                                 <span style="background: #f0f0f0; padding: 5px 10px; border-radius: 5px; font-family: monospace;">
                                     ${subject.licenseId}
                                 </span>
                             </p>
                             
                             <p style="font-size: 1.1em; margin: 12px 0;">
-                                <strong>🏢 İşletme Türü:</strong> ${subject.licenseType}
+                                <strong>  İşletme Türü:</strong> ${subject.licenseType}
                             </p>
                             
                             <p style="font-size: 1.1em; margin: 12px 0;">
-                                <strong>📍 Bölge:</strong> ${subject.region}
+                                <strong>  Bölge:</strong> ${subject.region}
                             </p>
                             
                             <p style="font-size: 1.1em; margin: 12px 0;">
-                                <strong>🏛️ Düzenleyen Kurum:</strong> ${vc.issuer.name}
+                                <strong> ️ Düzenleyen Kurum:</strong> ${vc.issuer.name}
                             </p>
                             
                             <div style="background: #e8f5e9; padding: 12px; border-radius: 8px; margin-top: 15px;">
-                                <p style="margin: 5px 0;"><strong>📅 Başlangıç:</strong> ${formatDate(subject.validFrom)}</p>
-                                <p style="margin: 5px 0;"><strong>📅 Bitiş:</strong> ${formatDate(subject.validUntil)}</p>
+                                <p style="margin: 5px 0;"><strong>  Başlangıç:</strong> ${formatDate(subject.validFrom)}</p>
+                                <p style="margin: 5px 0;"><strong>  Bitiş:</strong> ${formatDate(subject.validUntil)}</p>
                             </div>
                         </div>
                         
                         <div class="proof-verified">
-                            🔐 Blockchain ile Doğrulandı - Güvenilir
+                              Blockchain ile Doğrulandı - Güvenilir
                         </div>
                         
                         <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #ffc107;">
                             <p style="color: #856404; font-size: 0.9em; margin: 0;">
-                                <strong>🔒 Gizlilik:</strong> İşletme sahibinin TC kimlik ve kişisel bilgileri 
+                                <strong>  Gizlilik:</strong> İşletme sahibinin TC kimlik ve kişisel bilgileri 
                                 privacy koruması için QR kodda yer almamaktadır.
                             </p>
                         </div>
                         
                         <div style="text-align: center; margin-top: 20px;">
                             <button class="btn" onclick="location.reload()" style="width: auto; padding: 10px 30px;">
-                                🔄 Yeni QR Tarat
+                                  Yeni QR Tarat
                             </button>
                         </div>
                     `;
@@ -325,7 +325,7 @@
                 resultDiv.style.display = 'block';
                 resultDiv.innerHTML = `
                     <div style="text-align: center;">
-                        <div style="font-size: 60px; margin-bottom: 15px;">⚠️</div>
+                        <div style="font-size: 60px; margin-bottom: 15px;"> ️</div>
                         <h3 style="color: #dc3545;">QR Kod Okunamadı</h3>
                         <p style="margin: 15px 0; color: #666;">
                             ${error.message}
@@ -341,7 +341,7 @@
                             </ul>
                         </div>
                         <button class="btn" onclick="location.reload()" style="width: auto; padding: 10px 30px; margin-top: 15px;">
-                            🔄 Tekrar Dene
+                              Tekrar Dene
                         </button>
                     </div>
                 `;

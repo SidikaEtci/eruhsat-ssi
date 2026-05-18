@@ -152,5 +152,37 @@
     "issued_at": "2026-03-22T22:33:29.785759",
     "revoked": false,
     "contract_version": "1.0"
+  },
+  "2024-KON-016": {
+    "license_id": "2024-KON-016",
+    "license_type": "Restoran İşletme Ruhsatı",
+    "owner_name": " Ahmet Yılmaz",
+    "citizen_id": "12345678901",
+    "region": "Selçuklu",
+    "issue_date": "2020-08-28",
+    "expiry_date": "2026-08-28",
+    "status": "ACTIVE",
+    "issuer": "did:indy:konya:KBB",
+    "issued_at": "2026-03-23T13:35:32.553842",
+    "revoked": false,
+    "contract_version": "1.0"
+  },
+  "TEST-INTEGRATION-002": {
+    "license_id": "TEST-INTEGRATION-002",
+    "license_type": "Test",
+    "owner_name": "Test User",
+    "business_name": "Test Biz",
+    "address": "Test Addr",
+    "citizen_id": "12345678901",
+    "region": "Selçuklu",
+    "issue_date": "2024-01-01",
+    "expiry_date": "2025-01-01",
+    "status": "ACTIVE",
+    "issuer": "did:indy:konya:KBB",
+    "issued_at": "2026-05-17T22:09:39.955617",
+    "revoked": false,
+    "contract_version": "2.0",
+    "state_hash": "b8c4cc3193a90f66e754ecb46f3ba4880de25175db83113dfdc7257050a9cec7",
+    "encryption_applied": "RSA-2048/AES-GCM-256"
   }
 }

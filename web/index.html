@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Konya E-Ruhsat Sistemi</title>
+    <title>Konya E-License System</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ea669d 0%, #fff309 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -290,28 +290,28 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏛️ Konya E-Ruhsat Sistemi</h1>
-            <p>Blockchain Tabanlı Dijital Ruhsat Yönetimi</p>
+            <h1>Konya E-License System</h1>
+            <p>Blockchain-Based Digital License Management</p>
             
             <!-- User Status -->
             <div id="userStatus">
                 <a href="/login.html" class="btn" style="display: inline-block; padding: 8px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 5px;">
-                    🔐 Giriş Yap
+                      Sign In
                 </a>
             </div>
             
             <div class="header-links">
                 <a href="/ipfs_explorer.html" target="_blank">
-                    🗂️ IPFS Explorer
+                     ️ IPFS Explorer
                 </a>
                 <a href="/blockchain_explorer.html" target="_blank">
-                    ⛓️ Blockchain
+                     ️ Blockchain
                 </a>
                 <a href="/qr-gallery" target="_blank">
-                    📱 QR Kodlar
+                      QR Codes
                 </a>
                 <a href="/qr-reader" target="_blank">
-                    📷 QR Okuyucu
+                      QR Reader
                 </a>
             </div>
         </div>
@@ -319,27 +319,31 @@
         <div class="main-content">
             <!-- Issue License Card -->
             <div class="card">
-                <h2>📜 Yeni Ruhsat Ver</h2>
+                <h2>Issue New License</h2>
                 <form id="issueForm">
                     <div class="form-group">
-                        <label>Ruhsat No *</label>
-                        <input type="text" name="license_id" placeholder="Örn: 2024-KON-001" required>
+                        <label>License No *</label>
+                        <input type="text" name="license_id" placeholder="e.g. 2024-KON-001" required>
                     </div>
 
                     <div class="form-group">
-                        <label>Ruhsat Türü *</label>
+                        <label>License Type *</label>
                         <select name="license_type" required>
-                            <option value="">Seçiniz...</option>
-                            <option value="Restoran İşletme Ruhsatı">Restoran İşletme Ruhsatı</option>
-                            <option value="Cafe İşletme Ruhsatı">Cafe İşletme Ruhsatı</option>
-                            <option value="Gıda İşletmesi Ruhsatı">Gıda İşletmesi Ruhsatı</option>
-                            <option value="İşyeri Açma Ruhsatı">İşyeri Açma Ruhsatı</option>
+                            <option value="">Select...</option>
+                            <option value="Restaurant Operating License">Restaurant Operating License</option>
+                            <option value="Cafe Operating License">Cafe Operating License</option>
+                            <option value="Food Business License">Food Business License</option>
+                            <option value="Business Opening License">Business Opening License</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label>İşletme Sahibi *</label>
                         <input type="text" name="owner_name" placeholder="Ad Soyad" required>
+                    </div>
+                    <div class="form-group">
+                        <label>İşletme Adı *</label>
+                        <input type="text" name="business_name" placeholder="Örn: Meram Kebap Salonu" required>
                     </div>
 
                     <div class="form-group">
@@ -356,7 +360,12 @@
                             <option value="Karatay">Karatay</option>
                         </select>
                     </div>
-
+                    <div class="form-group">
+                        <label>Adres *</label>
+                        <textarea name="address" placeholder="Tam adres..." rows="3" 
+                                  style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; font-family: inherit;" 
+                                  required></textarea>
+                    </div>
                     <div class="form-group">
                         <label>Verilme Tarihi *</label>
                         <input type="date" name="issue_date" required>
@@ -372,7 +381,7 @@
                         <input type="file" name="pdf_file" accept=".pdf">
                     </div>
 
-                    <button type="submit" class="btn">🚀 Ruhsat Ver</button>
+                    <button type="submit" class="btn">  Ruhsat Ver</button>
                 </form>
 
                 <div class="loading" id="issueLoading">
@@ -391,14 +400,14 @@
 
             <!-- Verify License Card -->
             <div class="card">
-                <h2>🔍 Ruhsat Doğrula</h2>
+                <h2>  Ruhsat Doğrula</h2>
                 <form id="verifyForm">
                     <div class="form-group">
                         <label>Ruhsat No</label>
                         <input type="text" id="verifyLicenseId" name="verify_license_id" placeholder="Örn: 2024-KON-001" required>
                     </div>
 
-                    <button type="submit" class="btn">🔎 Doğrula</button>
+                    <button type="submit" class="btn">  Doğrula</button>
                 </form>
 
                 <div class="loading" id="verifyLoading">
@@ -428,7 +437,7 @@
             if (token && user) {
                 statusDiv.innerHTML = `
                     <div class="user-info">
-                        👤 <strong>${user.name}</strong> (${user.role === 'admin' ? 'Yönetici' : 'Zabıta'})
+                          <strong>${user.name}</strong> (${user.role === 'admin' ? 'Yönetici' : 'Zabıta'})
                         <button onclick="logout()" class="logout-btn">Çıkış</button>
                     </div>
                 `;
@@ -485,11 +494,11 @@
                     resultDiv.className = 'result success';
                     resultDiv.style.display = 'block';
                     resultDiv.innerHTML = `
-                        <h3>✅ ${data.message}</h3>
+                        <h3>   ${data.message}</h3>
                         <p><strong>Ruhsat No:</strong> ${formData.get('license_id')}</p>
                         ${data.data.ipfs_hash ? `<p><strong>IPFS Hash:</strong> ${data.data.ipfs_hash.substring(0, 20)}...</p>` : ''}
                         <div style="background: #d4edda; padding: 10px; border-radius: 5px; margin-top: 10px; border-left: 4px solid #28a745;">
-                            <strong>🤖 Smart Contract:</strong> Tüm iş kuralları geçildi ✓
+                            <strong>  Smart Contract:</strong> Tüm iş kuralları geçildi ✓
                         </div>
                     `;
                     
@@ -523,10 +532,10 @@
                     const contractError = errorMsg.replace('Smart Contract: ', '');
                     
                     displayHTML = `
-                        <h3>🤖 Akıllı Sözleşme Hatası</h3>
+                        <h3>  Akıllı Sözleşme Hatası</h3>
                         <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #ffc107;">
                             <p style="font-size: 1.1em; margin-bottom: 10px;">
-                                <strong>❌ ${contractError}</strong>
+                                <strong>   ${contractError}</strong>
                             </p>
                         </div>
                     `;
@@ -535,7 +544,7 @@
                     if (contractError.includes('zaten sistemde kayıtlı')) {
                         displayHTML += `
                             <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3;">
-                                <p><strong>💡 Çözüm:</strong></p>
+                                <p><strong>  Çözüm:</strong></p>
                                 <ul style="margin: 10px 0; padding-left: 20px;">
                                     <li>Farklı bir ruhsat numarası kullanın</li>
                                     <li>Örnek: <code>2024-KON-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}</code></li>
@@ -545,7 +554,7 @@
                     } else if (contractError.includes('tarih')) {
                         displayHTML += `
                             <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3;">
-                                <p><strong>💡 Çözüm:</strong></p>
+                                <p><strong>  Çözüm:</strong></p>
                                 <ul style="margin: 10px 0; padding-left: 20px;">
                                     <li>Geçerlilik tarihi, düzenlenme tarihinden SONRA olmalı</li>
                                     <li>Tarih formatı doğru olmalı (YYYY-MM-DD)</li>
@@ -555,7 +564,7 @@
                     } else if (contractError.includes('TC Kimlik')) {
                         displayHTML += `
                             <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3;">
-                                <p><strong>💡 Çözüm:</strong></p>
+                                <p><strong>  Çözüm:</strong></p>
                                 <ul style="margin: 10px 0; padding-left: 20px;">
                                     <li>TC Kimlik numarası tam olarak 11 haneli olmalı</li>
                                     <li>Sadece rakam içermelidir</li>
@@ -566,7 +575,7 @@
                     } else if (contractError.includes('Eksik alanlar')) {
                         displayHTML += `
                             <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3;">
-                                <p><strong>💡 Çözüm:</strong></p>
+                                <p><strong>  Çözüm:</strong></p>
                                 <ul style="margin: 10px 0; padding-left: 20px;">
                                     <li>Tüm zorunlu alanları doldurun</li>
                                     <li>Yıldız (*) ile işaretli alanlar zorunludur</li>
@@ -576,7 +585,7 @@
                     } else if (contractError.includes('yetkili değil')) {
                         displayHTML += `
                             <div style="background: #ffebee; padding: 15px; border-radius: 8px; border-left: 4px solid #f44336;">
-                                <p><strong>🔒 Yetkilendirme Hatası:</strong></p>
+                                <p><strong>  Yetkilendirme Hatası:</strong></p>
                                 <p style="margin: 10px 0;">Bu işlem için yetkiniz yok. Sadece yetkili kurumlar ruhsat verebilir.</p>
                             </div>
                         `;
@@ -594,7 +603,7 @@
                 } else {
                     // Generic error
                     displayHTML = `
-                        <h3>❌ Hata</h3>
+                        <h3>   Hata</h3>
                         <p style="margin: 15px 0; font-size: 1.1em;">${errorMsg}</p>
                     `;
                 }
@@ -638,36 +647,39 @@
                     
                     let statusBadge = '';
                     if (daysRemaining < 30) {
-                        statusBadge = `<span style="background: #ffc107; color: white; padding: 5px 10px; border-radius: 5px;">⚠️ ${daysRemaining} gün kaldı</span>`;
+                        statusBadge = `<span style="background: #ffc107; color: white; padding: 5px 10px; border-radius: 5px;"> ️ ${daysRemaining} gün kaldı</span>`;
                     } else {
-                        statusBadge = `<span style="background: #28a745; color: white; padding: 5px 10px; border-radius: 5px;">✅ ${daysRemaining} gün geçerli</span>`;
+                        statusBadge = `<span style="background: #28a745; color: white; padding: 5px 10px; border-radius: 5px;">   ${daysRemaining} gün geçerli</span>`;
                     }
                     
                     resultDiv.className = 'result success';
                     resultDiv.innerHTML = `
                         <div style="text-align: center; margin-bottom: 20px;">
-                            <div style="font-size: 60px; margin-bottom: 10px;">✅</div>
+                            <div style="font-size: 60px; margin-bottom: 10px;">  </div>
                             <h3 style="margin-bottom: 10px;">Ruhsat Geçerli</h3>
                             ${statusBadge}
                         </div>
                         
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                            <p style="margin: 8px 0;"><strong>🆔 Ruhsat No:</strong> ${license.license_id}</p>
-                            <p style="margin: 8px 0;"><strong>🏢 İşletme Türü:</strong> ${license.license_type}</p>
-                            <p style="margin: 8px 0;"><strong>📍 Bölge:</strong> ${license.region}</p>
-                            <p style="margin: 8px 0;"><strong>📅 Başlangıç:</strong> ${formatDate(license.valid_from)}</p>
-                            <p style="margin: 8px 0;"><strong>📅 Bitiş:</strong> ${formatDate(license.valid_until)}</p>
-                            <p style="margin: 8px 0;"><strong>🏛️ Düzenleyen:</strong> ${license.authority}</p>
+                            <p style="margin: 8px 0;"><strong>  Ruhsat No:</strong> ${license.license_id}</p>
+                            <p style="margin: 8px 0;"><strong>  İşletme Adı:</strong> ${license.business_name}</p>
+                            <p style="margin: 8px 0;"><strong>  İşletme Türü:</strong> ${license.license_type}</p>
+                            <p style="margin: 8px 0;"><strong>  İşletme Sahibi:</strong> ${license.owner_name}</p>
+                            <p style="margin: 8px 0;"><strong>  Bölge:</strong> ${license.region}</p>
+                            <p style="margin: 8px 0;"><strong>  Adres:</strong> ${license.address}</p>
+                            <p style="margin: 8px 0;"><strong>  Başlangıç:</strong> ${formatDate(license.valid_from)}</p>
+                            <p style="margin: 8px 0;"><strong>  Bitiş:</strong> ${formatDate(license.valid_until)}</p>
+                            <p style="margin: 8px 0;"><strong> ️ Düzenleyen:</strong> ${license.authority}</p>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
                             <a href="/verify-qr/${license.license_id}" target="_blank" 
                                style="background: #667eea; color: white; padding: 12px 20px; border-radius: 5px; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center;">
-                                📄 Detaylı Görünüm
+                                  Detaylı Görünüm
                             </a>
                             <button onclick="downloadPDF('${license.license_id}')" 
                                     style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: transform 0.2s;">
-                                🔐 PDF İndir
+                                  PDF İndir
                             </button>
                         </div>
                         
@@ -680,17 +692,17 @@
                 } else {
                     // Invalid license
                     let reason = 'Ruhsat geçersiz';
-                    let icon = '❌';
+                    let icon = '  ';
                     
                     if (data.reason === 'not_found') {
                         reason = 'Bu ruhsat numarası sistemde kayıtlı değil';
-                        icon = '🔍';
+                        icon = ' ';
                     } else if (data.reason === 'expired') {
                         reason = 'Ruhsatın süresi dolmuş';
                         icon = '⏰';
                     } else if (data.reason === 'revoked') {
                         reason = 'Ruhsat iptal edilmiş';
-                        icon = '🚫';
+                        icon = ' ';
                     }
                     
                     resultDiv.className = 'result error';
@@ -702,15 +714,15 @@
                         
                         <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107;">
                             <p style="margin: 0;">
-                                <strong>⚠️ Uyarı:</strong> Bu ruhsatla işletme yapılamaz.
+                                <strong> ️ Uyarı:</strong> Bu ruhsatla işletme yapılamaz.
                             </p>
                         </div>
                         
                         ${data.license ? `
                             <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px;">
-                                <p style="margin: 8px 0;"><strong>🆔 Ruhsat No:</strong> ${data.license.license_id}</p>
-                                ${data.license.license_type ? `<p style="margin: 8px 0;"><strong>🏢 Tür:</strong> ${data.license.license_type}</p>` : ''}
-                                ${data.license.valid_until ? `<p style="margin: 8px 0;"><strong>📅 Son Geçerlilik:</strong> ${formatDate(data.license.valid_until)}</p>` : ''}
+                                <p style="margin: 8px 0;"><strong> Ruhsat No:</strong> ${data.license.license_id}</p>
+                                ${data.license.license_type ? `<p style="margin: 8px 0;"><strong>  Tür:</strong> ${data.license.license_type}</p>` : ''}
+                                ${data.license.valid_until ? `<p style="margin: 8px 0;"><strong>  Son Geçerlilik:</strong> ${formatDate(data.license.valid_until)}</p>` : ''}
                             </div>
                         ` : ''}
                     `;
@@ -723,14 +735,14 @@
                 resultDiv.style.display = 'block';
                 resultDiv.innerHTML = `
                     <div style="text-align: center;">
-                        <div style="font-size: 60px; margin-bottom: 10px;">⚠️</div>
+                        <div style="font-size: 60px; margin-bottom: 10px;"> ️</div>
                         <h3>Bağlantı Hatası</h3>
                         <p style="margin: 15px 0; color: #666;">
                             Ruhsat doğrulanamadı. Lütfen internet bağlantınızı kontrol edin.
                         </p>
                         <button onclick="document.getElementById('verifyForm').dispatchEvent(new Event('submit'))" 
                                 style="background: #667eea; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-                            🔄 Tekrar Dene
+                              Tekrar Dene
                         </button>
                     </div>
                 `;
@@ -754,7 +766,7 @@
             const token = localStorage.getItem('auth_token');
             
             if (!token) {
-                alert('⚠️ PDF indirmek için giriş yapmalısınız\n\nSadece yetkili kullanıcılar (zabıta/yönetici) PDF indirebilir.');
+                alert(' ️ PDF indirmek için giriş yapmalısınız\n\nSadece yetkili kullanıcılar (zabıta/yönetici) PDF indirebilir.');
                 window.location.href = '/login.html';
                 return;
             }
@@ -763,7 +775,7 @@
                 // Find and disable button
                 const btn = event.target;
                 const originalText = btn.textContent;
-                btn.textContent = '⏳ İndiriliyor...';
+                btn.textContent = '   İndiriliyor...';
                 btn.disabled = true;
                 
                 const formData = new FormData();
@@ -778,7 +790,7 @@
                 if (response.status === 401) {
                     localStorage.removeItem('auth_token');
                     localStorage.removeItem('user');
-                    alert('⚠️ Oturumunuz sona erdi. Lütfen tekrar giriş yapın.');
+                    alert(' ️ Oturumunuz sona erdi. Lütfen tekrar giriş yapın.');
                     window.location.href = '/login.html';
                     return;
                 }
@@ -803,14 +815,14 @@
                 btn.textContent = originalText;
                 btn.disabled = false;
                 
-                alert('✅ PDF başarıyla indirildi!\n\n📄 IPFS\'ten şifreli PDF çekildi ve otomatik çözüldü.\n🔓 Dosya artık normal PDF olarak açılabilir.');
+                alert('   PDF başarıyla indirildi!\n\n  IPFS\'ten şifreli PDF çekildi ve otomatik çözüldü.\n  Dosya artık normal PDF olarak açılabilir.');
                 
             } catch (error) {
-                alert('❌ Hata: ' + error.message);
+                alert('   Hata: ' + error.message);
                 
                 // Reset button
                 if (event.target) {
-                    event.target.textContent = '🔐 PDF İndir';
+                    event.target.textContent = '  PDF İndir';
                     event.target.disabled = false;
                 }
             }

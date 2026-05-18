@@ -544,5 +544,46 @@
     },
     "previous_hash": "0436e6141a086832cba88923e1f22127501c794bb777de76dfd066335a9309aa",
     "hash": "dbbe6bd7a441d04d0c5e0033012fb79244c9f79613829f7aae7c08a467588477"
+  },
+  {
+    "block_number": 17,
+    "timestamp": "2026-03-23T13:35:33.935676",
+    "data": {
+      "action": "ISSUE_LICENSE",
+      "credential": {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://konya.gov.tr/credentials/v1"
+        ],
+        "type": [
+          "VerifiableCredential",
+          "LicenseCredential"
+        ],
+        "issuer": {
+          "id": "did:indy:konya:KBB",
+          "name": "Konya Buyuksehir Belediyesi"
+        },
+        "issuanceDate": "2026-03-23T13:35:33.593445Z",
+        "expirationDate": "2027-03-23T13:35:33.593465Z",
+        "credentialSubject": {
+          "id": "did:indy:konya:254aa248acb47dd6",
+          "licenseId": "2024-KON-016",
+          "licenseType": "Restoran İşletme Ruhsatı",
+          "region": "Selçuklu",
+          "validFrom": "2020-08-28",
+          "validUntil": "2026-08-28"
+        },
+        "proof": {
+          "type": "Ed25519Signature2020",
+          "created": "2026-03-23T13:35:33.600476Z",
+          "verificationMethod": "did:indy:konya:KBB#keys-1",
+          "proofPurpose": "assertionMethod",
+          "proofValue": "BjwJu6rvgzELPv7vXJ9RyOfekmJuEK9GZPqdcNXQGzzCzU62JZyltg6d6aJe7W/99ZZH9p0pqTdQ+KhIjMF3BQ=="
+        }
+      },
+      "ipfs_hash": "QmfVgzsgPQ2tk1UjWjtKTgFQgVs1FVgceokcPSFYjbUnrb"
+    },
+    "previous_hash": "dbbe6bd7a441d04d0c5e0033012fb79244c9f79613829f7aae7c08a467588477",
+    "hash": "198959af239c56fdda84fb8e2e7e21ff915d50a105a2b7da338d9b191c97ef04"
   }
 ]

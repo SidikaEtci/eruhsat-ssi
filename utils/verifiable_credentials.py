@@ -55,7 +55,9 @@ class VerifiableCredentialManager:
             "id": holder_did,
             "licenseId": license_data['license_id'],
             "licenseType": license_data['license_type'],
+            "businessName": license_data.get('business_name'),
             "region": license_data['region'],
+            "address": license_data.get('address'),
             "validFrom": license_data['issue_date'],
             "validUntil": license_data['expiry_date'],
             # NO: citizen_id, owner_name, address, phone
@@ -274,22 +276,22 @@ if __name__ == "__main__":
     }
     
     credential = vc_manager.create_credential(license_data)
-    print("\n📜 Verifiable Credential:")
+    print("\n  Verifiable Credential:")
     print(json.dumps(credential, indent=2, ensure_ascii=False))
     
     # Verify
     is_valid, message = vc_manager.verify_credential(credential)
-    print(f"\n✅ Verification: {is_valid} - {message}")
+    print(f"\n   Verification: {is_valid} - {message}")
     
     # Selective disclosure
     presentation = vc_manager.create_presentation(
         credential,
         disclosed_attributes=["licenseType", "region"]
     )
-    print("\n🎭 Verifiable Presentation (Selective Disclosure):")
+    print("\n  Verifiable Presentation (Selective Disclosure):")
     print(json.dumps(presentation, indent=2, ensure_ascii=False))
     
     # ZKP
     zkp = vc_manager.create_zkp_proof(credential, "license is valid")
-    print("\n🔐 Zero-Knowledge Proof:")
+    print("\n  Zero-Knowledge Proof:")
     print(json.dumps(zkp, indent=2, ensure_ascii=False))

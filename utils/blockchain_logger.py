@@ -17,7 +17,7 @@ class BlockchainLogger:
         # Create genesis block if doesn't exist
         if not self.ledger_file.exists():
             self._create_genesis_block()
-            print("✅ Genesis block created")
+            print("   Genesis block created")
     
     def _create_genesis_block(self):
         """Create first block"""
@@ -81,13 +81,13 @@ class BlockchainLogger:
             with open(self.ledger_file, 'w', encoding='utf-8') as f:
                 json.dump(ledger, f, indent=2, ensure_ascii=False)
             
-            print(f"✅ Block #{new_block['block_number']} added to blockchain")
+            print(f"   Block #{new_block['block_number']} added to blockchain")
             print(f"   Hash: {new_block['hash'][:32]}...")
             
             return new_block
         
         except Exception as e:
-            print(f"❌ Error adding block: {e}")
+            print(f"   Error adding block: {e}")
             return None
     
     def get_ledger(self):

@@ -3,25 +3,24 @@ Konya E-Ruhsat System - Main Application
 """
 import sys
 from pathlib import Path
-from services.issuer import LicenseIssuer  # ✅ LicenseIssuer (RuhsatIssuer değil)
-from services.verifier import LicenseVerifier  # ✅ Bunu da ekleyelim
+from services.issuer import LicenseIssuer
 
 
 def print_menu():
     """Print main menu"""
     print("\n" + "="*60)
-    print("🏛️  KONYA E-RUHSAT SYSTEM")
+    print("  KONYA E-LICENSE SYSTEM")
     print("="*60)
-    print("\n1. Issue new license (Ruhsat ver)")
-    print("2. Verify license (Ruhsat doğrula)")
-    print("3. Get license info (Ruhsat bilgisi)")
-    print("4. Exit (Çıkış)")
+    print("\n1. Issue new license")
+    print("2. Verify license")
+    print("3. Get license info")
+    print("4. Exit")
     print("\n" + "="*60)
 
 
 def issue_license_interactive(issuer: LicenseIssuer):
     """Interactive license issuance"""
-    print("\n📜 ISSUE NEW LICENSE")
+    print("\n  ISSUE NEW LICENSE")
     print("-" * 60)
     
     # Get license data
@@ -41,7 +40,7 @@ def issue_license_interactive(issuer: LicenseIssuer):
     if not pdf_path:
         pdf_path = None
     elif not Path(pdf_path).exists():
-        print(f"⚠️  PDF file not found: {pdf_path}")
+        print(f" ️  PDF file not found: {pdf_path}")
         pdf_path = None
     
     # Issue license
@@ -49,10 +48,10 @@ def issue_license_interactive(issuer: LicenseIssuer):
         result = issuer.issue_license(license_data, pdf_path)
         
         if result['success']:
-            print(f"\n✅ License issued successfully!")
-            print(f"📱 QR Code: {result['qr_url']}")
+            print(f"\n   License issued successfully!")
+            print(f"  QR Code: {result['qr_url']}")
             if result.get('ipfs_hash'):
-                print(f"🌐 IPFS: {result['ipfs_hash']}")
+                print(f"  IPFS: {result['ipfs_hash']}")
             
             # Ask to view QR code
             view = input("\nOpen QR code image? (y/n): ").strip().lower()
@@ -63,14 +62,14 @@ def issue_license_interactive(issuer: LicenseIssuer):
                     os.system(f"xdg-open {qr_file}")
     
     except Exception as e:
-        print(f"\n❌ Error issuing license: {e}")
+        print(f"\n   Error issuing license: {e}")
         import traceback
         traceback.print_exc()
 
 
 def verify_license_interactive(issuer: LicenseIssuer):
     """Interactive license verification"""
-    print(f"\n🔍 VERIFY LICENSE")
+    print(f"\n  VERIFY LICENSE")
     print("-" * 60)
     
     license_id = input("Enter License ID to verify: ").strip()
@@ -79,8 +78,8 @@ def verify_license_interactive(issuer: LicenseIssuer):
     info = issuer.get_license_info(license_id)
     
     if info:
-        print(f"\n✅ LICENSE FOUND")
-        print(f"\n📋 License Information:")
+        print(f"\n   LICENSE FOUND")
+        print(f"\n  License Information:")
         print(f"   License ID: {info.get('license_id')}")
         print(f"   Type: {info.get('license_type')}")
         print(f"   Owner: {info.get('owner_name')}")
@@ -91,7 +90,7 @@ def verify_license_interactive(issuer: LicenseIssuer):
         print(f"   Authority: {info.get('authority')}")
         
         if info.get('ipfs_hash'):
-            print(f"\n🌐 IPFS Hash: {info['ipfs_hash']}")
+            print(f"\n  IPFS Hash: {info['ipfs_hash']}")
             print(f"   Gateway: https://ipfs.io/ipfs/{info['ipfs_hash']}")
             
             # Offer to download PDF
@@ -109,25 +108,25 @@ def verify_license_interactive(issuer: LicenseIssuer):
                 )
                 
                 if success:
-                    print(f"✅ PDF downloaded: {output_file}")
+                    print(f"   PDF downloaded: {output_file}")
                     
                     view = input("Open PDF? (y/n): ").strip().lower()
                     if view == 'y':
                         import os
                         os.system(f"xdg-open {output_file}")
     else:
-        print(f"\n❌ License not found: {license_id}")
+        print(f"\n   License not found: {license_id}")
 
 
 def main():
     """Main application loop"""
-    print("\n🚀 Starting Konya E-Ruhsat System...")
+    print("\n  Starting Konya E-Ruhsat System...")
     
     # Initialize issuer
     try:
         issuer = LicenseIssuer()
     except Exception as e:
-        print(f"❌ Failed to initialize: {e}")
+        print(f"   Failed to initialize: {e}")
         import traceback
         traceback.print_exc()
         return
@@ -150,14 +149,14 @@ def main():
                 import json
                 print(json.dumps(info, indent=2, ensure_ascii=False))
             else:
-                print("❌ License not found")
+                print("   License not found")
         
         elif choice == '4':
-            print("\n👋 Goodbye!")
+            print("\n  Goodbye!")
             break
         
         else:
-            print("❌ Invalid option")
+            print("   Invalid option")
         
         input("\nPress Enter to continue...")
 

@@ -34,13 +34,13 @@ class AuthManager:
                 "admin": {
                     "password_hash": self._hash_password("admin123"),
                     "role": "admin",
-                    "name": "Sistem Yöneticisi",
+                    "name": "System Administrator",
                     "created_at": datetime.now().isoformat()
                 },
                 "zabita": {
                     "password_hash": self._hash_password("zabita123"),
                     "role": "officer",
-                    "name": "Zabıta Görevlisi",
+                    "name": "Enforcement Officer",
                     "created_at": datetime.now().isoformat()
                 }
             }
@@ -48,9 +48,9 @@ class AuthManager:
             with open(self.users_file, 'w', encoding='utf-8') as f:
                 json.dump(default_users, f, indent=2, ensure_ascii=False)
             
-            print("\n✅ Default users created:")
-            print("   👤 admin / admin123 (Yönetici)")
-            print("   👮 zabita / zabita123 (Zabıta)\n")
+            print("\n   Default users created:")
+            print("     admin / admin123 (Administrator)")
+            print("     zabita / zabita123 (Officer)\n")
     
     def _hash_password(self, password: str) -> str:
         """Hash password with SHA-256"""
@@ -103,12 +103,12 @@ class AuthManager:
             with open(self.users_file, 'r', encoding='utf-8') as f:
                 users = json.load(f)
         except:
-            print("❌ Cannot load users file")
+            print("   Cannot load users file")
             return None
         
         # Check username
         if username not in users:
-            print(f"❌ User not found: {username}")
+            print(f"   User not found: {username}")
             return None
         
         user = users[username]
@@ -116,7 +116,7 @@ class AuthManager:
         # Verify password
         password_hash = self._hash_password(password)
         if user["password_hash"] != password_hash:
-            print(f"❌ Wrong password for: {username}")
+            print(f"   Wrong password for: {username}")
             return None
         
         # Create session token
@@ -136,7 +136,7 @@ class AuthManager:
         
         self._save_sessions()
         
-        print(f"✅ User logged in: {username} ({user['role']})")
+        print(f"   User logged in: {username} ({user['role']})")
         
         return {
             "token": token,
@@ -181,7 +181,7 @@ class AuthManager:
             username = self.sessions[token]["username"]
             del self.sessions[token]
             self._save_sessions()
-            print(f"✅ User logged out: {username}")
+            print(f"   User logged out: {username}")
             return True
         return False
     
@@ -212,17 +212,17 @@ if __name__ == "__main__":
     result = auth.login("zabita", "zabita123")
     
     if result:
-        print("✅ Success!")
+        print("   Success!")
         print(f"Token: {result['token'][:30]}...")
         
         # Test verify
         print("\nTest 2: Verify token")
         verified = auth.verify_token(result["token"])
-        print(f"✅ Verified: {verified['username']}")
+        print(f"   Verified: {verified['username']}")
         
         # Test logout
         print("\nTest 3: Logout")
         auth.logout(result["token"])
-        print("✅ Logged out")
+        print("   Logged out")
     else:
-        print("❌ Login failed!")
+        print("   Login failed!")

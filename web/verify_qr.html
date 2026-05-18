@@ -203,57 +203,65 @@
             
             let statusAlert = '';
             if (daysRemaining < 30) {
-                statusAlert = `<div class="alert alert-warning">⚠️ Dikkat: Ruhsatın süresi ${daysRemaining} gün içinde dolacak!</div>`;
+                statusAlert = `<div class="alert alert-warning"> ️ Dikkat: Ruhsatın süresi ${daysRemaining} gün içinde dolacak!</div>`;
             } else {
-                statusAlert = `<div class="alert alert-success">✅ Ruhsat geçerli (${daysRemaining} gün kaldı)</div>`;
+                statusAlert = `<div class="alert alert-success">   Ruhsat geçerli (${daysRemaining} gün kaldı)</div>`;
             }
 
             document.getElementById('content').innerHTML = `
-                <div class="status-icon">✅</div>
+                <div class="status-icon">  </div>
                 <h1>Ruhsat Geçerli</h1>
 
                 ${statusAlert}
 
                 <div class="info-card">
                     <div class="info-row">
-                        <div class="info-label">🆔 Ruhsat No:</div>
+                        <div class="info-label">  Ruhsat No:</div>
                         <div class="info-value"><strong>${license.license_id}</strong></div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">🏢 İşletme Türü:</div>
+                        <div class="info-label">  İşletme Adı:</div>
+                        <div class="info-value">${license.business_name}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">  İşletme Türü:</div>
                         <div class="info-value">${license.license_type}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">📍 Bölge:</div>
+                        <div class="info-label">  Bölge:</div>
                         <div class="info-value">${license.region}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">📅 Başlangıç:</div>
+                        <div class="info-label">  Adres:</div>
+                        <div class="info-value">${license.address}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">  Başlangıç:</div>
                         <div class="info-value">${formatDate(license.valid_from)}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">📅 Bitiş:</div>
+                        <div class="info-label">  Bitiş:</div>
                         <div class="info-value">${formatDate(license.valid_until)}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">🏛️ Düzenleyen:</div>
+                        <div class="info-label"> ️ Düzenleyen:</div>
                         <div class="info-value">${license.authority}</div>
                     </div>
                 </div>
 
                 <div class="blockchain-badge">
-                    🔐 Blockchain ile Doğrulandı
+                      Blockchain ile Doğrulandı
                 </div>
 
                 <div class="footer-note">
-                    <strong>🔒 Gizlilik Notu:</strong><br>
+                    <strong>  Gizlilik Notu:</strong><br>
                     İşletme sahibinin TC kimlik ve kişisel bilgileri privacy koruması için 
                     bu sayfada gösterilmemektedir.
                 </div>
 
                 <div style="text-align: center; margin-top: 30px;">
                     <a href="/" class="btn">← Ana Sayfa</a>
-                    <a href="/qr-reader" class="btn btn-secondary">📷 QR Okuyucu</a>
+                    <a href="/qr-reader" class="btn btn-secondary">  QR Okuyucu</a>
                 </div>
             `;
         }
@@ -271,11 +279,11 @@
             }
 
             document.getElementById('content').innerHTML = `
-                <div class="status-icon">❌</div>
+                <div class="status-icon">  </div>
                 <h1>Ruhsat Geçersiz</h1>
 
                 <div class="alert alert-error">
-                    <strong>❌ ${reason}</strong>
+                    <strong>   ${reason}</strong>
                 </div>
 
                 <div class="info-card">
@@ -284,13 +292,13 @@
                         <div class="info-value">${licenseId}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">📅 Kontrol Zamanı:</div>
+                        <div class="info-label">  Kontrol Zamanı:</div>
                         <div class="info-value">${new Date().toLocaleString('tr-TR')}</div>
                     </div>
                 </div>
 
                 <div class="alert alert-warning">
-                    <strong>⚠️ Uyarı:</strong><br>
+                    <strong> ️ Uyarı:</strong><br>
                     Bu ruhsatla işletme yapılamaz. Lütfen belediye ile iletişime geçin.
                 </div>
 
@@ -302,7 +310,7 @@
 
         function showError() {
             document.getElementById('content').innerHTML = `
-                <div class="status-icon">⚠️</div>
+                <div class="status-icon"> ️</div>
                 <h1>Doğrulama Hatası</h1>
 
                 <div class="alert alert-error">
@@ -311,7 +319,7 @@
                 </div>
 
                 <div style="text-align: center; margin-top: 30px;">
-                    <button onclick="location.reload()" class="btn">🔄 Tekrar Dene</button>
+                    <button onclick="location.reload()" class="btn">  Tekrar Dene</button>
                     <a href="/" class="btn btn-secondary">← Ana Sayfa</a>
                 </div>
             `;

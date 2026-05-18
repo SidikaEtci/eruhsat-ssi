@@ -1,0 +1,8 @@
+{
+    "TEST-INTEGRATION-002": {
+        "block_height": 1,
+        "state_hash": "b8c4cc3193a90f66e754ecb46f3ba4880de25175db83113dfdc7257050a9cec7",
+        "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "tx_timestamp": "2024-01-01"
+    }
+}
