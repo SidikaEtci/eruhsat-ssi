@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Blockchain Detaylı Görünüm</title>
+    <title>Blockchain — Detailed View</title>
     <style>
         body {
             font-family: 'Courier New', monospace;
@@ -62,103 +62,103 @@
 </head>
 <body>
     <div class="explanation">
-        <h2>  BLOCKCHAIN NASIL ÇALIŞIYOR?</h2>
-        
+        <h2>HOW BLOCKCHAIN WORKS</h2>
+
         <div class="flow-diagram">
-            <h3 style="color: #f39c12;">  Adım 1: Ruhsat Verilir</h3>
+            <h3 style="color: #f39c12;">Step 1: License Is Issued</h3>
             <div class="step">
-                → Kullanıcı formu doldurur<br>
-                → PDF belgesi yüklenir<br>
-                → Sistem Verifiable Credential oluşturur
+                → User fills out the form<br>
+                → PDF document is uploaded<br>
+                → System creates a Verifiable Credential
             </div>
         </div>
 
         <div class="flow-diagram">
-            <h3 style="color: #f39c12;">  Adım 2: Kriptografik İşlemler</h3>
+            <h3 style="color: #f39c12;">Step 2: Cryptographic Processing</h3>
             <div class="step">
-                → PDF AES-256 ile şifrelenir<br>
-                → IPFS'e yüklenir → Hash alınır<br>
-                → Verifiable Credential imzalanır (Ed25519)
+                → PDF is encrypted with AES-256<br>
+                → Uploaded to IPFS and hashed<br>
+                → Verifiable Credential is signed (Ed25519)
             </div>
             <div class="hash-visual">
-                Örnek IPFS Hash:<br>
+                Example IPFS hash:<br>
                 QmUHBAEWF6eJs7JXxDiDcJB2oeFRr57cerTFNpKVvhwovG
             </div>
         </div>
 
         <div class="flow-diagram">
-            <h3 style="color: #f39c12;"> ️ Adım 3: Blockchain'e Yazılır</h3>
+            <h3 style="color: #f39c12;">Step 3: Written to the Blockchain</h3>
             <div class="step">
-                → Yeni block oluşturulur<br>
-                → Credential verisi eklenir<br>
-                → Önceki block'un hash'i eklenir<br>
-                → Yeni block hash'lenir
+                → A new block is created<br>
+                → Credential data is added<br>
+                → Previous block hash is linked<br>
+                → New block is hashed
             </div>
             <div class="hash-visual">
-                Block #1 Hash: a3f5b8...<br>
-                ↓ (önceki hash olarak kullanılır)<br>
+                Block #1 hash: a3f5b8...<br>
+                ↓ (used as previous hash)<br>
                 Block #2: previous_hash = a3f5b8...
             </div>
         </div>
 
         <div class="flow-diagram">
-            <h3 style="color: #f39c12;">   Adım 4: Doğrulama</h3>
+            <h3 style="color: #f39c12;">Step 4: Verification</h3>
             <div class="step">
-                → QR kod taranır<br>
-                → Blockchain'den credential çekilir<br>
-                → İmza doğrulanır<br>
-                → Tarih kontrolü yapılır<br>
-                → İptal edilmiş mi kontrol edilir
+                → QR code is scanned<br>
+                → Credential is read from the blockchain<br>
+                → Signature is verified<br>
+                → Dates are checked<br>
+                → Revocation status is checked
             </div>
         </div>
 
-        <h2 style="margin-top: 40px;"> ️ SİSTEMİMİZDE NELER VAR?</h2>
+        <h2 style="margin-top: 40px;">WHAT IS IN OUR SYSTEM?</h2>
 
         <div class="comparison">
             <div class="column">
-                <h3> ️ Local Blockchain (Şu An)</h3>
-                <p>   Block yapısı var</p>
-                <p>   Hash zincirleme var</p>
-                <p>   Kriptografik imza var</p>
-                <p>   Değiştirilemez (immutable)</p>
-                <p> ️ Tek sunucuda (merkezi)</p>
-                <p>  data/blockchain_ledger.json</p>
+                <h3>Local Blockchain (Current)</h3>
+                <p>✓ Block structure</p>
+                <p>✓ Hash chaining</p>
+                <p>✓ Cryptographic signatures</p>
+                <p>✓ Immutable records</p>
+                <p>⚠ Single server (centralized)</p>
+                <p>→ data/blockchain_ledger.json</p>
             </div>
 
             <div class="column">
-                <h3>  Hyperledger Indy (Hedef)</h3>
-                <p>   Block yapısı var</p>
-                <p>   Hash zincirleme var</p>
-                <p>   Kriptografik imza var</p>
-                <p>   Değiştirilemez (immutable)</p>
-                <p>   Dağıtık ağ (distributed)</p>
-                <p>  VON Network (4 node)</p>
+                <h3>Hyperledger Indy (Target)</h3>
+                <p>✓ Block structure</p>
+                <p>✓ Hash chaining</p>
+                <p>✓ Cryptographic signatures</p>
+                <p>✓ Immutable records</p>
+                <p>✓ Distributed network</p>
+                <p>→ VON Network (4 nodes)</p>
             </div>
         </div>
 
-        <h2 style="margin-top: 40px;">  NEDEN BLOCKCHAIN?</h2>
-        
+        <h2 style="margin-top: 40px;">WHY BLOCKCHAIN?</h2>
+
         <div class="flow-diagram">
-            <h3 style="color: #2ecc71;">1. Değiştirilemezlik (Immutability)</h3>
-            <p>Bir ruhsat verildikten sonra geriye dönük değiştirilemez.<br>
-            Hash zinciri sayesinde herhangi bir değişiklik tespit edilir.</p>
-            
-            <h3 style="color: #2ecc71; margin-top: 20px;">2. Şeffaflık</h3>
-            <p>Tüm işlemler kayıt altında.<br>
-            Kim, ne zaman, hangi ruhsatı verdi → görülebilir.</p>
-            
-            <h3 style="color: #2ecc71; margin-top: 20px;">3. Merkeziyetsizlik</h3>
-            <p>Tek bir sunucuya bağımlı değil.<br>
-            Indy network'teki 4 node'dan biri çökse bile sistem çalışır.</p>
-            
-            <h3 style="color: #2ecc71; margin-top: 20px;">4. Kriptografik Güvenlik</h3>
-            <p>Ed25519 dijital imza → sahtecilik imkansız.<br>
-            AES-256 şifreleme → yetkisiz erişim engellenir.</p>
+            <h3 style="color: #2ecc71;">1. Immutability</h3>
+            <p>Once a license is issued, it cannot be altered retroactively.<br>
+            The hash chain detects any tampering.</p>
+
+            <h3 style="color: #2ecc71; margin-top: 20px;">2. Transparency</h3>
+            <p>All actions are recorded.<br>
+            Who issued which license and when is visible.</p>
+
+            <h3 style="color: #2ecc71; margin-top: 20px;">3. Decentralization</h3>
+            <p>Not dependent on a single server.<br>
+            On the Indy network, the system keeps running if one node fails.</p>
+
+            <h3 style="color: #2ecc71; margin-top: 20px;">4. Cryptographic Security</h3>
+            <p>Ed25519 digital signatures make forgery impractical.<br>
+            AES-256 encryption blocks unauthorized access.</p>
         </div>
 
         <div style="text-align: center; margin-top: 30px;">
             <a href="/blockchain_explorer.html" style="background: #00ff00; color: #0a0e27; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">
-                ⬅️ Blockchain Explorer'a Dön
+                ← Back to Blockchain Explorer
             </a>
         </div>
     </div>

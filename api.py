@@ -1,5 +1,5 @@
 """
-FastAPI backend for the Konya E-License system.
+FastAPI backend for the Turkey municipal e-license platform.
 """
 from datetime import datetime
 from pathlib import Path
@@ -7,7 +7,7 @@ import io
 import json
 import shutil
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -20,9 +20,9 @@ import config
 WEB_DIR = Path("web")
 
 app = FastAPI(
-    title="Konya E-License API",
-    description="Blockchain-based digital license management with smart contracts",
-    version="2.0.0",
+    title="Turkey E-License API",
+    description="Blockchain-based digital license management for Turkish municipalities",
+    version="3.0.0",
 )
 
 app.add_middleware(
@@ -58,6 +58,8 @@ def _license_public_view(license_info: dict) -> dict:
     return {
         "license_id": license_info.get("license_id"),
         "license_type": license_info.get("license_type"),
+        "city_name": license_info.get("city_name"),
+        "city_slug": license_info.get("city_slug"),
         "owner_name": license_info.get("owner_name"),
         "business_name": license_info.get("business_name"),
         "address": license_info.get("address"),
@@ -133,7 +135,7 @@ async def root():
         return HTMLResponse(html_path.read_text(encoding="utf-8"))
     return HTMLResponse(
         "<html><body style='font-family:sans-serif;text-align:center;padding:50px'>"
-        "<h1>Konya E-License System</h1>"
+        "<h1>Turkey E-License Platform</h1>"
         "<p>Web interface not found. Check web/index.html</p>"
         "</body></html>"
     )
@@ -172,6 +174,26 @@ async def qr_gallery():
 @app.get("/qr-reader", response_class=HTMLResponse)
 async def qr_reader():
     return _serve_html("verify_qr_offline.html")
+
+
+# ==================== SETTINGS API ====================
+
+@app.get("/api/settings")
+async def get_settings(city: str | None = Query(None)):
+    """Public settings for UI branding and city/district lists."""
+    return config.settings_payload(city)
+
+
+@app.get("/web/city-settings.js", response_class=HTMLResponse)
+async def city_settings_js():
+    """Shared client script for municipality selection."""
+    script_path = WEB_DIR / "city-settings.js"
+    if not script_path.exists():
+        raise HTTPException(status_code=404, detail="city-settings.js not found")
+    return HTMLResponse(
+        script_path.read_text(encoding="utf-8"),
+        media_type="application/javascript",
+    )
 
 
 # ==================== AUTHENTICATION API ====================
@@ -216,9 +238,13 @@ async def issue_license(
     region: str = Form(...),
     issue_date: str = Form(...),
     expiry_date: str = Form(...),
+    city_slug: str = Form(None),
     pdf_file: UploadFile = File(None),
 ):
     try:
+        slug = config.resolve_city_slug(city_slug=city_slug)
+        paths = config.paths_for_city(slug)
+
         license_data = {
             "license_id": license_id,
             "license_type": license_type,
@@ -233,11 +259,15 @@ async def issue_license(
 
         pdf_path = None
         if pdf_file and pdf_file.filename:
-            pdf_path = config.DOCUMENTS_DIR / f"{license_id}.pdf"
+            pdf_path = paths["documents_dir"] / f"{license_id}.pdf"
             with open(pdf_path, "wb") as file:
                 shutil.copyfileobj(pdf_file.file, file)
 
-        result = issuer.issue_license(license_data, str(pdf_path) if pdf_path else None)
+        result = issuer.issue_license(
+            license_data,
+            str(pdf_path) if pdf_path else None,
+            city_slug=slug,
+        )
         return {
             "success": True,
             "message": "License issued successfully",
@@ -263,17 +293,14 @@ async def verify_license(license_id: str):
 
 
 @app.get("/api/licenses")
-async def get_all_licenses():
-    db_path = config.DATA_DIR / "credentials.json"
-    if not db_path.exists():
-        return {"licenses": []}
-    with open(db_path, "r", encoding="utf-8") as file:
-        return {"licenses": json.load(file)}
+async def get_all_licenses(city: str | None = Query(None)):
+    return {"licenses": issuer.list_licenses(city_slug=city)}
 
 
 @app.get("/api/qr/{license_id}")
-async def get_qr_code(license_id: str):
-    qr_path = config.QR_CODES_DIR / f"{license_id}.png"
+async def get_qr_code(license_id: str, city: str | None = Query(None)):
+    slug = config.resolve_city_slug(license_id=license_id, city_slug=city)
+    qr_path = config.paths_for_city(slug)["qr_codes_dir"] / f"{license_id}.png"
     if not qr_path.exists():
         raise HTTPException(status_code=404, detail="QR code not found")
     return FileResponse(qr_path, media_type="image/png")
@@ -282,39 +309,39 @@ async def get_qr_code(license_id: str):
 # ==================== BLOCKCHAIN API ====================
 
 @app.get("/api/blockchain")
-async def get_blockchain():
+async def get_blockchain(city: str | None = Query(None)):
     from utils.blockchain_logger import BlockchainLogger
 
-    blockchain = BlockchainLogger()
+    slug = config.resolve_city_slug(city_slug=city)
+    blockchain = BlockchainLogger(slug)
     return {
+        "city_slug": slug,
         "ledger": blockchain.get_ledger(),
         "stats": blockchain.get_stats(),
     }
 
 
 @app.get("/api/contract/stats")
-async def get_contract_stats():
+async def get_contract_stats(city: str | None = Query(None)):
+    slug = config.resolve_city_slug(city_slug=city)
     return {
         "success": True,
-        "stats": issuer.contract.get_license_count(),
+        "city_slug": slug,
+        "stats": issuer.contract_stats(slug),
     }
 
 
 # ==================== IPFS API ====================
 
 @app.get("/api/ipfs-files")
-async def get_ipfs_files():
-    db_path = config.DATA_DIR / "credentials.json"
-    if not db_path.exists():
-        return {"files": []}
-
-    with open(db_path, "r", encoding="utf-8") as file:
-        licenses = json.load(file)
-
+async def get_ipfs_files(city: str | None = Query(None)):
+    licenses = issuer.list_licenses(city_slug=city)
     files = [
         {
             "license_id": lic["license_id"],
             "license_type": lic["license_type"],
+            "city_slug": lic.get("city_slug"),
+            "city_name": lic.get("city_name"),
             "ipfs_hash": lic["ipfs_hash"],
             "document_hash": lic.get("document_hash", ""),
             "created_at": lic.get("created_at", ""),
@@ -348,7 +375,9 @@ async def download_pdf_endpoint(license_id: str = Form(...), token: str = Form(.
     if not info.get("ipfs_hash"):
         raise HTTPException(status_code=404, detail="No PDF document for this license")
 
-    output_file = config.DOCUMENTS_DIR / f"{license_id}_decrypted.pdf"
+    slug = config.resolve_city_slug(license_id=license_id)
+    paths = config.paths_for_city(slug)
+    output_file = paths["documents_dir"] / f"{license_id}_decrypted.pdf"
     try:
         success = ipfs.download_and_decrypt(
             info["ipfs_hash"],
@@ -393,7 +422,7 @@ if __name__ == "__main__":
     import uvicorn
 
     print("\n" + "=" * 70)
-    print("  Starting Konya E-License System v2.0")
+    print(f"  Starting Turkey E-License Platform v3.0 ({config.CITY_NAME})")
     print("=" * 70)
     print("\n  Endpoints:")
     print("   • Main Page:        http://localhost:8000")
@@ -402,7 +431,8 @@ if __name__ == "__main__":
     print("   • Blockchain:       http://localhost:8000/blockchain_explorer.html")
     print("   • QR Gallery:       http://localhost:8000/qr-gallery")
     print("   • API Docs:         http://localhost:8000/docs")
-    print("\n  Default Users:")
+    print(f"\n  Default city: {config.CITY_SLUG} (set CITY_SLUG to change)")
+    print("\n  Default users:")
     print("   • admin / admin123")
     print("   • zabita / zabita123")
     print("\n" + "=" * 70 + "\n")

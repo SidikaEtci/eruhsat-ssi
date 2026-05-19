@@ -10,17 +10,22 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 import config
+from cities import all_issuer_dids, get_city
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 
 class LicenseContract:
-    def __init__(self):
-        self.ledger_path = config.DATA_DIR / "contract_ledger.json"
-        self.state_path = config.DATA_DIR / "contract_state.json"
-        self.credentials_path = config.DATA_DIR / "contract_credentials.json"
-        self.keys_dir = config.KEYS_DIR
+    def __init__(self, city_slug: str | None = None):
+        self.city_slug = config.resolve_city_slug(city_slug=city_slug)
+        self.city = get_city(self.city_slug)
+        paths = config.paths_for_city(self.city_slug)
+
+        self.ledger_path = paths["data_dir"] / "contract_ledger.json"
+        self.state_path = paths["data_dir"] / "contract_state.json"
+        self.credentials_path = paths["data_dir"] / "contract_credentials.json"
+        self.keys_dir = paths["keys_dir"]
 
         self._ensure_database_exists()
         self._ensure_keys_exist()
@@ -128,11 +133,9 @@ class LicenseContract:
         return hashlib.sha256(serialized_data.encode("utf-8")).hexdigest()
 
     def _is_authorized_issuer(self, issuer_did: str) -> bool:
-        authorized_issuers = [
-            config.ISSUER_DID,
-            "did:indy:konya:BelediyeBaskanligi",
-        ]
-        return issuer_did in authorized_issuers
+        authorized = set(all_issuer_dids())
+        authorized.add(self.city["issuer_did"])
+        return issuer_did in authorized
 
     def _license_exists(self, license_id: str) -> bool:
         return license_id in self.state
@@ -242,7 +245,7 @@ class LicenseContract:
             "context": "https://www.w3.org/2018/credentials/v1",
             "type": ["VerifiableCredential", "EncryptedBusinessLicenseCredential"],
             "credentialSubject": {
-                "id": f"did:konya:{license_id}",
+                "id": f"did:indy:tr:{self.city_slug}:{license_id}",
                 "encryptedData": encrypted_package,
             },
             "issuanceDate": license_data["issue_date"],

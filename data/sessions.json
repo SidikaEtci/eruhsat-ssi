@@ -1,16 +1,1 @@
-{
-  "_IkGkYx1KplZ2qxYr7SScn035xXXOTZ8JSUNLkfi9rk": {
-    "username": "admin",
-    "role": "admin",
-    "name": "Sistem Yöneticisi",
-    "created_at": "2026-05-17T18:02:06.866906",
-    "expires_at": "2026-05-18T02:02:06.866859"
-  },
-  "3yj1B2xGoyGghq_vSUPfI7PSL9EN8815AQjR554fezs": {
-    "username": "admin",
-    "role": "admin",
-    "name": "Sistem Yöneticisi",
-    "created_at": "2026-05-17T23:54:26.347071",
-    "expires_at": "2026-05-18T07:54:26.346847"
-  }
-}
+{}

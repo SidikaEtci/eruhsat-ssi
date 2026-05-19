@@ -1,134 +1,151 @@
-"""Issuer Service - Issues digital licenses to citizens"""
+"""Issuer service — issues digital licenses for any Turkish municipality."""
 import json
 from datetime import datetime
-from pathlib import Path
+
 import config
+from cities import get_city
+from contracts.license_contract import LicenseContract
+from utils.blockchain_logger import BlockchainLogger
 from utils.crypto import CryptoManager
 from utils.ipfs_manager import IPFSManager
 from utils.qr_generator import QRCodeManager
-from utils.blockchain_logger import BlockchainLogger
 from utils.verifiable_credentials import VerifiableCredentialManager
-from contracts.license_contract import LicenseContract
 
 
 class LicenseIssuer:
-    """Issue digital licenses with QR codes and IPFS storage"""
+    """Issue digital licenses with QR codes and IPFS storage."""
 
     def __init__(self):
-        # Initialize keys and IPFS
-        self.private_key, self.public_key = CryptoManager.generate_keypair(
-            seed=config.ISSUER_SEED
-        )
         self.ipfs = IPFSManager()
-        self.blockchain = BlockchainLogger()
-        self.vc_manager = VerifiableCredentialManager()
-        self.contract = LicenseContract()
-        print("   License Issuer Initialized")
-        print("   Smart Contract initialized")
+        print("   License Issuer initialized (multi-city Turkey)")
 
-    def issue_license(self, license_data: dict, pdf_path: str = None) -> dict:
-        """Process and issue a new decentralized license"""
-        print(f"\n--- ISSUING LICENSE: {license_data['license_id']} ---")
-
-        # Smart Contract Validation FIRST
-        contract_result = self.contract.issue_license(
-            license_data,
-            config.ISSUER_DID
+    def issue_license(
+        self,
+        license_data: dict,
+        pdf_path: str | None = None,
+        city_slug: str | None = None,
+    ) -> dict:
+        city_slug = config.resolve_city_slug(
+            license_id=license_data.get("license_id"),
+            city_slug=city_slug or license_data.get("city_slug"),
         )
-        
+        city = get_city(city_slug)
+        paths = config.paths_for_city(city_slug)
+
+        license_data["city_slug"] = city_slug
+        license_data["city_name"] = city["name"]
+        license_data["authority"] = city["issuer_name"]
+
+        print(f"\n--- ISSUING LICENSE [{city['name']}]: {license_data['license_id']} ---")
+
+        contract = LicenseContract(city_slug)
+        contract_result = contract.issue_license(license_data, city["issuer_did"])
         if not contract_result["success"]:
-            # Business rules failed!
-            print(f"   Smart Contract Rejected: {contract_result['message']}")
+            print(f"   Smart Contract rejected: {contract_result['message']}")
             raise Exception(f"Smart Contract: {contract_result['message']}")
-        
-        print(f"   Smart Contract Approved")
 
-        # Add authority info
-        license_data['authority'] = config.ISSUER_NAME
-
-        # 1. Upload PDF to IPFS (Encrypted)
-        ipfs_data = None
         if pdf_path:
             ipfs_data = self.ipfs.upload_encrypted_document(
                 pdf_path,
-                license_data['license_id']
+                license_data["license_id"],
             )
-            license_data['ipfs_hash'] = ipfs_data['ipfs_hash']
-            license_data['document_hash'] = ipfs_data['document_hash']
+            license_data["ipfs_hash"] = ipfs_data["ipfs_hash"]
+            license_data["document_hash"] = ipfs_data["document_hash"]
 
-        # 2. Create Verifiable Credential (W3C Standard)
-        credential = self.vc_manager.create_credential(license_data)
-        print("   Verifiable Credential created (privacy-preserving)")
+        vc_manager = VerifiableCredentialManager(city_slug)
+        credential = vc_manager.create_credential(license_data)
 
-        # 3. Generate QR Code (with VC, NO sensitive data)
-        qr_url = QRCodeManager.generate_qr_code(credential, license_data['license_id'])
+        qr_path = QRCodeManager.generate_qr_code(
+            credential,
+            license_data["license_id"],
+            city,
+            paths["qr_codes_dir"],
+        )
 
-        # 4. Add to blockchain
-        self.blockchain.add_block({
-            "action": "ISSUE_LICENSE",
-            "credential": credential,
-            "ipfs_hash": license_data.get('ipfs_hash', ''),
-        })
+        blockchain = BlockchainLogger(city_slug)
+        blockchain.add_block(
+            {
+                "action": "ISSUE_LICENSE",
+                "city_slug": city_slug,
+                "credential": credential,
+                "ipfs_hash": license_data.get("ipfs_hash", ""),
+            }
+        )
 
-        # 5. Save to Local Database (include VC)
-        license_data['verifiable_credential'] = credential
-        self._save_to_db(license_data, qr_url)
+        license_data["verifiable_credential"] = credential
+        self._save_to_db(license_data, qr_path, paths["credentials"])
 
         return {
             "success": True,
-            "ipfs_hash": license_data.get('ipfs_hash'),
-            "qr_url": f"/data/qr_codes/{license_data['license_id']}.png",
-            "credential": credential
+            "city_slug": city_slug,
+            "city_name": city["name"],
+            "ipfs_hash": license_data.get("ipfs_hash"),
+            "qr_url": f"/data/{city_slug}/qr_codes/{license_data['license_id']}.png",
+            "credential": credential,
         }
 
-    def _save_to_db(self, data, qr_url):
-        """Save license to database"""
-        db_path = config.DATA_DIR / "credentials.json"
+    def _save_to_db(self, data: dict, qr_path: str, db_path):
         db = []
-        
         if db_path.exists():
             try:
-                with open(db_path, 'r', encoding='utf-8') as f:
-                    db = json.load(f)
-            except:
+                with open(db_path, "r", encoding="utf-8") as file:
+                    db = json.load(file)
+            except json.JSONDecodeError:
                 db = []
-        
-        data['created_at'] = datetime.now().isoformat()
-        data['qr_url'] = qr_url
-        db.append(data)
-        
-        with open(db_path, 'w', encoding='utf-8') as f:
-            json.dump(db, f, indent=2, ensure_ascii=False)
-        
-        print(f"   Saved to database: {data['license_id']}")
 
-    def get_license_info(self, license_id: str):
-        """Get license information by ID"""
-        db_path = config.DATA_DIR / "credentials.json"
-        
+        data["created_at"] = datetime.now().isoformat()
+        data["qr_url"] = qr_path
+        db.append(data)
+
+        with open(db_path, "w", encoding="utf-8") as file:
+            json.dump(db, file, indent=2, ensure_ascii=False)
+
+        print(f"   Saved to database: {data['license_id']} ({data['city_slug']})")
+
+    def get_license_info(self, license_id: str, city_slug: str | None = None):
+        """Find a license in the matching city datastore."""
+        if city_slug:
+            return self._load_from_city(license_id, city_slug)
+
+        primary = config.resolve_city_slug(license_id=license_id)
+        found = self._load_from_city(license_id, primary)
+        if found or not config.MULTI_CITY_ENABLED:
+            return found
+        return self._search_all_cities(license_id, skip_slug=primary)
+
+    def _load_from_city(self, license_id: str, city_slug: str):
+        db_path = config.paths_for_city(city_slug)["credentials"]
         if not db_path.exists():
-            print(f"   Database not found: {db_path}")
             return None
-        
         try:
-            with open(db_path, 'r', encoding='utf-8') as f:
-                db = json.load(f)
-            
-            print(f"  Searching for: '{license_id}'")
-            
+            with open(db_path, "r", encoding="utf-8") as file:
+                db = json.load(file)
             for item in db:
-                if not item:
-                    continue
-                
-                item_id = item.get('license_id', '')
-                
-                if str(item_id).strip() == str(license_id).strip():
-                    print(f"   Found: {license_id}")
+                if str(item.get("license_id", "")).strip() == str(license_id).strip():
                     return item
-            
-            print(f"   Not found: {license_id}")
-            return None
-            
-        except Exception as e:
-            print(f"   Database error: {e}")
-            return None
+        except Exception as exc:
+            print(f"   Database error ({city_slug}): {exc}")
+        return None
+
+    def _search_all_cities(self, license_id: str, skip_slug: str | None = None):
+        from cities import CITIES
+
+        for slug in CITIES:
+            if slug == skip_slug:
+                continue
+            found = self._load_from_city(license_id, slug)
+            if found:
+                return found
+        return None
+
+    def list_licenses(self, city_slug: str | None = None) -> list:
+        slug = config.resolve_city_slug(city_slug=city_slug)
+        db_path = config.paths_for_city(slug)["credentials"]
+        if not db_path.exists():
+            return []
+        with open(db_path, "r", encoding="utf-8") as file:
+            return json.load(file)
+
+    def contract_stats(self, city_slug: str | None = None) -> dict:
+        slug = config.resolve_city_slug(city_slug=city_slug)
+        return LicenseContract(slug).get_license_count()

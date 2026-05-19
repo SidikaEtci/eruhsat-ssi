@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Ruhsat Doğrulama</title>
+    <title>E-License Verification</title>
     <style>
         * {
             margin: 0;
@@ -163,7 +163,7 @@
     <div class="container">
         <div id="loader" class="loader">
             <div class="spinner"></div>
-            <p>Ruhsat doğrulanıyor...</p>
+            <p>Verifying license...</p>
         </div>
 
         <div id="content" style="display: none;">
@@ -203,65 +203,64 @@
             
             let statusAlert = '';
             if (daysRemaining < 30) {
-                statusAlert = `<div class="alert alert-warning"> ️ Dikkat: Ruhsatın süresi ${daysRemaining} gün içinde dolacak!</div>`;
+                statusAlert = `<div class="alert alert-warning">Warning: This license expires in ${daysRemaining} days!</div>`;
             } else {
-                statusAlert = `<div class="alert alert-success">   Ruhsat geçerli (${daysRemaining} gün kaldı)</div>`;
+                statusAlert = `<div class="alert alert-success">License is valid (${daysRemaining} days remaining)</div>`;
             }
 
             document.getElementById('content').innerHTML = `
                 <div class="status-icon">  </div>
-                <h1>Ruhsat Geçerli</h1>
+                <h1>License Valid</h1>
 
                 ${statusAlert}
 
                 <div class="info-card">
                     <div class="info-row">
-                        <div class="info-label">  Ruhsat No:</div>
+                        <div class="info-label">License No:</div>
                         <div class="info-value"><strong>${license.license_id}</strong></div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">  İşletme Adı:</div>
+                        <div class="info-label">Business Name:</div>
                         <div class="info-value">${license.business_name}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">  İşletme Türü:</div>
+                        <div class="info-label">Business Type:</div>
                         <div class="info-value">${license.license_type}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">  Bölge:</div>
+                        <div class="info-label">District:</div>
                         <div class="info-value">${license.region}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">  Adres:</div>
+                        <div class="info-label">Address:</div>
                         <div class="info-value">${license.address}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">  Başlangıç:</div>
+                        <div class="info-label">Valid From:</div>
                         <div class="info-value">${formatDate(license.valid_from)}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">  Bitiş:</div>
+                        <div class="info-label">Valid Until:</div>
                         <div class="info-value">${formatDate(license.valid_until)}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label"> ️ Düzenleyen:</div>
+                        <div class="info-label">Issuing Authority:</div>
                         <div class="info-value">${license.authority}</div>
                     </div>
                 </div>
 
                 <div class="blockchain-badge">
-                      Blockchain ile Doğrulandı
+                      Verified on Blockchain
                 </div>
 
                 <div class="footer-note">
-                    <strong>  Gizlilik Notu:</strong><br>
-                    İşletme sahibinin TC kimlik ve kişisel bilgileri privacy koruması için 
-                    bu sayfada gösterilmemektedir.
+                    <strong>Privacy note:</strong><br>
+                    The business owner's national ID and personal details are not shown on this page for privacy protection.
                 </div>
 
                 <div style="text-align: center; margin-top: 30px;">
-                    <a href="/" class="btn">← Ana Sayfa</a>
-                    <a href="/qr-reader" class="btn btn-secondary">  QR Okuyucu</a>
+                    <a href="/" class="btn">← Home</a>
+                    <a href="/qr-reader" class="btn btn-secondary">QR Reader</a>
                 </div>
             `;
         }
@@ -269,18 +268,18 @@
         function showInvalid(data) {
             let reason = '';
             if (data.reason === 'not_found') {
-                reason = 'Bu ruhsat numarası sistemde kayıtlı değil.';
+                reason = 'This license number is not registered.';
             } else if (data.reason === 'expired') {
-                reason = 'Bu ruhsatın süresi dolmuş.';
+                reason = 'This license has expired.';
             } else if (data.reason === 'revoked') {
-                reason = 'Bu ruhsat iptal edilmiş.';
+                reason = 'This license has been revoked.';
             } else {
-                reason = 'Ruhsat geçersiz.';
+                reason = 'License is invalid.';
             }
 
             document.getElementById('content').innerHTML = `
                 <div class="status-icon">  </div>
-                <h1>Ruhsat Geçersiz</h1>
+                <h1>License Invalid</h1>
 
                 <div class="alert alert-error">
                     <strong>   ${reason}</strong>
@@ -288,22 +287,22 @@
 
                 <div class="info-card">
                     <div class="info-row">
-                        <div class="info-label">🆔 Aranan Ruhsat:</div>
+                        <div class="info-label">License Searched:</div>
                         <div class="info-value">${licenseId}</div>
                     </div>
                     <div class="info-row">
-                        <div class="info-label">  Kontrol Zamanı:</div>
-                        <div class="info-value">${new Date().toLocaleString('tr-TR')}</div>
+                        <div class="info-label">Checked At:</div>
+                        <div class="info-value">${new Date().toLocaleString('en-US')}</div>
                     </div>
                 </div>
 
                 <div class="alert alert-warning">
-                    <strong> ️ Uyarı:</strong><br>
-                    Bu ruhsatla işletme yapılamaz. Lütfen belediye ile iletişime geçin.
+                    <strong>Warning:</strong><br>
+                    This license cannot be used to operate a business. Please contact the municipality.
                 </div>
 
                 <div style="text-align: center; margin-top: 30px;">
-                    <a href="/" class="btn">← Ana Sayfa</a>
+                    <a href="/" class="btn">← Home</a>
                 </div>
             `;
         }
@@ -311,23 +310,23 @@
         function showError() {
             document.getElementById('content').innerHTML = `
                 <div class="status-icon"> ️</div>
-                <h1>Doğrulama Hatası</h1>
+                <h1>Verification Error</h1>
 
                 <div class="alert alert-error">
-                    <strong>Ruhsat doğrulanamadı.</strong><br>
-                    Lütfen internet bağlantınızı kontrol edin veya daha sonra tekrar deneyin.
+                    <strong>Could not verify the license.</strong><br>
+                    Check your internet connection or try again later.
                 </div>
 
                 <div style="text-align: center; margin-top: 30px;">
-                    <button onclick="location.reload()" class="btn">  Tekrar Dene</button>
-                    <a href="/" class="btn btn-secondary">← Ana Sayfa</a>
+                    <button onclick="location.reload()" class="btn">Try Again</button>
+                    <a href="/" class="btn btn-secondary">← Home</a>
                 </div>
             `;
         }
 
         function formatDate(dateString) {
             const date = new Date(dateString);
-            return date.toLocaleDateString('tr-TR', { 
+            return date.toLocaleDateString('en-US', { 
                 year: 'numeric', 
                 month: 'long', 
                 day: 'numeric' 

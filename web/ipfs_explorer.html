@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPFS Belge Gezgini</title>
+    <title>IPFS Document Explorer</title>
     <style>
         * {
             margin: 0;
@@ -254,46 +254,54 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>IPFS Belge Gezgini</h1>
-            <p>Şifreli Belgeler - IPFS Distributed Storage</p>
-            <a href="/" class="back-link">Ana Sayfaya Dön</a>
+            <h1>IPFS Document Explorer</h1>
+            <p>Encrypted Documents — IPFS Distributed Storage</p>
+            <div style="margin: 12px 0;">
+                <label for="citySelect">Municipality</label>
+                <select id="citySelect" style="margin-left:8px;padding:8px;border-radius:6px;"></select>
+            </div>
+            <a href="/" class="back-link">Back to Home</a>
         </div>
 
         <div class="stats" id="stats">
             <div class="stat-card">
-                <h3>Toplam Belge</h3>
+                <h3>Total Documents</h3>
                 <div class="value" id="totalFiles">-</div>
             </div>
             <div class="stat-card">
-                <h3>IPFS Bağlantısı</h3>
+                <h3>IPFS Connection</h3>
                 <div class="value" id="ipfsStatus" style="color: #10b981;">Aktif</div>
             </div>
             <div class="stat-card">
-                <h3>Son Güncelleme</h3>
+                <h3>Last Updated</h3>
                 <div class="value" id="lastUpdate" style="font-size: 1em;">-</div>
             </div>
         </div>
 
         <div class="file-list">
-            <h2>IPFS'te Saklanan Belgeler</h2>
+            <h2>Documents Stored on IPFS</h2>
             <div id="fileListContainer">
                 <div class="loading">
                     <div class="spinner"></div>
-                    <p>Belgeler yükleniyor...</p>
+                    <p>Loading documents...</p>
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="/web/city-settings.js"></script>
     <script>
+        CitySettings.init().then(() => loadIPFSFiles());
+        document.addEventListener('city-changed', () => loadIPFSFiles());
+
         async function loadIPFSFiles() {
             try {
-                const response = await fetch('/api/ipfs-files');
+                const response = await fetch(`/api/ipfs-files?${CitySettings.apiQuery()}`);
                 const data = await response.json();
                 
                 // Update stats
                 document.getElementById('totalFiles').textContent = data.files.length;
-                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('tr-TR', {
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('en-US', {
                     hour: '2-digit',
                     minute: '2-digit'
                 });
@@ -301,7 +309,7 @@
                 const container = document.getElementById('fileListContainer');
                 
                 if (data.files.length === 0) {
-                    container.innerHTML = '<div class="empty">Henüz IPFS\'te belge yok</div>';
+                    container.innerHTML = '<div class="empty">No documents on IPFS yet</div>';
                     return;
                 }
                 
@@ -310,29 +318,29 @@
                     html += `
                         <div class="file-item">
                             <h3>${file.license_id}</h3>
-                            <p><strong>Tür:</strong> ${file.license_type}</p>
+                            <p><strong>Type:</strong> ${file.license_type}</p>
                             
                             <p style="margin-top: 10px;"><strong>IPFS Hash:</strong></p>
                             <div class="hash-code">${file.ipfs_hash}</div>
                             
-                            <p style="margin-top: 10px;"><strong>Belge Hash (SHA-256):</strong></p>
+                            <p style="margin-top: 10px;"><strong>Document Hash (SHA-256):</strong></p>
                             <div class="hash-code">${file.document_hash.substring(0, 48)}...</div>
                             
-                            <p style="margin-top: 10px;"><strong>Yüklenme:</strong> ${new Date(file.created_at).toLocaleString('tr-TR')}</p>
+                            <p style="margin-top: 10px;"><strong>Uploaded:</strong> ${new Date(file.created_at).toLocaleString('en-US')}</p>
                             
                             <div class="warning-box">
-                                <strong>Güvenlik:</strong> Bu belge Asimetrik Hibrit Şifreleme (RSA-4096 ve AES) ile uçtan uca korunmaktadır. IPFS ağında tamamen şifreli saklanır ve sadece doğru kriptografik özel anahtara (Private Key) sahip dijital cüzdanlar/yetkililer tarafından çözülebilir.
+                                <strong>Security:</strong> This document is protected end-to-end with hybrid encryption (RSA-4096 and AES). It is stored encrypted on the IPFS network and can only be decrypted by authorized parties with the correct private key.
                             </div>
                             
                             <div style="margin-top: 15px;">
                                 <a href="https://ipfs.io/ipfs/${file.ipfs_hash}" target="_blank" class="btn">
-                                    IPFS Gateway'de Görüntüle (Şifreli)
+                                    View on IPFS Gateway (Encrypted)
                                 </a>
                                 <a href="http://localhost:5001/webui#/files/ipfs/${file.ipfs_hash}" target="_blank" class="btn btn-success">
-                                    IPFS WebUI'da Aç
+                                    Open in IPFS WebUI
                                 </a>
                                 <button onclick="downloadFromIPFS('${file.license_id}')" class="btn btn-danger">
-                                    Şifresini Çöz ve İndir
+                                    Decrypt and Download
                                 </button>
                             </div>
                         </div>
@@ -348,22 +356,21 @@
 
         // Download and decrypt from IPFS
         async function downloadFromIPFS(licenseId) {
-            // Swagger dökümanına göre username/password yerine doğrudan Token istiyoruz
-            const token = prompt("Lütfen Yetkilendirme Tokenini (Authentication Token) giriniz:");
+            // API expects an authentication token (not username/password)
+            const token = prompt("Enter your authentication token:");
             if (!token) {
-                alert("İptal edildi");
+                alert("Cancelled");
                 return;
             }
             
             // Show loading on button
             const btn = event.target;
             const originalText = btn.textContent;
-            btn.textContent = 'İndiriliyor ve şifre çözülüyor...';
+            btn.textContent = 'Downloading and decrypting...';
             btn.disabled = true;
             
             try {
-                // Swagger'ın beklediği application/x-www-form-urlencoded formatını 
-                // tarayıcıda en doğru şekilde taklit etmek için URLSearchParams kullanılır.
+                // Send application/x-www-form-urlencoded body via URLSearchParams
                 const formData = new URLSearchParams();
                 formData.append('license_id', licenseId);
                 formData.append('token', token);
@@ -378,9 +385,9 @@
                 
                 if (!response.ok) {
                     const error = await response.json();
-                    // Eğer backend hata detayını bir nesne olarak dönüyorsa onu string'e çeviriyoruz
+                    // Coerce object error details to a string when needed
                     const errorMsg = typeof error.detail === 'object' ? JSON.stringify(error.detail) : error.detail;
-                    throw new Error(errorMsg || "Sunucu hatası oluştu");
+                    throw new Error(errorMsg || "Server error");
                 }
                 
                 // Download file
@@ -398,14 +405,14 @@
                 btn.textContent = originalText;
                 btn.disabled = false;
                 
-                alert('PDF başarıyla indirildi ve şifresi çözüldü!\n\nİndirilen dosya artık orijinal halinde açılabilir.');
+                alert('PDF downloaded and decrypted successfully!\n\nThe file can now be opened normally.');
                 
             } catch (error) {
                 // Reset button
                 btn.textContent = originalText;
                 btn.disabled = false;
                 
-                alert('Hata: ' + error.message);
+                alert('Error: ' + error.message);
             }
         }
 

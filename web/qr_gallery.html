@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Kod Galerisi</title>
+    <title>QR Code Gallery</title>
     <style>
         * {
             margin: 0;
@@ -112,26 +112,34 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>  QR Kod Galerisi</h1>
-            <p>Verilen tüm ruhsatların QR kodları</p>
-            <a href="/" class="back-link">⬅️ Ana Sayfaya Dön</a>
+            <h1>QR Code Gallery</h1>
+            <p>QR codes for all issued licenses</p>
+            <div style="margin: 12px 0;">
+                <label for="citySelect">Municipality</label>
+                <select id="citySelect" style="margin-left:8px;padding:8px;border-radius:6px;"></select>
+            </div>
+            <a href="/" class="back-link">← Back to Home</a>
         </div>
 
         <div class="gallery" id="qrGallery">
-            <div class="empty">Yükleniyor...</div>
+            <div class="empty">Loading...</div>
         </div>
     </div>
 
+    <script src="/web/city-settings.js"></script>
     <script>
+        CitySettings.init().then(() => loadQRCodes());
+        document.addEventListener('city-changed', () => loadQRCodes());
+
         async function loadQRCodes() {
             try {
-                const response = await fetch('/api/licenses');
+                const response = await fetch(`/api/licenses?${CitySettings.apiQuery()}`);
                 const data = await response.json();
 
                 const gallery = document.getElementById('qrGallery');
 
                 if (data.licenses.length === 0) {
-                    gallery.innerHTML = '<div class="empty">Henüz QR kod yok</div>';
+                    gallery.innerHTML = '<div class="empty">No QR codes yet</div>';
                     return;
                 }
 
@@ -142,13 +150,13 @@
                             <h3>${license.license_id}</h3>
                             <p><strong>${license.license_type}</strong></p>
                             <p>${license.owner_name}</p>
-                            <p>Bölge: ${license.region}</p>
+                            <p>District: ${license.region}</p>
                             <img src="/api/qr/${license.license_id}" alt="QR Code">
                             <p style="font-size: 0.8em; color: #999;">
-                                QR kodunu tarat → Ruhsat bilgilerini gör
+                                Scan QR code to view license details
                             </p>
                             <a href="/api/qr/${license.license_id}" download="${license.license_id}.png" class="download-btn">
-                                  İndir
+                                  Download
                             </a>
                         </div>
                     `;
@@ -157,7 +165,7 @@
                 gallery.innerHTML = html;
             } catch (error) {
                 document.getElementById('qrGallery').innerHTML = 
-                    '<div class="empty">Hata: ' + error.message + '</div>';
+                    '<div class="empty">Error: ' + error.message + '</div>';
             }
         }
 

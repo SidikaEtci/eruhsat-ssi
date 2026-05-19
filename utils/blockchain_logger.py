@@ -9,16 +9,17 @@ import config
 
 
 class BlockchainLogger:
-    """Simple blockchain ledger"""
-    
-    def __init__(self):
-        self.ledger_file = config.DATA_DIR / "blockchain_ledger.json"
-        
-        # Create genesis block if doesn't exist
+    """Simple blockchain ledger (per municipality)."""
+
+    def __init__(self, city_slug: str | None = None):
+        self.city_slug = config.resolve_city_slug(city_slug=city_slug)
+        self.city = __import__("cities").get_city(self.city_slug)
+        self.ledger_file = config.paths_for_city(self.city_slug)["data_dir"] / "blockchain_ledger.json"
+
         if not self.ledger_file.exists():
             self._create_genesis_block()
-            print("   Genesis block created")
-    
+            print(f"   Genesis block created for {self.city['name']}")
+
     def _create_genesis_block(self):
         """Create first block"""
         genesis = {
@@ -26,7 +27,9 @@ class BlockchainLogger:
             "timestamp": datetime.now().isoformat(),
             "data": {
                 "type": "GENESIS",
-                "message": "Konya E-Ruhsat Blockchain Started"
+                "city_slug": self.city_slug,
+                "city_name": self.city["name"],
+                "message": f"{self.city['name']} E-License Blockchain Started",
             },
             "previous_hash": "0" * 64,
             "hash": None

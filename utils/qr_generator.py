@@ -1,7 +1,7 @@
 """QR code generation for license credentials."""
 import qrcode
 from pathlib import Path
-import config
+
 from PIL import Image, ImageDraw, ImageFont
 
 
@@ -9,33 +9,32 @@ class QRCodeManager:
     """Generate scannable QR codes with essential license info."""
 
     @staticmethod
-    def generate_qr_code(credential: dict, license_id: str) -> str:
+    def generate_qr_code(
+        credential: dict,
+        license_id: str,
+        city: dict,
+        qr_codes_dir: Path,
+    ) -> str:
         subject = credential["credentialSubject"]
+        base_url = __import__("config").PUBLIC_BASE_URL.rstrip("/")
 
-        qr_payload = f"""-------------------------
-KONYA E-LICENSE
--------------------------
+        qr_payload = f"""
+{city['name'].upper()} E-LICENSE
 
-License No:
-{subject["licenseId"]}
+License No: {subject["licenseId"]}
 
-Business:
-{subject.get("businessName", "Not specified")}
+City: {subject.get("city", city["name"])}
 
-Region: {subject["region"]}
+District: {subject["region"]}
 
-Valid until:
-{subject["validUntil"]}
+Business: {subject.get("businessName", "Not specified")}
 
-Digital signature:
-{credential["proof"]["proofValue"][:30]}...
+Valid until: {subject["validUntil"]}
 
--------------------------
-Online verification:
-http://localhost:8000/verify-qr/{subject["licenseId"]}
+Digital signature: {credential["proof"]["proofValue"][:30]}...
 
-Scan with any QR reader.
--------------------------"""
+Online verification: {base_url}/verify-qr/{subject["licenseId"]}
+"""
 
         qr = qrcode.QRCode(
             version=None,
@@ -64,12 +63,9 @@ Scan with any QR reader.
             font = ImageFont.load_default()
             font_small = font
 
-        text1 = f"License: {license_id}"
-        text2 = "Scan to view details"
-
         for text, y_offset, use_font in (
-            (text1, height + 8, font),
-            (text2, height + 30, font_small),
+            (f"{city['name']}: {license_id}", height + 8, font),
+            ("Scan to view details", height + 30, font_small),
         ):
             try:
                 bbox = draw.textbbox((0, 0), text, font=use_font)
@@ -77,17 +73,11 @@ Scan with any QR reader.
             except AttributeError:
                 text_width = len(text) * 8
             color = "#667eea" if y_offset > height + 20 else "black"
-            draw.text(
-                ((width - text_width) // 2, y_offset),
-                text,
-                fill=color,
-                font=use_font,
-            )
+            draw.text(((width - text_width) // 2, y_offset), text, fill=color, font=use_font)
 
-        qr_path = config.QR_CODES_DIR / f"{license_id}.png"
+        qr_codes_dir.mkdir(parents=True, exist_ok=True)
+        qr_path = qr_codes_dir / f"{license_id}.png"
         new_img.save(qr_path)
 
         print(f"\n   QR code generated: {qr_path}")
-        print(f"     URL: http://localhost:8000/verify-qr/{license_id}")
-
         return str(qr_path)

@@ -54,7 +54,7 @@ class AuthManager:
     
     def _hash_password(self, password: str) -> str:
         """Hash password with SHA-256"""
-        salt = "konya_eruhsat_2024"
+        salt = "turkey_elicense_platform_2024"
         return hashlib.sha256(f"{password}{salt}".encode()).hexdigest()
     
     def _load_sessions(self):

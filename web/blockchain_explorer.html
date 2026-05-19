@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -260,19 +260,24 @@
     <div class="container">
         <div class="header">
             <h1> ️ BLOCKCHAIN EXPLORER</h1>
-            <p>Konya E-Ruhsat Distributed Ledger</p>
+            <p data-city-subtitle>Turkey E-License Distributed Ledger</p>
+            <div style="text-align: center; margin: 12px 0;">
+                <label for="citySelect" style="color:#888;margin-right:8px;">Municipality</label>
+                <select id="citySelect" style="padding:8px 12px;border-radius:5px;border:1px solid #00ff00;background:#0a0e27;color:#00ff00;"></select>
+            </div>
             <div style="text-align: center;">
-                <a href="/" class="back-link">⬅ Ana Sayfaya Dön</a>
+                <a href="/" class="back-link">← Back to Home</a>
+                <a href="/blockchain_detailed.html" class="back-link" style="margin-left:10px">How it works</a>
             </div>
         </div>
 
         <div class="stats-grid">
             <div class="stat-card">
-                <h3>Toplam Block</h3>
+                <h3>Total Blocks</h3>
                 <div class="value" id="totalBlocks">-</div>
             </div>
             <div class="stat-card" id="validityCard">
-                <h3>Blockchain Durumu</h3>
+                <h3>Blockchain Status</h3>
                 <div class="value" id="validityStatus">-</div>
             </div>
             <div class="stat-card">
@@ -280,26 +285,30 @@
                 <div class="value" id="genesisTime" style="font-size: 1em;">-</div>
             </div>
             <div class="stat-card">
-                <h3>Son Block</h3>
+                <h3>Latest Block</h3>
                 <div class="value" id="latestTime" style="font-size: 1em;">-</div>
             </div>
         </div>
 
         <div class="blocks-container">
-            <h2 style="color: #00ff00; margin-bottom: 20px; text-align: center;">  BLOCK ZİNCİRİ</h2>
+            <h2 style="color: #00ff00; margin-bottom: 20px; text-align: center;">BLOCK CHAIN</h2>
             <div id="blocksContainer">
                 <div class="loading">
                     <div class="spinner"></div>
-                    <p>Blockchain yükleniyor...</p>
+                    <p>Loading blockchain...</p>
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="/web/city-settings.js"></script>
     <script>
+        CitySettings.init().then(() => loadBlockchain());
+        document.addEventListener('city-changed', () => loadBlockchain());
+
         async function loadBlockchain() {
             try {
-                const response = await fetch('/api/blockchain');
+                const response = await fetch(`/api/blockchain?${CitySettings.apiQuery()}`);
                 const data = await response.json();
                 
                 // Update stats
@@ -310,16 +319,16 @@
                 
                 if (data.stats.is_valid) {
                     validityCard.className = 'stat-card valid';
-                    validityStatus.textContent = '   GEÇERLİ';
+                    validityStatus.textContent = 'VALID';
                 } else {
                     validityCard.className = 'stat-card invalid';
-                    validityStatus.textContent = '   GEÇERSİZ';
+                    validityStatus.textContent = 'INVALID';
                 }
                 
                 if (data.stats.genesis_time) {
                     const genesisDate = new Date(data.stats.genesis_time);
                     document.getElementById('genesisTime').textContent = 
-                        genesisDate.toLocaleString('tr-TR', { 
+                        genesisDate.toLocaleString('en-US', { 
                             month: 'short', 
                             day: 'numeric',
                             hour: '2-digit',
@@ -330,7 +339,7 @@
                 if (data.stats.latest_time) {
                     const latestDate = new Date(data.stats.latest_time);
                     document.getElementById('latestTime').textContent = 
-                        latestDate.toLocaleString('tr-TR', { 
+                        latestDate.toLocaleString('en-US', { 
                             month: 'short', 
                             day: 'numeric',
                             hour: '2-digit',
@@ -353,10 +362,10 @@
                             <div class="block-header">
                                 <div class="block-number">
                                     ${isGenesis ? '  GENESIS BLOCK' : '  Block #' + block.block_number}
-                                    ${isGenesis ? '<span class="info-badge">İLK BLOCK</span>' : ''}
+                                    ${isGenesis ? '<span class="info-badge">GENESIS</span>' : ''}
                                 </div>
                                 <div class="block-time">
-                                    ${blockDate.toLocaleString('tr-TR')}
+                                    ${blockDate.toLocaleString('en-US')}
                                 </div>
                             </div>
                             
@@ -383,7 +392,7 @@
                 
             } catch (error) {
                 document.getElementById('blocksContainer').innerHTML = 
-                    `<div class="loading">   Hata: ${error.message}<br><br>Backend çalışıyor mu kontrol edin.</div>`;
+                    `<div class="loading">Error: ${error.message}<br><br>Check whether the backend is running.</div>`;
             }
         }
 

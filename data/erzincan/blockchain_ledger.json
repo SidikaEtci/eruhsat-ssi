@@ -1,0 +1,14 @@
+[
+  {
+    "block_number": 0,
+    "timestamp": "2026-05-18T19:09:47.051209",
+    "data": {
+      "type": "GENESIS",
+      "city_slug": "erzincan",
+      "city_name": "Erzincan",
+      "message": "Erzincan E-License Blockchain Started"
+    },
+    "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "hash": "0c53e3238b5ae16251e9ca4dacd793b624b3df55d9a0a018032d87148b208e77"
+  }
+]

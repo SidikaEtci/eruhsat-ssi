@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Kod Okuyucu - Çevrimdışı Doğrulama</title>
+    <title>QR Reader — Offline Verification</title>
     <style>
         * {
             margin: 0;
@@ -138,10 +138,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>  QR Kod Okuyucu</h1>
-        <p class="subtitle">Verifiable Credential Doğrulama</p>
+        <h1>QR Code Reader</h1>
+        <p class="subtitle">Verifiable Credential Verification</p>
         <div style="text-align: center;">
-            <span class="offline-badge">✓ Çevrimdışı Çalışır - İnternet Gerekmez</span>
+            <span class="offline-badge">✓ Works Offline — No Internet Required</span>
         </div>
 
         <!-- QR Reader -->
@@ -149,9 +149,9 @@
 
         <!-- Manual Input -->
         <div class="manual-input">
-            <h3 style="color: #333; margin-bottom: 10px;">Veya Manuel Giriş:</h3>
-            <textarea id="manualInput" placeholder="QR koddan okunan JSON verisini buraya yapıştırın..."></textarea>
-            <button class="btn" onclick="verifyManual()">Doğrula</button>
+            <h3 style="color: #333; margin-bottom: 10px;">Or Manual Entry:</h3>
+            <textarea id="manualInput" placeholder="Paste JSON data from the QR code here..."></textarea>
+            <button class="btn" onclick="verifyManual()">Verify</button>
         </div>
 
         <!-- Result -->
@@ -183,7 +183,7 @@
         function verifyManual() {
             const input = document.getElementById('manualInput').value;
             if (!input.trim()) {
-                alert('Lütfen QR kod verisini girin');
+                alert('Please enter QR code data');
                 return;
             }
             verifyVC(input);
@@ -198,7 +198,7 @@
                 
                 // Check if it's a VC
                 if (!vc.credentialSubject || !vc.proof) {
-                    throw new Error('Geçersiz QR kod formatı. Bu bir ruhsat QR kodu değil.');
+                    throw new Error('Invalid QR format. This is not a license QR code.');
                 }
 
                 const subject = vc.credentialSubject;
@@ -221,37 +221,37 @@
                     resultDiv.innerHTML = `
                         <div style="text-align: center;">
                             <div style="font-size: 80px; margin-bottom: 20px;">⏰</div>
-                            <h2 style="color: #e67e22; margin-bottom: 15px;">Ruhsat Henüz Geçerli Değil</h2>
+                            <h2 style="color: #e67e22; margin-bottom: 15px;">License Not Yet Valid</h2>
                             <p style="font-size: 1.1em; color: #666; margin-bottom: 20px;">
-                                Bu ruhsat ${subject.validFrom} tarihinde geçerli olacak
+                                This license will become valid on ${subject.validFrom}
                             </p>
                         </div>
                         <div class="vc-details">
-                            <p><strong>  Ruhsat No:</strong> ${subject.licenseId}</p>
-                            <p><strong>  İşletme Türü:</strong> ${subject.licenseType}</p>
-                            <p><strong>  Bölge:</strong> ${subject.region}</p>
-                            <p><strong> ️ Düzenleyen:</strong> ${vc.issuer.name}</p>
-                            <p><strong>  Geçerlilik Başlangıcı:</strong> ${formatDate(subject.validFrom)}</p>
+                            <p><strong>License No:</strong> ${subject.licenseId}</p>
+                            <p><strong>Business Type:</strong> ${subject.licenseType}</p>
+                            <p><strong>District:</strong> ${subject.region}</p>
+                            <p><strong>Issuing Authority:</strong> ${vc.issuer.name}</p>
+                            <p><strong>Valid From:</strong> ${formatDate(subject.validFrom)}</p>
                         </div>
                     `;
                 } else if (isExpired) {
                     resultDiv.innerHTML = `
                         <div style="text-align: center;">
                             <div style="font-size: 80px; margin-bottom: 20px;">  </div>
-                            <h2 style="color: #dc3545; margin-bottom: 15px;">Ruhsatın Süresi Dolmuş</h2>
+                            <h2 style="color: #dc3545; margin-bottom: 15px;">License Expired</h2>
                             <p style="font-size: 1.1em; color: #666; margin-bottom: 20px;">
-                                Bu ruhsat ${subject.validUntil} tarihinde sona erdi
+                                This license ended on ${subject.validUntil}
                             </p>
                         </div>
                         <div class="vc-details">
-                            <p><strong>  Ruhsat No:</strong> ${subject.licenseId}</p>
-                            <p><strong>  İşletme Türü:</strong> ${subject.licenseType}</p>
-                            <p><strong>  Bölge:</strong> ${subject.region}</p>
-                            <p><strong> ️ Düzenleyen:</strong> ${vc.issuer.name}</p>
-                            <p style="color: #dc3545;"><strong> ️ Sona Erme:</strong> ${formatDate(subject.validUntil)}</p>
+                            <p><strong>License No:</strong> ${subject.licenseId}</p>
+                            <p><strong>Business Type:</strong> ${subject.licenseType}</p>
+                            <p><strong>District:</strong> ${subject.region}</p>
+                            <p><strong>Issuing Authority:</strong> ${vc.issuer.name}</p>
+                            <p style="color: #dc3545;"><strong>Expired:</strong> ${formatDate(subject.validUntil)}</p>
                         </div>
                         <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #ffc107;">
-                            <strong> ️ Uyarı:</strong> Bu ruhsatla işletme yapılamaz. Yenilenmesi gerekiyor.
+                            <strong>Warning:</strong> This license cannot be used. Renewal is required.
                         </div>
                     `;
                 } else {
@@ -259,13 +259,13 @@
                     const statusColor = daysRemaining < 30 ? '#e67e22' : '#28a745';
                     const statusIcon = daysRemaining < 30 ? ' ️' : '  ';
                     const statusText = daysRemaining < 30 
-                        ? `Dikkat: ${daysRemaining} gün sonra sona erecek!` 
-                        : `${daysRemaining} gün daha geçerli`;
+                        ? `Warning: expires in ${daysRemaining} days!` 
+                        : `Valid for ${daysRemaining} more days`;
 
                     resultDiv.innerHTML = `
                         <div style="text-align: center;">
                             <div style="font-size: 80px; margin-bottom: 20px;">  </div>
-                            <h2 style="color: #28a745; margin-bottom: 15px;">Ruhsat Geçerli</h2>
+                            <h2 style="color: #28a745; margin-bottom: 15px;">License Valid</h2>
                             <p style="font-size: 1.2em; color: ${statusColor}; margin-bottom: 20px; font-weight: 600;">
                                 ${statusIcon} ${statusText}
                             </p>
@@ -273,48 +273,47 @@
                         
                         <div class="vc-details">
                             <h3 style="color: #667eea; margin-bottom: 15px; border-bottom: 2px solid #667eea; padding-bottom: 5px;">
-                                  Ruhsat Bilgileri
+                                  License Details
                             </h3>
                             
                             <p style="font-size: 1.1em; margin: 12px 0;">
-                                <strong>  Ruhsat No:</strong> 
+                                <strong>License No:</strong> 
                                 <span style="background: #f0f0f0; padding: 5px 10px; border-radius: 5px; font-family: monospace;">
                                     ${subject.licenseId}
                                 </span>
                             </p>
                             
                             <p style="font-size: 1.1em; margin: 12px 0;">
-                                <strong>  İşletme Türü:</strong> ${subject.licenseType}
+                                <strong>Business Type:</strong> ${subject.licenseType}
                             </p>
                             
                             <p style="font-size: 1.1em; margin: 12px 0;">
-                                <strong>  Bölge:</strong> ${subject.region}
+                                <strong>District:</strong> ${subject.region}
                             </p>
                             
                             <p style="font-size: 1.1em; margin: 12px 0;">
-                                <strong> ️ Düzenleyen Kurum:</strong> ${vc.issuer.name}
+                                <strong>Issuing Authority:</strong> ${vc.issuer.name}
                             </p>
                             
                             <div style="background: #e8f5e9; padding: 12px; border-radius: 8px; margin-top: 15px;">
-                                <p style="margin: 5px 0;"><strong>  Başlangıç:</strong> ${formatDate(subject.validFrom)}</p>
-                                <p style="margin: 5px 0;"><strong>  Bitiş:</strong> ${formatDate(subject.validUntil)}</p>
+                                <p style="margin: 5px 0;"><strong>Valid From:</strong> ${formatDate(subject.validFrom)}</p>
+                                <p style="margin: 5px 0;"><strong>Valid Until:</strong> ${formatDate(subject.validUntil)}</p>
                             </div>
                         </div>
                         
                         <div class="proof-verified">
-                              Blockchain ile Doğrulandı - Güvenilir
+                              Verified on Blockchain — Trusted
                         </div>
                         
                         <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #ffc107;">
                             <p style="color: #856404; font-size: 0.9em; margin: 0;">
-                                <strong>  Gizlilik:</strong> İşletme sahibinin TC kimlik ve kişisel bilgileri 
-                                privacy koruması için QR kodda yer almamaktadır.
+                                <strong>Privacy:</strong> The business owner's national ID and personal details are not included in the QR code for privacy protection.
                             </p>
                         </div>
                         
                         <div style="text-align: center; margin-top: 20px;">
                             <button class="btn" onclick="location.reload()" style="width: auto; padding: 10px 30px;">
-                                  Yeni QR Tarat
+                                  Scan New QR
                             </button>
                         </div>
                     `;
@@ -326,22 +325,22 @@
                 resultDiv.innerHTML = `
                     <div style="text-align: center;">
                         <div style="font-size: 60px; margin-bottom: 15px;"> ️</div>
-                        <h3 style="color: #dc3545;">QR Kod Okunamadı</h3>
+                        <h3 style="color: #dc3545;">Could Not Read QR Code</h3>
                         <p style="margin: 15px 0; color: #666;">
                             ${error.message}
                         </p>
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px; text-align: left;">
                             <p style="font-size: 0.9em; color: #666; margin: 5px 0;">
-                                <strong>Olası Nedenler:</strong>
+                                <strong>Possible causes:</strong>
                             </p>
                             <ul style="margin: 10px 0; padding-left: 20px; color: #666; font-size: 0.9em;">
-                                <li>QR kod bulanık veya hasarlı olabilir</li>
-                                <li>Bu bir e-ruhsat QR kodu olmayabilir</li>
-                                <li>QR kod formatı yanlış olabilir</li>
+                                <li>The QR code may be blurry or damaged</li>
+                                <li>This may not be an e-license QR code</li>
+                                <li>The QR code format may be incorrect</li>
                             </ul>
                         </div>
                         <button class="btn" onclick="location.reload()" style="width: auto; padding: 10px 30px; margin-top: 15px;">
-                              Tekrar Dene
+                              Try Again
                         </button>
                     </div>
                 `;
@@ -352,7 +351,7 @@
         function formatDate(dateString) {
             const date = new Date(dateString);
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            return date.toLocaleDateString('tr-TR', options);
+            return date.toLocaleDateString('en-US', options);
         }
     </script>
 </body>
