@@ -52,10 +52,26 @@ class AuthManager:
             print("     admin / admin123 (Administrator)")
             print("     zabita / zabita123 (Officer)\n")
     
-    def _hash_password(self, password: str) -> str:
+    _PASSWORD_SALT = "turkey_elicense_platform_2024"
+    _LEGACY_PASSWORD_SALT = "konya_eruhsat_2024"
+
+    def _hash_password(self, password: str, salt: str | None = None) -> str:
         """Hash password with SHA-256"""
-        salt = "turkey_elicense_platform_2024"
+        salt = salt or self._PASSWORD_SALT
         return hashlib.sha256(f"{password}{salt}".encode()).hexdigest()
+
+    def _verify_password(self, password: str, stored_hash: str) -> bool:
+        if stored_hash == self._hash_password(password):
+            return True
+        return stored_hash == self._hash_password(password, self._LEGACY_PASSWORD_SALT)
+
+    def _upgrade_password_hash(self, username: str, password: str) -> None:
+        """Re-hash with current salt after a successful legacy login."""
+        with open(self.users_file, "r", encoding="utf-8") as file:
+            users = json.load(file)
+        users[username]["password_hash"] = self._hash_password(password)
+        with open(self.users_file, "w", encoding="utf-8") as file:
+            json.dump(users, file, indent=2, ensure_ascii=False)
     
     def _load_sessions(self):
         """Load active sessions from file"""
@@ -113,11 +129,13 @@ class AuthManager:
         
         user = users[username]
         
-        # Verify password
-        password_hash = self._hash_password(password)
-        if user["password_hash"] != password_hash:
+        # Verify password (supports legacy salt from older deployments)
+        if not self._verify_password(password, user["password_hash"]):
             print(f"   Wrong password for: {username}")
             return None
+
+        if user["password_hash"] != self._hash_password(password):
+            self._upgrade_password_hash(username, password)
         
         # Create session token
         token = secrets.token_urlsafe(32)

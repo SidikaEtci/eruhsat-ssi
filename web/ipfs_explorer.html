@@ -339,7 +339,7 @@
                                 <a href="http://localhost:5001/webui#/files/ipfs/${file.ipfs_hash}" target="_blank" class="btn btn-success">
                                     Open in IPFS WebUI
                                 </a>
-                                <button onclick="downloadFromIPFS('${file.license_id}')" class="btn btn-danger">
+                                <button onclick="downloadFromIPFS(event, '${file.license_id}')" class="btn btn-danger">
                                     Decrypt and Download
                                 </button>
                             </div>
@@ -355,11 +355,10 @@
         }
 
         // Download and decrypt from IPFS
-        async function downloadFromIPFS(licenseId) {
-            // API expects an authentication token (not username/password)
-            const token = prompt("Enter your authentication token:");
+        async function downloadFromIPFS(event, licenseId) {
+            const token = localStorage.getItem('auth_token');
             if (!token) {
-                alert("Cancelled");
+                alert("No authentication token found in session. Please log in first.");
                 return;
             }
             
@@ -401,23 +400,15 @@
                 window.URL.revokeObjectURL(url);
                 a.remove();
                 
-                // Reset button
-                btn.textContent = originalText;
-                btn.disabled = false;
-                
                 alert('PDF downloaded and decrypted successfully!\n\nThe file can now be opened normally.');
                 
             } catch (error) {
-                // Reset button
+                alert('Error: ' + error.message);
+            } finally {
                 btn.textContent = originalText;
                 btn.disabled = false;
-                
-                alert('Error: ' + error.message);
             }
         }
-
-        // Load on page load
-        loadIPFSFiles();
         
         // Auto-refresh every 10 seconds
         setInterval(loadIPFSFiles, 10000);
