@@ -52,5 +52,17 @@
         "state_hash": "fa878c27ca7567fa99b51ef7d2cbb7946f03e65de3d7ec07a8020b04e8bb863a",
         "previous_hash": "de1fa1b1f8a1d25b49e01dc1a9570d5d34bc49a2b40ebcea43b16342fc788834",
         "tx_timestamp": "2000-01-01"
+    },
+    "2026-KON-000": {
+        "block_height": 10,
+        "state_hash": "38876c615e696b6cd1e004ff6992b6970599bff55ff966497b62fefdbba8df6c",
+        "previous_hash": "fa878c27ca7567fa99b51ef7d2cbb7946f03e65de3d7ec07a8020b04e8bb863a",
+        "tx_timestamp": "1999-01-01"
+    },
+    "2026-KON-001": {
+        "block_height": 11,
+        "state_hash": "8b6a6a88e99a553d436f29367809497cd7526fc088d2cd2c4f4b15aa290adbd9",
+        "previous_hash": "38876c615e696b6cd1e004ff6992b6970599bff55ff966497b62fefdbba8df6c",
+        "tx_timestamp": "1999-11-23"
     }
 }

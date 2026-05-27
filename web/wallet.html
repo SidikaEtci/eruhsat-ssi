@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-Ruhsat · Digital Wallet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:      #0d1117;
+    --surface: #161b22;
+    --border:  #30363d;
+    --accent:  #f6851b;   /* MetaMask orange */
+    --accent2: #ffb74d;
+    --green:   #3fb950;
+    --red:     #f85149;
+    --yellow:  #d29922;
+    --text:    #e6edf3;
+    --muted:   #8b949e;
+    --card:    #1c2128;
+    --mono:    'IBM Plex Mono', monospace;
+    --sans:    'IBM Plex Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; min-height: 100vh; }
+
+  /* ── Header ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px; height: 56px;
+    display: flex; align-items: center; gap: 12px;
+    position: sticky; top: 0; background: var(--bg); z-index: 100;
+  }
+  .logo { width: 32px; height: 32px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 17px; }
+  header h1 { font-size: 15px; font-weight: 600; }
+  header .sub { color: var(--muted); font-size: 11px; font-family: var(--mono); }
+  .spacer { flex: 1; }
+  .nav a { color: var(--muted); text-decoration: none; font-size: 13px; padding: 6px 12px; border-radius: 6px; transition: .15s; }
+  .nav a:hover { background: var(--surface); color: var(--text); }
+
+  /* ── Layout ── */
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+
+  /* ── MetaMask connect banner ── */
+  .mm-banner {
+    background: linear-gradient(135deg, #1a0e00, #1c1408, #0d1117);
+    border: 1px solid #5a3500;
+    border-radius: 12px;
+    padding: 32px;
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .mm-logo { font-size: 56px; margin-bottom: 12px; }
+  .mm-banner h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+  .mm-banner p { color: var(--muted); font-size: 13px; margin-bottom: 20px; max-width: 420px; margin-left: auto; margin-right: auto; }
+  .mm-address {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 16px; font-family: var(--mono); font-size: 13px;
+    color: var(--accent2); display: inline-flex; align-items: center; gap: 8px;
+  }
+  .mm-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+
+  /* ── Tabs ── */
+  .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
+  .tab {
+    padding: 10px 18px; cursor: pointer; font-size: 13px; font-weight: 500;
+    color: var(--muted); border-bottom: 2px solid transparent;
+    background: none; border-top: none; border-left: none; border-right: none;
+    font-family: var(--sans); transition: .15s;
+  }
+  .tab.active { color: var(--accent2); border-bottom-color: var(--accent); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ── Cards ── */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 22px; margin-bottom: 16px; }
+  .card-title { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 14px; }
+
+  /* ── Wallet hero ── */
+  .wallet-hero {
+    background: linear-gradient(135deg, #1a0e00, #1c1408 60%, #0d1117);
+    border: 1px solid #3a2010; border-radius: 12px; padding: 24px 28px;
+    margin-bottom: 24px; position: relative; overflow: hidden;
+  }
+  .wallet-hero::after {
+    content: '⬡'; position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+    font-size: 88px; color: rgba(246,133,27,.07); pointer-events: none;
+  }
+  .wallet-hero .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+  .wallet-hero .name { font-size: 18px; font-weight: 600; margin: 4px 0 2px; }
+  .wallet-hero .addr { font-family: var(--mono); font-size: 12px; color: var(--accent2); margin-bottom: 18px; }
+  .wallet-hero .stats { display: flex; gap: 28px; }
+  .wallet-hero .stat-label { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+  .wallet-hero .stat-val { font-size: 22px; font-weight: 600; font-family: var(--mono); }
+
+  /* ── Credential card ── */
+  .cred-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 18px; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .cred-icon { width: 38px; height: 38px; background: #1c2a1c; border: 1px solid #2a4a2a; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  .cred-info { flex: 1; min-width: 0; }
+  .cred-title { font-weight: 600; font-size: 14px; margin-bottom: 3px; }
+  .cred-meta { color: var(--muted); font-size: 12px; font-family: var(--mono); }
+  .cred-actions { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+
+  /* ── Offer card ── */
+  .offer-card {
+    background: #1a1a08; border: 1px solid #3a3a00;
+    border-radius: 8px; padding: 14px 18px; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 14px;
+  }
+
+  /* ── Badges ── */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; font-family: var(--mono); }
+  .badge-green  { background: #1a4731; color: var(--green); }
+  .badge-yellow { background: #4a2a00; color: var(--yellow); }
+  .badge-red    { background: #4a1a1a; color: var(--red); }
+
+  /* ── Buttons ── */
+  .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-family: var(--sans); font-size: 13px; font-weight: 500; transition: .15s; }
+  .btn-mm   { background: var(--accent); color: white; font-size: 14px; padding: 12px 28px; }
+  .btn-mm:hover { background: var(--accent2); color: #111; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent2); color: #111; }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: var(--surface); color: var(--text); }
+  .btn-green { background: #1a4731; color: var(--green); border: 1px solid #2a6348; }
+  .btn-green:hover { background: #2a6348; }
+  .btn-sm { padding: 5px 11px; font-size: 12px; }
+
+  /* ── QR modal ── */
+  .qr-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 200; align-items: center; justify-content: center; }
+  .qr-overlay.open { display: flex; }
+  .qr-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 28px; text-align: center; max-width: 360px; width: 100%; }
+  .qr-box canvas { border-radius: 8px; margin: 14px auto; display: block; background: white; padding: 12px; }
+  .qr-timer { font-family: var(--mono); font-size: 22px; color: var(--accent2); margin: 10px 0 4px; }
+  .qr-status { font-size: 12px; color: var(--muted); }
+
+  /* ── Verify panel ── */
+  .verify-result { border-radius: 8px; padding: 16px 18px; margin-top: 14px; display: none; }
+  .verify-result.ok  { background: #1a4731; border: 1px solid var(--green); }
+  .verify-result.err { background: #4a1a1a; border: 1px solid var(--red); }
+  .verify-result .vr-title { font-weight: 600; margin-bottom: 8px; font-size: 14px; }
+  .verify-result .vr-row { font-family: var(--mono); font-size: 12px; color: var(--muted); margin: 2px 0; }
+
+  /* ── Steps ── */
+  .steps { display: flex; flex-direction: column; gap: 10px; }
+  .step { display: flex; gap: 12px; align-items: flex-start; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-family: var(--mono); flex-shrink: 0; margin-top: 1px; }
+  .step-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .step-text strong { color: var(--text); }
+
+  /* ── Misc ── */
+  .empty { text-align: center; padding: 36px; color: var(--muted); font-size: 13px; }
+  .section-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+  #toast { position: fixed; bottom: 20px; right: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; font-size: 13px; z-index: 999; display: none; max-width: 280px; }
+
+  @media (max-width: 600px) { .cred-card { flex-wrap: wrap; } .cred-actions { flex-direction: row; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"> </div>
+  <div>
+    <h1>E-Ruhsat Digital Wallet</h1>
+    <div class="sub">MetaMask · Self-Sovereign Identity</div>
+  </div>
+  <div class="spacer"></div>
+  <nav class="nav">
+    <a href="/">Home</a>
+    <a href="/blockchain_explorer.html">Blockchain</a>
+    <a href="/qr-gallery">QR Gallery</a>
+  </nav>
+</header>
+
+<div class="container">
+
+  <!-- MetaMask banner -->
+  <div class="mm-banner" id="mm-banner">
+    <div class="mm-logo"> </div>
+    <h2>Connect Your MetaMask Wallet</h2>
+    <p>Your private key stays inside MetaMask. Only your public address is shared with the platform — no passwords, no custodians.</p>
+    <button class="btn btn-mm" onclick="connectMetaMask()" id="connect-btn">Connect MetaMask</button>
+    <div id="mm-error" style="color:var(--red);font-size:12px;margin-top:10px;display:none"></div>
+  </div>
+
+  <div id="mm-connected" style="display:none">
+    <div class="mm-banner" style="padding:14px 24px;text-align:left;display:flex;align-items:center;gap:16px">
+      <div style="font-size:28px"> </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:2px">Connected Wallet</div>
+        <div class="mm-address"><div class="mm-dot"></div><span id="connected-addr">—</span></div>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost btn-sm" onclick="disconnect()">Disconnect</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('credentials')">🪪 My Credentials</button>
+    <button class="tab" onclick="switchTab('offers')">📨 Offers</button>
+    <button class="tab" onclick="switchTab('verify')">✅ Verify</button>
+    <button class="tab" onclick="switchTab('howto')">❓ How it works</button>
+  </div>
+
+  <!-- ══ Credentials ══ -->
+  <div class="tab-content active" id="tab-credentials">
+    <div id="cred-no-wallet" class="empty">Connect MetaMask to view your credentials.</div>
+    <div id="cred-loaded" style="display:none">
+      <div class="wallet-hero">
+        <div class="label">Digital Wallet</div>
+        <div class="name" id="w-name">—</div>
+        <div class="addr" id="w-addr">—</div>
+        <div class="stats">
+          <div><div class="stat-label">Credentials</div><div class="stat-val" id="w-cred-count">0</div></div>
+          <div><div class="stat-label">Pending Offers</div><div class="stat-val" id="w-offer-count" style="color:var(--yellow)">0</div></div>
+        </div>
+      </div>
+      <div class="section-title">My License Credentials</div>
+      <div id="cred-list"></div>
+    </div>
+  </div>
+
+  <!-- ══ Offers ══ -->
+  <div class="tab-content" id="tab-offers">
+    <div class="section-title">Pending Credential Offers</div>
+    <div id="offer-list"><div class="empty">Connect MetaMask to see offers.</div></div>
+  </div>
+
+  <!-- ══ Verify ══ -->
+  <div class="tab-content" id="tab-verify">
+    <div style="max-width:460px">
+      <div class="section-title">Verify a License Presentation</div>
+      <div class="card">
+        <div class="card-title">Inspector — Enter Challenge ID from QR</div>
+        <div style="margin-bottom:12px">
+          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:5px">Challenge ID</label>
+          <input id="inp-challenge" type="text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+            style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:8px 12px;outline:none">
+        </div>
+        <div style="margin-bottom:12px">
+          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:5px">Holder Address</label>
+          <input id="inp-holder-addr" type="text" placeholder="0x..."
+            style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:8px 12px;outline:none">
+        </div>
+        <div style="margin-bottom:14px">
+          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:5px">MetaMask Signature</label>
+          <input id="inp-signature" type="text" placeholder="0x..."
+            style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:8px 12px;outline:none">
+        </div>
+        <button class="btn btn-green" onclick="verifyPresentation()" style="width:100%">Verify Signature</button>
+        <div id="verify-result" class="verify-result"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ How it works ══ -->
+  <div class="tab-content" id="tab-howto">
+    <div style="max-width:580px">
+      <div class="section-title">How MetaMask Wallet Verification Works</div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">Issuing a License (Municipality → Citizen)</div>
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-text">Municipality officer fills the issue form on the main page and includes the citizen's <strong>Ethereum address</strong>.</div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-text">The backend creates a <strong>W3C Verifiable Credential</strong> signed with the municipality's Ed25519 key and logs it to the blockchain.</div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-text">A <strong>credential offer</strong> is sent to the citizen's wallet. The citizen must accept it — nothing is added to their wallet without consent.</div></div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">Presenting to an Inspector (Fraud-proof)</div>
+        <div class="steps">
+          <div class="step"><div class="step-num">4</div><div class="step-text">Citizen clicks <strong>Show QR</strong> on their credential. The backend generates a one-time challenge string.</div></div>
+          <div class="step"><div class="step-num">5</div><div class="step-text"><strong>MetaMask signs the challenge</strong> — the private key never leaves the extension. The citizen must physically approve the signing in MetaMask.</div></div>
+          <div class="step"><div class="step-num">6</div><div class="step-text">A QR code is generated containing the <strong>challenge ID + signature + address</strong>. The QR expires in 5 minutes and is single-use.</div></div>
+          <div class="step"><div class="step-num">7</div><div class="step-text">Inspector scans the QR → backend recovers the signer from the signature → checks it matches the credential holder → verifies municipality signature on the VC.</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Why This Stops Fraud</div>
+        <div class="steps">
+          <div class="step"><div class="step-num">✗</div><div class="step-text"><strong>Screenshot attack:</strong> The QR expires in 5 min and is consumed on first scan — screenshots are useless.</div></div>
+          <div class="step"><div class="step-num">✗</div><div class="step-text"><strong>Replay attack:</strong> Each challenge is a UUID stored server-side and marked used immediately — the same QR cannot be scanned twice.</div></div>
+          <div class="step"><div class="step-num">✗</div><div class="step-text"><strong>Forgery:</strong> The signature can only be produced by the MetaMask key that owns the Ethereum address on the credential.</div></div>
+          <div class="step"><div class="step-num">✗</div><div class="step-text"><strong>Tampering:</strong> The municipality's Ed25519 signature on the VC is re-verified every time — any modification breaks the proof.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ QR Modal ══ -->
+<div class="qr-overlay" id="qr-modal">
+  <div class="qr-box">
+    <div style="font-weight:600;margin-bottom:2px">License Presentation QR</div>
+    <div style="font-size:12px;color:var(--muted)">Show to the inspector — single use, 5 minutes</div>
+    <canvas id="qr-canvas" width="220" height="220"></canvas>
+    <div class="qr-timer" id="qr-timer">05:00</div>
+    <div class="qr-status">⚡ MetaMask-signed · One-time use</div>
+    <div style="margin-top:14px;font-size:11px;color:var(--muted);font-family:var(--mono);word-break:break-all;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px" id="qr-sig-preview"></div>
+    <div style="display:flex;gap:8px;margin-top:14px;justify-content:center">
+      <button class="btn btn-ghost btn-sm" onclick="closeQR()">Close</button>
+      <button class="btn btn-primary btn-sm" onclick="copyQRData()">Copy Challenge ID</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- QR code library (pure JS, no external server needed) -->
+<script>
+// Minimal QR code renderer using qrcode-generator (CDN)
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+let connectedAddress = null;
+let currentChallengeId = null;
+let currentSignature = null;
+let qrTimerInterval = null;
+let qrInstance = null;
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  const saved = localStorage.getItem('mmAddress');
+  if (saved) await connectMetaMask(saved);
+});
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function switchTab(name) {
+  const names = ['credentials', 'offers', 'verify', 'howto'];
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', names[i] === name));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'offers' && connectedAddress) loadOffers();
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function toast(msg, color = 'var(--text)') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.style.color = color; el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3200);
+}
+
+// ── MetaMask ──────────────────────────────────────────────────────────────────
+let _mmConnecting = false;
+
+async function connectMetaMask(savedAddr) {
+  const errEl = document.getElementById('mm-error');
+  const btn   = document.getElementById('connect-btn');
+  errEl.style.display = 'none';
+
+  if (!window.ethereum) {
+    errEl.textContent = 'MetaMask is not installed. Please install the MetaMask browser extension.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // Prevent firing a second popup if one is already open
+  if (_mmConnecting) {
+    errEl.textContent = 'MetaMask is already waiting for your approval — check the MetaMask extension.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // If called on page load with a saved address, try the silent read-only path first
+  if (savedAddr) {
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+      if (accounts && accounts.length) {
+        await _onConnected(accounts[0]);
+        return;
+      }
+    } catch (_) { /* MetaMask locked — fall through to full request below */ }
+  }
+
+  _mmConnecting = true;
+  if (btn) { btn.disabled = true; btn.textContent = 'Waiting for MetaMask…'; }
+
+  try {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+    if (!accounts || !accounts.length) {
+      errEl.textContent = 'No accounts found. Please unlock MetaMask and try again.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    await _onConnected(accounts[0]);
+
+  } catch (err) {
+    // -32002: popup already open (user has not responded yet)
+    if (err.code === -32002) {
+      errEl.textContent = 'MetaMask popup is already open — please check the MetaMask extension and approve or reject the request there.';
+    } else if (err.code === 4001) {
+      errEl.textContent = 'Connection rejected. Please accept the MetaMask request to continue.';
+    } else {
+      errEl.textContent = 'MetaMask error: ' + (err.message || String(err));
+    }
+    errEl.style.display = 'block';
+  } finally {
+    _mmConnecting = false;
+    if (btn) { btn.disabled = false; btn.textContent = 'Connect MetaMask'; }
+  }
+}
+
+async function _onConnected(rawAddress) {
+  const address = rawAddress.toLowerCase();
+  connectedAddress = address;
+  localStorage.setItem('mmAddress', address);
+
+  // Register wallet on backend (idempotent — safe to call every time)
+  const form = new FormData();
+  form.append('eth_address', address);
+  await fetch('/api/wallet/register', { method: 'POST', body: form });
+
+  document.getElementById('mm-banner').style.display = 'none';
+  document.getElementById('mm-connected').style.display = 'block';
+  document.getElementById('connected-addr').textContent =
+    address.slice(0, 6) + '…' + address.slice(-4);
+
+  loadWallet();
+
+  // Listen for account / network changes (register only once)
+  if (!window._mmListening) {
+    window._mmListening = true;
+    window.ethereum.on('accountsChanged', accs => {
+      if (!accs.length) { disconnect(); return; }
+      localStorage.setItem('mmAddress', accs[0].toLowerCase());
+      location.reload();
+    });
+  }
+}
+
+function disconnect() {
+  localStorage.removeItem('mmAddress');
+  connectedAddress = null;
+  document.getElementById('mm-banner').style.display = 'block';
+  document.getElementById('mm-connected').style.display = 'none';
+  document.getElementById('cred-loaded').style.display = 'none';
+  document.getElementById('cred-no-wallet').style.display = 'block';
+}
+
+// ── Load wallet ───────────────────────────────────────────────────────────────
+async function loadWallet() {
+  if (!connectedAddress) return;
+  try {
+    const [wRes, cRes] = await Promise.all([
+      fetch('/api/wallet/' + connectedAddress),
+      fetch('/api/wallet/' + connectedAddress + '/credentials'),
+    ]);
+    if (!wRes.ok) { document.getElementById('cred-no-wallet').style.display = 'block'; return; }
+    const w = await wRes.json();
+    const { credentials } = await cRes.json();
+
+    document.getElementById('cred-no-wallet').style.display = 'none';
+    document.getElementById('cred-loaded').style.display = 'block';
+    document.getElementById('w-name').textContent = w.display_name || 'My Wallet';
+    document.getElementById('w-addr').textContent = w.address;
+    document.getElementById('w-cred-count').textContent = w.credential_count;
+    document.getElementById('w-offer-count').textContent = w.pending_offer_count;
+
+    renderCredentials(credentials);
+  } catch (e) { console.error(e); }
+}
+
+function renderCredentials(creds) {
+  const el = document.getElementById('cred-list');
+  if (!creds.length) {
+    el.innerHTML = '<div class="empty">No credentials yet.<br>Accepted license offers will appear here.</div>';
+    return;
+  }
+  el.innerHTML = creds.map(c => {
+    const expired = c.valid_until && new Date() > new Date(c.valid_until);
+    const badge = expired
+      ? '<span class="badge badge-red">Expired</span>'
+      : '<span class="badge badge-green">Valid</span>';
+    return `<div class="cred-card">
+      <div class="cred-icon">📄</div>
+      <div class="cred-info">
+        <div class="cred-title">${c.license_type || 'Business License'} ${badge}</div>
+        <div class="cred-meta">${c.business_name || '—'} · ${c.city || '—'} / ${c.region || '—'}</div>
+        <div class="cred-meta">ID: ${c.license_id} · Valid until: ${c.valid_until || '—'}</div>
+        <div class="cred-meta" style="color:var(--muted)">Authority: ${c.authority || '—'}</div>
+      </div>
+      <div class="cred-actions">
+        ${!expired ? `<button class="btn btn-primary btn-sm" onclick="startPresentation('${c.license_id}')">Show QR</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Offers ────────────────────────────────────────────────────────────────────
+async function loadOffers() {
+  if (!connectedAddress) return;
+  const res = await fetch('/api/wallet/' + connectedAddress + '/offers');
+  const { offers } = await res.json();
+  const el = document.getElementById('offer-list');
+  if (!offers.length) { el.innerHTML = '<div class="empty">No pending offers.</div>'; return; }
+  el.innerHTML = offers.map(o => `
+    <div class="offer-card">
+      <div class="cred-icon" style="background:#1a1a08;border-color:#3a3a00">📬</div>
+      <div class="cred-info">
+        <div class="cred-title">License Offer <span class="badge badge-yellow">Pending</span></div>
+        <div class="cred-meta">License: ${o.license_id} · From: ${o.issuer_name}</div>
+        <div class="cred-meta">Offered: ${new Date(o.offered_at).toLocaleString('en-GB')}</div>
+      </div>
+      <button class="btn btn-green btn-sm" onclick="acceptOffer('${o.offer_id}')">Accept</button>
+    </div>`).join('');
+}
+
+async function acceptOffer(offerId) {
+  const res = await fetch(`/api/wallet/${connectedAddress}/accept/${offerId}`, { method: 'POST' });
+  const data = await res.json();
+  if (data.success) {
+    toast('✓ Credential stored in wallet', 'var(--green)');
+    loadOffers();
+    loadWallet();
+  } else {
+    toast('Error: ' + (data.detail || 'Unknown error'), 'var(--red)');
+  }
+}
+
+// ── Presentation (MetaMask sign) ──────────────────────────────────────────────
+async function startPresentation(licenseId) {
+  if (!connectedAddress) { toast('Connect MetaMask first', 'var(--red)'); return; }
+  if (!window.ethereum) { toast('MetaMask not available', 'var(--red)'); return; }
+
+  try {
+    toast('Requesting challenge from server…');
+
+    // Step 1: get one-time challenge from backend
+    const res = await fetch(`/api/wallet/challenge/${connectedAddress}/${licenseId}`);
+    if (!res.ok) { const e = await res.json(); throw new Error(e.detail); }
+    const { challenge_id, challenge_text } = await res.json();
+    currentChallengeId = challenge_id;
+
+    toast('Waiting for MetaMask signature…');
+
+    // Step 2: ask MetaMask to sign the challenge (personal_sign)
+    // MetaMask will show the full challenge_text to the user before they approve
+    const signature = await window.ethereum.request({
+      method: 'personal_sign',
+      params: [challenge_text, connectedAddress],
+    });
+    currentSignature = signature;
+
+    // Step 3: show QR with challenge_id + address + signature encoded
+    const qrPayload = JSON.stringify({
+      challenge_id,
+      address: connectedAddress,
+      signature,
+    });
+    showQR(qrPayload, licenseId);
+
+  } catch (err) {
+    if (err.code === 4001) toast('Signature rejected in MetaMask.', 'var(--yellow)');
+    else toast('Error: ' + (err.message || err), 'var(--red)');
+  }
+}
+
+function showQR(payload, licenseId) {
+  const modal = document.getElementById('qr-modal');
+  modal.classList.add('open');
+
+  // Render QR into canvas
+  const canvas = document.getElementById('qr-canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Use QRCode.js library
+  const tempDiv = document.createElement('div');
+  document.body.appendChild(tempDiv);
+  new QRCode(tempDiv, {
+    text: payload,
+    width: 220, height: 220,
+    colorDark: '#000000', colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M,
+  });
+  setTimeout(() => {
+    const img = tempDiv.querySelector('img');
+    if (img) {
+      const image = new Image();
+      image.onload = () => ctx.drawImage(image, 0, 0, 220, 220);
+      image.src = img.src;
+    }
+    document.body.removeChild(tempDiv);
+  }, 100);
+
+  // Show truncated signature for reference
+  document.getElementById('qr-sig-preview').textContent =
+    'sig: ' + currentSignature.slice(0, 20) + '…' + currentSignature.slice(-8);
+
+  startQRTimer(300);
+}
+
+function startQRTimer(seconds) {
+  clearInterval(qrTimerInterval);
+  let rem = seconds;
+  const el = document.getElementById('qr-timer');
+  qrTimerInterval = setInterval(() => {
+    rem--;
+    const m = String(Math.floor(rem / 60)).padStart(2, '0');
+    const s = String(rem % 60).padStart(2, '0');
+    el.textContent = `${m}:${s}`;
+    if (rem <= 30) el.style.color = 'var(--red)';
+    if (rem <= 0) { clearInterval(qrTimerInterval); closeQR(); toast('QR expired. Please generate a new one.', 'var(--yellow)'); }
+  }, 1000);
+}
+
+function closeQR() {
+  clearInterval(qrTimerInterval);
+  document.getElementById('qr-modal').classList.remove('open');
+  document.getElementById('qr-timer').style.color = 'var(--accent2)';
+}
+
+function copyQRData() {
+  if (currentChallengeId) {
+    navigator.clipboard.writeText(currentChallengeId);
+    toast('Challenge ID copied to clipboard', 'var(--green)');
+  }
+}
+
+// ── Verify ────────────────────────────────────────────────────────────────────
+async function verifyPresentation() {
+  const challenge_id = document.getElementById('inp-challenge').value.trim();
+  const eth_address  = document.getElementById('inp-holder-addr').value.trim();
+  const signature    = document.getElementById('inp-signature').value.trim();
+
+  if (!challenge_id || !eth_address || !signature) {
+    toast('Fill in all three fields', 'var(--yellow)'); return;
+  }
+
+  const form = new FormData();
+  form.append('challenge_id', challenge_id);
+  form.append('eth_address', eth_address);
+  form.append('signature', signature);
+
+  const res = await fetch('/api/wallet/present', { method: 'POST', body: form });
+  const data = await res.json();
+  const el = document.getElementById('verify-result');
+  el.style.display = 'block';
+
+  if (data.valid) {
+    const L = data.license || {};
+    el.className = 'verify-result ok';
+    el.innerHTML = `
+      <div class="vr-title" style="color:var(--green)"> ${data.message}</div>
+      <div class="vr-row">License ID: ${L.license_id}</div>
+      <div class="vr-row">Type: ${L.license_type}</div>
+      <div class="vr-row">Business: ${L.business_name}</div>
+      <div class="vr-row">City / District: ${L.city} / ${L.region}</div>
+      <div class="vr-row">Valid: ${L.valid_from} → ${L.valid_until}</div>
+      <div class="vr-row">Issuing Authority: ${L.authority}</div>
+      <div class="vr-row">Holder: ${data.holder_address}</div>`;
+  } else {
+    el.className = 'verify-result err';
+    el.innerHTML = `
+      <div class="vr-title" style="color:var(--red)"> Verification Failed</div>
+      <div class="vr-row">Reason: ${data.reason}</div>
+      <div class="vr-row">${data.message}</div>`;
+  }
+}
+</script>
+</body>
+</html>

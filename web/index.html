@@ -104,6 +104,11 @@
             box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
         }
 
+        .header-links a:nth-child(5) {
+            background: linear-gradient(135deg, #f6851b 0%, #e2761b 100%);
+            box-shadow: 0 4px 15px rgba(246, 133, 27, 0.35);
+        }
+
         .header-links a:hover {
             transform: translateY(-3px);
         }
@@ -318,6 +323,9 @@
                 <a href="/qr-reader" target="_blank">
                       QR Reader
                 </a>
+                <a href="/wallet" target="_blank">
+                      Digital Wallet
+                </a>
             </div>
         </div>
 
@@ -355,6 +363,11 @@
                     <div class="form-group">
                         <label>National ID *</label>
                         <input type="text" name="citizen_id" placeholder="11-digit national ID" maxlength="11" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>  Citizen MetaMask Address (for Digital Wallet)</label>
+                        <input type="text" name="eth_address" placeholder="0x... (optional)" style="font-family: monospace;">
                     </div>
 
                     <div class="form-group">
@@ -478,13 +491,19 @@
             const form = e.target;
             const formData = new FormData(form);
             
+            // Use wallet endpoint if ETH address is provided
+            const ethAddress = formData.get('eth_address') || '';
+            const endpoint = ethAddress.startsWith('0x') && ethAddress.length === 42
+                ? '/api/issue-to-wallet'
+                : '/api/issue';
+            
             // Show loading
             document.getElementById('issueLoading').style.display = 'block';
             document.getElementById('issueResult').style.display = 'none';
             document.getElementById('qrContainer').style.display = 'none';
             
             try {
-                const response = await fetch('/api/issue', {
+                const response = await fetch(endpoint, {
                     method: 'POST',
                     body: formData
                 });
@@ -502,7 +521,8 @@
                     resultDiv.innerHTML = `
                         <h3>   ${data.message}</h3>
                         <p><strong>License No:</strong> ${formData.get('license_id')}</p>
-                        ${data.data.ipfs_hash ? `<p><strong>IPFS Hash:</strong> ${data.data.ipfs_hash.substring(0, 20)}...</p>` : ''}
+                        ${data.data?.ipfs_hash || data.license?.ipfs_hash ? `<p><strong>IPFS Hash:</strong> ${(data.data?.ipfs_hash || data.license?.ipfs_hash).substring(0, 20)}...</p>` : ''}
+                        ${data.wallet_address ? `<p><strong>  Wallet Offer Sent:</strong> ${data.wallet_address.slice(0,6)}…${data.wallet_address.slice(-4)} — citizen must accept in <a href="/wallet" target="_blank" style="color:#f6851b">Digital Wallet</a></p>` : ''}
                         <div style="background: #d4edda; padding: 10px; border-radius: 5px; margin-top: 10px; border-left: 4px solid #28a745;">
                             <strong>Smart Contract:</strong> All business rules passed ✓
                         </div>
@@ -677,18 +697,15 @@
                             <p style="margin: 8px 0;"><strong>Issuing Authority:</strong> ${license.authority}</p>
                         </div>
                         
-                        <div style="display: flex; justify-content: center; margin-top: 20px;">
+                        <div style="margin-top: 20px; text-align: center;">
                             <a href="/verify-qr/${license.license_id}" target="_blank" 
-                            style="background: #667eea; color: white; padding: 12px 20px; border-radius: 5px; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center;">
-                                Detailed View
+                               style="background: #667eea; color: white; padding: 12px 20px; border-radius: 5px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                                  Detailed View
                             </a>
                         </div>
-                        
-                        <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #ffc107;">
-                            <p style="color: #856404; font-size: 0.9em; margin: 0;">
-                                <strong>PDF download:</strong> Downloads the encrypted PDF from IPFS and decrypts it. Only authorized users (officer/admin) can access it.
-                            </p>
-                        </div>
+                        <p style="color: #666; font-size: 0.9em; margin-top: 12px; text-align: center;">
+                            Encrypted PDF download is available on the <a href="/ipfs_explorer.html">IPFS Explorer</a> after sign-in (officer/admin only).
+                        </p>
                     `;
                 } else {
                     // Invalid license
@@ -759,74 +776,6 @@
                 month: 'long', 
                 day: 'numeric' 
             });
-        }
-
-        // Download PDF Function
-        async function downloadPDF(licenseId) {
-            // Get token
-            const token = localStorage.getItem('auth_token');
-            
-            if (!token) {
-                alert('You must sign in to download PDFs.\n\nOnly authorized users (officer/admin) can download PDFs.');
-                window.location.href = '/login.html';
-                return;
-            }
-            
-            try {
-                // Find and disable button
-                const btn = event.target;
-                const originalText = btn.textContent;
-                btn.textContent = 'Downloading...';
-                btn.disabled = true;
-                
-                const formData = new FormData();
-                formData.append('license_id', licenseId);
-                formData.append('token', token);
-                
-                const response = await fetch('/api/download-pdf', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (response.status === 401) {
-                    localStorage.removeItem('auth_token');
-                    localStorage.removeItem('user');
-                    alert('Your session has expired. Please sign in again.');
-                    window.location.href = '/login.html';
-                    return;
-                }
-                
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.detail || 'Download failed');
-                }
-                
-                // Download file
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `license_${licenseId}.pdf`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                a.remove();
-                
-                // Reset button
-                btn.textContent = originalText;
-                btn.disabled = false;
-                
-                alert('PDF downloaded successfully!\n\nEncrypted PDF was fetched from IPFS and decrypted.\nYou can open the file as a normal PDF.');
-                
-            } catch (error) {
-                alert('Error: ' + error.message);
-                
-                // Reset button
-                if (event.target) {
-                    event.target.textContent = '  Download PDF';
-                    event.target.disabled = false;
-                }
-            }
         }
 
         // Load recent licenses

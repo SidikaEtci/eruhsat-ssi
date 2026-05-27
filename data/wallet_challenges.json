@@ -1,0 +1,14 @@
+{
+  "10310196-4235-481f-b607-937bc75e5e7d": {
+    "eth_address": "0xcfa030a32e262852a3cb834c2b436c869c786dc6",
+    "license_id": "2026-KON-001",
+    "challenge_text": "E-Ruhsat License Presentation\n\nLicense ID: 2026-KON-001\nHolder: 0xcfa030a32e262852a3cb834c2b436c869c786dc6\nChallenge: 10310196-4235-481f-b607-937bc75e5e7d\nExpires: 2026-05-25T20:35:18.983565Z\n\nBy signing this message you authorize a one-time\npresentation of your license to an inspector.\nThis signature cannot be reused.",
+    "expires_at": "2026-05-25T20:35:18.983565Z"
+  },
+  "b689070d-c2c4-4e7e-ab2e-3d7040f50b85": {
+    "eth_address": "0xcfa030a32e262852a3cb834c2b436c869c786dc6",
+    "license_id": "2026-KON-001",
+    "challenge_text": "E-Ruhsat License Presentation\n\nLicense ID: 2026-KON-001\nHolder: 0xcfa030a32e262852a3cb834c2b436c869c786dc6\nChallenge: b689070d-c2c4-4e7e-ab2e-3d7040f50b85\nExpires: 2026-05-25T20:40:11.867567Z\n\nBy signing this message you authorize a one-time\npresentation of your license to an inspector.\nThis signature cannot be reused.",
+    "expires_at": "2026-05-25T20:40:11.867567Z"
+  }
+}
