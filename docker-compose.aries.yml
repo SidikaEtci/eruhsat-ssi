@@ -1,0 +1,24 @@
+version: '3'
+services:
+  kbb-issuer-agent:
+    image: ghcr.io/openwallet-foundation/acapy-agent:latest
+    ports:
+      - "8020:8020"
+      - "8021:8021"
+    command: >
+      start
+      --label "Konya Büyükşehir Belediyesi (Issuer)"
+      --inbound-transport http 0.0.0.0 8020
+      --outbound-transport http
+      --endpoint http://127.0.0.1:8020
+      --admin 0.0.0.0 8021
+      --admin-insecure-mode
+      --genesis-url http://host.docker.internal:9000/genesis
+      --wallet-type askar
+      --wallet-name kbb_issuer_wallet
+      --wallet-key kbb_secret_key_123
+      --seed KonyaKBB_Ruhsat_Seed_00000000000
+      --auto-provision
+      --log-level info
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

@@ -1,0 +1,50 @@
+{
+  "holder_id": "citizen-123",
+  "did": "did:key:citizen-123",
+  "display_name": " Ahmet Yılmaz",
+  "credentials": [],
+  "pending_offers": [
+    {
+      "offer_id": "5206ecd8-e9cf-4aed-8eed-7c4d46e95b91",
+      "license_id": "2026-KON-004",
+      "credential": {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://konya.bel.tr/credentials/v1"
+        ],
+        "type": [
+          "VerifiableCredential",
+          "LicenseCredential"
+        ],
+        "issuer": {
+          "id": "did:indy:tr:konya:municipality",
+          "name": "Konya Metropolitan Municipality"
+        },
+        "issuanceDate": "2026-05-28T01:50:07.442541Z",
+        "expirationDate": "2027-05-28T01:50:07.442552Z",
+        "credentialSubject": {
+          "id": "did:indy:tr:konya:254aa248acb47dd6",
+          "licenseId": "2026-KON-004",
+          "licenseType": "Cafe Operating License",
+          "businessName": "Tekinler Cafe",
+          "city": "Konya",
+          "citySlug": "konya",
+          "region": "Beyşehir",
+          "address": "Ardıçlı Mah. Rauf Orbay Cad. 42250, Selçuklu/KONYA",
+          "validFrom": "2000-09-09",
+          "validUntil": "2028-10-31"
+        },
+        "proof": {
+          "type": "Ed25519Signature2020",
+          "created": "2026-05-28T01:50:07.442702Z",
+          "verificationMethod": "did:indy:tr:konya:municipality#keys-1",
+          "proofPurpose": "assertionMethod",
+          "proofValue": "Sv8VJxx0gG+aZCKLJZ6MkK+zmRruywKzGTnFY+UThu9KKwuMMSCLtYdrIcCPhCJrtuN4hFBVJ6TxGDCMQRMECQ=="
+        }
+      },
+      "issuer_name": "Konya Metropolitan Municipality",
+      "offered_at": "2026-05-28T01:50:07.557113Z"
+    }
+  ],
+  "created_at": "2026-05-28T01:50:07.552934Z"
+}

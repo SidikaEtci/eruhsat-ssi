@@ -1045,5 +1045,51 @@
     },
     "previous_hash": "841153ac339bbd8464b68cdb256d4589627861047ce7f095c22c144c98bcbbc3",
     "hash": "066cd7f79bfacbb2618c9691fe26f8671acf8d5fd1cc2201e877fcdf590931ec"
+  },
+  {
+    "block_number": 28,
+    "timestamp": "2026-05-28T01:50:07.543865",
+    "data": {
+      "action": "ISSUE_LICENSE",
+      "city_slug": "konya",
+      "credential": {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://konya.bel.tr/credentials/v1"
+        ],
+        "type": [
+          "VerifiableCredential",
+          "LicenseCredential"
+        ],
+        "issuer": {
+          "id": "did:indy:tr:konya:municipality",
+          "name": "Konya Metropolitan Municipality"
+        },
+        "issuanceDate": "2026-05-28T01:50:07.442541Z",
+        "expirationDate": "2027-05-28T01:50:07.442552Z",
+        "credentialSubject": {
+          "id": "did:indy:tr:konya:254aa248acb47dd6",
+          "licenseId": "2026-KON-004",
+          "licenseType": "Cafe Operating License",
+          "businessName": "Tekinler Cafe",
+          "city": "Konya",
+          "citySlug": "konya",
+          "region": "Beyşehir",
+          "address": "Ardıçlı Mah. Rauf Orbay Cad. 42250, Selçuklu/KONYA",
+          "validFrom": "2000-09-09",
+          "validUntil": "2028-10-31"
+        },
+        "proof": {
+          "type": "Ed25519Signature2020",
+          "created": "2026-05-28T01:50:07.442702Z",
+          "verificationMethod": "did:indy:tr:konya:municipality#keys-1",
+          "proofPurpose": "assertionMethod",
+          "proofValue": "Sv8VJxx0gG+aZCKLJZ6MkK+zmRruywKzGTnFY+UThu9KKwuMMSCLtYdrIcCPhCJrtuN4hFBVJ6TxGDCMQRMECQ=="
+        }
+      },
+      "ipfs_hash": ""
+    },
+    "previous_hash": "066cd7f79bfacbb2618c9691fe26f8671acf8d5fd1cc2201e877fcdf590931ec",
+    "hash": "504c57d714283726f1dd06a1f0f13e5d706c9186e7a8cf0b8b0f25870f4e71d3"
   }
 ]

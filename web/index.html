@@ -366,8 +366,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label>  Citizen MetaMask Address (for Digital Wallet)</label>
-                        <input type="text" name="eth_address" placeholder="0x... (optional)" style="font-family: monospace;">
+                        <label>  Citizen Aries Holder DID / ID (for Digital Wallet)</label>
+                        <input type="text" name="holder_id" placeholder="did:example:citizen-123 (optional)" style="font-family: monospace;">
                     </div>
 
                     <div class="form-group">
@@ -492,8 +492,8 @@
             const formData = new FormData(form);
             
             // Use wallet endpoint if ETH address is provided
-            const ethAddress = formData.get('eth_address') || '';
-            const endpoint = ethAddress.startsWith('0x') && ethAddress.length === 42
+            const holderId = (formData.get('holder_id') || '').trim();
+            const endpoint = holderId
                 ? '/api/issue-to-wallet'
                 : '/api/issue';
             
@@ -522,7 +522,7 @@
                         <h3>   ${data.message}</h3>
                         <p><strong>License No:</strong> ${formData.get('license_id')}</p>
                         ${data.data?.ipfs_hash || data.license?.ipfs_hash ? `<p><strong>IPFS Hash:</strong> ${(data.data?.ipfs_hash || data.license?.ipfs_hash).substring(0, 20)}...</p>` : ''}
-                        ${data.wallet_address ? `<p><strong>  Wallet Offer Sent:</strong> ${data.wallet_address.slice(0,6)}…${data.wallet_address.slice(-4)} — citizen must accept in <a href="/wallet" target="_blank" style="color:#f6851b">Digital Wallet</a></p>` : ''}
+                        ${data.holder_id ? `<p><strong>  Aries Wallet Offer Sent:</strong> ${data.holder_id.slice(0,6)}…${data.holder_id.slice(-4)} — citizen must accept in <a href="/wallet" target="_blank" style="color:#f6851b">Digital Wallet</a></p>` : ''}
                         <div style="background: #d4edda; padding: 10px; border-radius: 5px; margin-top: 10px; border-left: 4px solid #28a745;">
                             <strong>Smart Contract:</strong> All business rules passed ✓
                         </div>

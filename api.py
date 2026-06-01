@@ -249,6 +249,7 @@ async def issue_license(
         paths = config.paths_for_city(slug)
 
         license_data = {
+            # --- Mevcut sistemin beklediği veriler (Arayüz ve DB kırılmasın diye) ---
             "license_id": license_id,
             "license_type": license_type,
             "owner_name": owner_name,
@@ -258,6 +259,10 @@ async def issue_license(
             "region": region,
             "issue_date": issue_date,
             "expiry_date": expiry_date,
+            
+            # --- YENİ EKLENEN KISIM: Aries için İngilizce Şema Köprüsü ---
+            "tax_id": citizen_id,          # Şemadaki tax_id alanını citizen_id ile besliyoruz
+            "license_class": license_type, # Şemadaki license_class alanını license_type ile besliyoruz
         }
 
         pdf_path = None
@@ -274,7 +279,7 @@ async def issue_license(
         return {
             "success": True,
             "message": "License issued successfully",
-            "data": result,
+            "data": result, # result içinde artık qr_code_base64 ve invitation_url var
         }
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -411,50 +416,48 @@ async def download_pdf_endpoint(license_id: str = Form(...), token: str = Form(.
 
 @app.post("/api/wallet/register")
 async def register_wallet(
-    eth_address: str = Form(...),
+    holder_id: str = Form(None),
+    eth_address: str = Form(None),
     display_name: str = Form(""),
 ):
-    """
-    Register a MetaMask wallet address on the backend.
-    The private key never leaves MetaMask — only the public address is stored.
-    """
-    if not eth_address.startswith("0x") or len(eth_address) != 42:
-        raise HTTPException(status_code=400, detail="Invalid Ethereum address format.")
+    resolved_holder = (holder_id or eth_address or "").strip()
+    if not resolved_holder:
+        raise HTTPException(status_code=400, detail="holder_id is required.")
     try:
-        result = wallet_service.register_wallet(eth_address, display_name)
+        result = wallet_service.register_wallet(resolved_holder, display_name)
         return {"success": True, **result}
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
-@app.get("/api/wallet/{eth_address}")
-async def get_wallet_info(eth_address: str):
-    """Return wallet metadata for a given Ethereum address."""
-    summary = wallet_service.get_wallet_summary(eth_address)
+@app.get("/api/wallet/{holder_id}")
+async def get_wallet_info(holder_id: str):
+    """Return wallet metadata for a given holder id."""
+    summary = wallet_service.get_wallet_summary(holder_id)
     if not summary:
         raise HTTPException(status_code=404, detail="Wallet not found. Please register first.")
     return summary
 
 
-@app.get("/api/wallet/{eth_address}/credentials")
-async def list_wallet_credentials(eth_address: str):
+@app.get("/api/wallet/{holder_id}/credentials")
+async def list_wallet_credentials(holder_id: str):
     """List all Verifiable Credentials stored in the wallet."""
-    creds = wallet_service.list_credentials(eth_address)
-    return {"address": eth_address.lower(), "credentials": creds, "count": len(creds)}
+    creds = wallet_service.list_credentials(holder_id)
+    return {"holder_id": holder_id.lower(), "credentials": creds, "count": len(creds)}
 
 
-@app.get("/api/wallet/{eth_address}/offers")
-async def list_pending_offers(eth_address: str):
+@app.get("/api/wallet/{holder_id}/offers")
+async def list_pending_offers(holder_id: str):
     """List pending credential offers waiting for the citizen to accept."""
-    offers = wallet_service.list_offers(eth_address)
-    return {"address": eth_address.lower(), "offers": offers, "count": len(offers)}
+    offers = wallet_service.list_offers(holder_id)
+    return {"holder_id": holder_id.lower(), "offers": offers, "count": len(offers)}
 
 
-@app.post("/api/wallet/{eth_address}/accept/{offer_id}")
-async def accept_credential_offer(eth_address: str, offer_id: str):
+@app.post("/api/wallet/{holder_id}/accept/{offer_id}")
+async def accept_credential_offer(holder_id: str, offer_id: str):
     """Citizen accepts a pending credential offer → VC stored in wallet."""
     try:
-        result = wallet_service.accept_offer(eth_address, offer_id)
+        result = wallet_service.accept_offer(holder_id, offer_id)
         return {"success": True, **result}
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
@@ -462,15 +465,15 @@ async def accept_credential_offer(eth_address: str, offer_id: str):
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
-@app.get("/api/wallet/challenge/{eth_address}/{license_id}")
-async def get_presentation_challenge(eth_address: str, license_id: str):
+@app.get("/api/wallet/challenge/{holder_id}/{license_id}")
+async def get_presentation_challenge(holder_id: str, license_id: str):
     """
     Step 1 of VP flow: generate a one-time challenge string.
-    The frontend passes this to MetaMask for signing.
+    The frontend uses this to build a one-time Aries presentation token.
     Expires in 5 minutes and can only be used once.
     """
     try:
-        result = wallet_service.create_challenge(eth_address, license_id)
+        result = wallet_service.create_challenge(holder_id, license_id)
         return {"success": True, **result}
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
@@ -481,20 +484,26 @@ async def get_presentation_challenge(eth_address: str, license_id: str):
 @app.post("/api/wallet/present")
 async def verify_wallet_presentation(
     challenge_id: str = Form(...),
-    eth_address: str = Form(...),
-    signature: str = Form(...),     # hex signature from MetaMask personal_sign
+    holder_id: str = Form(None),
+    eth_address: str = Form(None),
+    presentation_token: str = Form(None),
+    signature: str = Form(None),
 ):
     """
-    Step 2 of VP flow: verify a MetaMask-signed presentation.
+    Step 2 of VP flow: verify an Aries-style one-time presentation.
 
     The inspector scans the QR → browser hits this endpoint with:
       - challenge_id  from the QR
-      - eth_address   of the holder
-      - signature     produced by MetaMask personal_sign
+      - holder_id             of the holder
+      - presentation_token    one-time token from challenge response
 
     Returns verification result with license details if valid.
     """
-    result = wallet_service.verify_presentation(challenge_id, eth_address, signature)
+    resolved_holder = (holder_id or eth_address or "").strip()
+    resolved_token = (presentation_token or signature or "").strip()
+    if not resolved_holder or not resolved_token:
+        raise HTTPException(status_code=400, detail="holder_id and presentation_token are required")
+    result = wallet_service.verify_presentation(challenge_id, resolved_holder, resolved_token)
     return result
 
 
@@ -511,15 +520,11 @@ async def issue_license_to_wallet(
     region: str = Form(...),
     issue_date: str = Form(...),
     expiry_date: str = Form(...),
-    eth_address: str = Form(...),       # MetaMask address of the citizen
+    holder_id: str = Form(None), # Aries OOB için opsiyonel
+    eth_address: str = Form(None),
     city_slug: str = Form(None),
     pdf_file: UploadFile = File(None),
 ):
-    """
-    Issue a license and automatically send a credential offer to the
-    citizen's MetaMask wallet. The citizen must accept the offer
-    in their wallet app to store the VC.
-    """
     try:
         slug = config.resolve_city_slug(city_slug=city_slug)
         paths = config.paths_for_city(slug)
@@ -534,6 +539,10 @@ async def issue_license_to_wallet(
             "region": region,
             "issue_date": issue_date,
             "expiry_date": expiry_date,
+            # Aries Şeması (Schema: 10) İçin Gerekli Olanlar
+            "tax_id": citizen_id,          
+            "license_class": license_type,
+            # ipfs_hash issuer.py içinde dinamik eklenecek
         }
 
         pdf_path = None
@@ -543,30 +552,24 @@ async def issue_license_to_wallet(
             with open(pdf_path, "wb") as file:
                 shutil.copyfileobj(pdf_file.file, file)
 
-        # Issue the VC (existing logic — Ed25519 signed by municipality)
+        # İhraç Sürecini Başlat
         result = issuer.issue_license(
             license_data,
             str(pdf_path) if pdf_path else None,
             city_slug=slug,
         )
 
-        # Auto-register the MetaMask wallet if not already known
-        wallet_service.register_wallet(eth_address, owner_name)
-
-        # Send credential offer to the wallet
-        offer = wallet_service.offer_credential(eth_address, result["credential"])
-
         return {
             "success": True,
-            "message": "License issued and credential offer sent to MetaMask wallet.",
+            "message": "Belge başarıyla blokzincirine işlendi! Lütfen mobil cüzdanınızla QR kodu okutunuz.",
             "license": result,
-            "wallet_address": eth_address.lower(),
-            "offer_id": offer["offer_id"],
+            "holder_id": "aries-mobile-wallet",
+            "offer_id": result.get("invitation_url", "aries-oob-invitation"),
+            "qr_base64": result.get("qr_code_base64", "") # Test için arayüze direkt dönsün
         }
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-
-
+               
 # ── Wallet web page ───────────────────────────────────────────────────────────
 
 @app.get("/wallet", response_class=HTMLResponse)

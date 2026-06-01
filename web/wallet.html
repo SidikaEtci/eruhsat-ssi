@@ -11,7 +11,7 @@
     --bg:      #0d1117;
     --surface: #161b22;
     --border:  #30363d;
-    --accent:  #f6851b;   /* MetaMask orange */
+    --accent:  #f6851b;   /* Aries blue */
     --accent2: #ffb74d;
     --green:   #3fb950;
     --red:     #f85149;
@@ -42,7 +42,7 @@
   /* ── Layout ── */
   .container { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
 
-  /* ── MetaMask connect banner ── */
+  /* ── Aries connect banner ── */
   .mm-banner {
     background: linear-gradient(135deg, #1a0e00, #1c1408, #0d1117);
     border: 1px solid #5a3500;
@@ -167,7 +167,7 @@
   <div class="logo"> </div>
   <div>
     <h1>E-Ruhsat Digital Wallet</h1>
-    <div class="sub">MetaMask · Self-Sovereign Identity</div>
+    <div class="sub">Hyperledger Aries · Self-Sovereign Identity</div>
   </div>
   <div class="spacer"></div>
   <nav class="nav">
@@ -179,12 +179,12 @@
 
 <div class="container">
 
-  <!-- MetaMask banner -->
+  <!-- Aries banner -->
   <div class="mm-banner" id="mm-banner">
     <div class="mm-logo"> </div>
-    <h2>Connect Your MetaMask Wallet</h2>
-    <p>Your private key stays inside MetaMask. Only your public address is shared with the platform — no passwords, no custodians.</p>
-    <button class="btn btn-mm" onclick="connectMetaMask()" id="connect-btn">Connect MetaMask</button>
+    <h2>Connect Your Aries Wallet</h2>
+    <p>Use your Hyperledger Aries wallet DID or holder ID. Credentials stay in your SSI wallet and are presented with one-time proof tokens.</p>
+    <button class="btn btn-mm" onclick="connectAries()" id="connect-btn">Connect Aries Wallet</button>
     <div id="mm-error" style="color:var(--red);font-size:12px;margin-top:10px;display:none"></div>
   </div>
 
@@ -192,7 +192,7 @@
     <div class="mm-banner" style="padding:14px 24px;text-align:left;display:flex;align-items:center;gap:16px">
       <div style="font-size:28px"> </div>
       <div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:2px">Connected Wallet</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:2px">Connected Aries Holder</div>
         <div class="mm-address"><div class="mm-dot"></div><span id="connected-addr">—</span></div>
       </div>
       <div class="spacer"></div>
@@ -209,7 +209,7 @@
 
   <!-- ══ Credentials ══ -->
   <div class="tab-content active" id="tab-credentials">
-    <div id="cred-no-wallet" class="empty">Connect MetaMask to view your credentials.</div>
+    <div id="cred-no-wallet" class="empty">Connect Aries Wallet to view your credentials.</div>
     <div id="cred-loaded" style="display:none">
       <div class="wallet-hero">
         <div class="label">Digital Wallet</div>
@@ -228,7 +228,7 @@
   <!-- ══ Offers ══ -->
   <div class="tab-content" id="tab-offers">
     <div class="section-title">Pending Credential Offers</div>
-    <div id="offer-list"><div class="empty">Connect MetaMask to see offers.</div></div>
+    <div id="offer-list"><div class="empty">Connect Aries Wallet to see offers.</div></div>
   </div>
 
   <!-- ══ Verify ══ -->
@@ -243,16 +243,16 @@
             style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:8px 12px;outline:none">
         </div>
         <div style="margin-bottom:12px">
-          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:5px">Holder Address</label>
-          <input id="inp-holder-addr" type="text" placeholder="0x..."
+          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:5px">Holder DID / ID</label>
+          <input id="inp-holder-addr" type="text" placeholder="did:example:holder123"
             style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:8px 12px;outline:none">
         </div>
         <div style="margin-bottom:14px">
-          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:5px">MetaMask Signature</label>
-          <input id="inp-signature" type="text" placeholder="0x..."
+          <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:5px">Presentation Token</label>
+          <input id="inp-signature" type="text" placeholder="8f4f8df1-1ef2-4a0e-9d3a-4bcf..."
             style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:8px 12px;outline:none">
         </div>
-        <button class="btn btn-green" onclick="verifyPresentation()" style="width:100%">Verify Signature</button>
+        <button class="btn btn-green" onclick="verifyPresentation()" style="width:100%">Verify Presentation</button>
         <div id="verify-result" class="verify-result"></div>
       </div>
     </div>
@@ -261,11 +261,11 @@
   <!-- ══ How it works ══ -->
   <div class="tab-content" id="tab-howto">
     <div style="max-width:580px">
-      <div class="section-title">How MetaMask Wallet Verification Works</div>
+      <div class="section-title">How Aries Wallet Verification Works</div>
       <div class="card" style="margin-bottom:16px">
         <div class="card-title">Issuing a License (Municipality → Citizen)</div>
         <div class="steps">
-          <div class="step"><div class="step-num">1</div><div class="step-text">Municipality officer fills the issue form on the main page and includes the citizen's <strong>Ethereum address</strong>.</div></div>
+          <div class="step"><div class="step-num">1</div><div class="step-text">Municipality officer fills the issue form on the main page and includes the citizen's <strong>Aries holder DID</strong>.</div></div>
           <div class="step"><div class="step-num">2</div><div class="step-text">The backend creates a <strong>W3C Verifiable Credential</strong> signed with the municipality's Ed25519 key and logs it to the blockchain.</div></div>
           <div class="step"><div class="step-num">3</div><div class="step-text">A <strong>credential offer</strong> is sent to the citizen's wallet. The citizen must accept it — nothing is added to their wallet without consent.</div></div>
         </div>
@@ -274,9 +274,9 @@
         <div class="card-title">Presenting to an Inspector (Fraud-proof)</div>
         <div class="steps">
           <div class="step"><div class="step-num">4</div><div class="step-text">Citizen clicks <strong>Show QR</strong> on their credential. The backend generates a one-time challenge string.</div></div>
-          <div class="step"><div class="step-num">5</div><div class="step-text"><strong>MetaMask signs the challenge</strong> — the private key never leaves the extension. The citizen must physically approve the signing in MetaMask.</div></div>
-          <div class="step"><div class="step-num">6</div><div class="step-text">A QR code is generated containing the <strong>challenge ID + signature + address</strong>. The QR expires in 5 minutes and is single-use.</div></div>
-          <div class="step"><div class="step-num">7</div><div class="step-text">Inspector scans the QR → backend recovers the signer from the signature → checks it matches the credential holder → verifies municipality signature on the VC.</div></div>
+          <div class="step"><div class="step-num">5</div><div class="step-text"><strong>Aries wallet accepts the proof request</strong> and returns a one-time presentation token for this challenge.</div></div>
+          <div class="step"><div class="step-num">6</div><div class="step-text">A QR code is generated containing the <strong>challenge ID + holder DID + presentation token</strong>. The QR expires in 5 minutes and is single-use.</div></div>
+          <div class="step"><div class="step-num">7</div><div class="step-text">Inspector scans the QR → backend validates holder binding, one-time token, and municipality signature on the VC.</div></div>
         </div>
       </div>
       <div class="card">
@@ -284,7 +284,7 @@
         <div class="steps">
           <div class="step"><div class="step-num">✗</div><div class="step-text"><strong>Screenshot attack:</strong> The QR expires in 5 min and is consumed on first scan — screenshots are useless.</div></div>
           <div class="step"><div class="step-num">✗</div><div class="step-text"><strong>Replay attack:</strong> Each challenge is a UUID stored server-side and marked used immediately — the same QR cannot be scanned twice.</div></div>
-          <div class="step"><div class="step-num">✗</div><div class="step-text"><strong>Forgery:</strong> The signature can only be produced by the MetaMask key that owns the Ethereum address on the credential.</div></div>
+          <div class="step"><div class="step-num">✗</div><div class="step-text"><strong>Forgery:</strong> The one-time presentation token is bound to the exact holder and challenge, so forged holder claims fail verification.</div></div>
           <div class="step"><div class="step-num">✗</div><div class="step-text"><strong>Tampering:</strong> The municipality's Ed25519 signature on the VC is re-verified every time — any modification breaks the proof.</div></div>
         </div>
       </div>
@@ -300,7 +300,7 @@
     <div style="font-size:12px;color:var(--muted)">Show to the inspector — single use, 5 minutes</div>
     <canvas id="qr-canvas" width="220" height="220"></canvas>
     <div class="qr-timer" id="qr-timer">05:00</div>
-    <div class="qr-status">⚡ MetaMask-signed · One-time use</div>
+    <div class="qr-status">⚡ Aries proof token · One-time use</div>
     <div style="margin-top:14px;font-size:11px;color:var(--muted);font-family:var(--mono);word-break:break-all;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px" id="qr-sig-preview"></div>
     <div style="display:flex;gap:8px;margin-top:14px;justify-content:center">
       <button class="btn btn-ghost btn-sm" onclick="closeQR()">Close</button>
@@ -326,8 +326,8 @@ let qrInstance = null;
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
-  const saved = localStorage.getItem('mmAddress');
-  if (saved) await connectMetaMask(saved);
+  const saved = localStorage.getItem('ariesHolderId');
+  if (saved) await connectAries(saved);
 });
 
 // ── Tab switching ─────────────────────────────────────────────────────────────
@@ -346,98 +346,63 @@ function toast(msg, color = 'var(--text)') {
   setTimeout(() => el.style.display = 'none', 3200);
 }
 
-// ── MetaMask ──────────────────────────────────────────────────────────────────
-let _mmConnecting = false;
+// ── Aries Wallet ───────────────────────────────────────────────────────────────
+let _ariesConnecting = false;
 
-async function connectMetaMask(savedAddr) {
+async function connectAries(savedAddr) {
   const errEl = document.getElementById('mm-error');
   const btn   = document.getElementById('connect-btn');
   errEl.style.display = 'none';
 
-  if (!window.ethereum) {
-    errEl.textContent = 'MetaMask is not installed. Please install the MetaMask browser extension.';
+  if (_ariesConnecting) {
+    errEl.textContent = 'A connection request is already in progress.';
     errEl.style.display = 'block';
     return;
   }
 
-  // Prevent firing a second popup if one is already open
-  if (_mmConnecting) {
-    errEl.textContent = 'MetaMask is already waiting for your approval — check the MetaMask extension.';
-    errEl.style.display = 'block';
-    return;
-  }
-
-  // If called on page load with a saved address, try the silent read-only path first
-  if (savedAddr) {
-    try {
-      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-      if (accounts && accounts.length) {
-        await _onConnected(accounts[0]);
-        return;
-      }
-    } catch (_) { /* MetaMask locked — fall through to full request below */ }
-  }
-
-  _mmConnecting = true;
-  if (btn) { btn.disabled = true; btn.textContent = 'Waiting for MetaMask…'; }
-
-  try {
-    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-    if (!accounts || !accounts.length) {
-      errEl.textContent = 'No accounts found. Please unlock MetaMask and try again.';
+  let holderId = (savedAddr || '').trim();
+  if (!holderId) {
+    holderId = prompt('Enter your Aries holder DID / ID (example: did:example:citizen-123):', '');
+    if (!holderId) {
+      errEl.textContent = 'Holder DID / ID is required.';
       errEl.style.display = 'block';
       return;
     }
+  }
 
-    await _onConnected(accounts[0]);
+  _ariesConnecting = true;
+  if (btn) { btn.disabled = true; btn.textContent = 'Connecting Aries wallet…'; }
 
+  try {
+    await _onConnected(holderId);
   } catch (err) {
-    // -32002: popup already open (user has not responded yet)
-    if (err.code === -32002) {
-      errEl.textContent = 'MetaMask popup is already open — please check the MetaMask extension and approve or reject the request there.';
-    } else if (err.code === 4001) {
-      errEl.textContent = 'Connection rejected. Please accept the MetaMask request to continue.';
-    } else {
-      errEl.textContent = 'MetaMask error: ' + (err.message || String(err));
-    }
+    errEl.textContent = 'Aries connection error: ' + (err.message || String(err));
     errEl.style.display = 'block';
   } finally {
-    _mmConnecting = false;
-    if (btn) { btn.disabled = false; btn.textContent = 'Connect MetaMask'; }
+    _ariesConnecting = false;
+    if (btn) { btn.disabled = false; btn.textContent = 'Connect Aries Wallet'; }
   }
 }
 
 async function _onConnected(rawAddress) {
   const address = rawAddress.toLowerCase();
   connectedAddress = address;
-  localStorage.setItem('mmAddress', address);
+  localStorage.setItem('ariesHolderId', address);
 
-  // Register wallet on backend (idempotent — safe to call every time)
   const form = new FormData();
-  form.append('eth_address', address);
+  form.append('holder_id', address);
   await fetch('/api/wallet/register', { method: 'POST', body: form });
 
   document.getElementById('mm-banner').style.display = 'none';
   document.getElementById('mm-connected').style.display = 'block';
   document.getElementById('connected-addr').textContent =
-    address.slice(0, 6) + '…' + address.slice(-4);
+    address.length > 18 ? (address.slice(0, 12) + '…' + address.slice(-6)) : address;
 
   loadWallet();
-
-  // Listen for account / network changes (register only once)
-  if (!window._mmListening) {
-    window._mmListening = true;
-    window.ethereum.on('accountsChanged', accs => {
-      if (!accs.length) { disconnect(); return; }
-      localStorage.setItem('mmAddress', accs[0].toLowerCase());
-      location.reload();
-    });
-  }
 }
 
 function disconnect() {
-  localStorage.removeItem('mmAddress');
+  localStorage.removeItem('ariesHolderId');
   connectedAddress = null;
   document.getElementById('mm-banner').style.display = 'block';
   document.getElementById('mm-connected').style.display = 'none';
@@ -460,7 +425,7 @@ async function loadWallet() {
     document.getElementById('cred-no-wallet').style.display = 'none';
     document.getElementById('cred-loaded').style.display = 'block';
     document.getElementById('w-name').textContent = w.display_name || 'My Wallet';
-    document.getElementById('w-addr').textContent = w.address;
+    document.getElementById('w-addr').textContent = w.holder_id || w.address || '—';
     document.getElementById('w-cred-count').textContent = w.credential_count;
     document.getElementById('w-offer-count').textContent = w.pending_offer_count;
 
@@ -525,40 +490,33 @@ async function acceptOffer(offerId) {
   }
 }
 
-// ── Presentation (MetaMask sign) ──────────────────────────────────────────────
+// ── Presentation (Aries one-time token) ─────────────────────────────────────
 async function startPresentation(licenseId) {
-  if (!connectedAddress) { toast('Connect MetaMask first', 'var(--red)'); return; }
-  if (!window.ethereum) { toast('MetaMask not available', 'var(--red)'); return; }
-
+  if (!connectedAddress) { toast('Connect Aries wallet first', 'var(--red)'); return; }
+  
   try {
     toast('Requesting challenge from server…');
 
     // Step 1: get one-time challenge from backend
     const res = await fetch(`/api/wallet/challenge/${connectedAddress}/${licenseId}`);
     if (!res.ok) { const e = await res.json(); throw new Error(e.detail); }
-    const { challenge_id, challenge_text } = await res.json();
+    const { challenge_id, presentation_token } = await res.json();
     currentChallengeId = challenge_id;
 
-    toast('Waiting for MetaMask signature…');
+    toast('Generating one-time presentation token…');
 
-    // Step 2: ask MetaMask to sign the challenge (personal_sign)
-    // MetaMask will show the full challenge_text to the user before they approve
-    const signature = await window.ethereum.request({
-      method: 'personal_sign',
-      params: [challenge_text, connectedAddress],
-    });
-    currentSignature = signature;
+    // Step 2: include one-time token with holder id in QR payload
+    currentSignature = presentation_token;
 
-    // Step 3: show QR with challenge_id + address + signature encoded
     const qrPayload = JSON.stringify({
       challenge_id,
-      address: connectedAddress,
-      signature,
+      holder_id: connectedAddress,
+      presentation_token,
     });
     showQR(qrPayload, licenseId);
 
   } catch (err) {
-    if (err.code === 4001) toast('Signature rejected in MetaMask.', 'var(--yellow)');
+    if (err.code === 4001) toast('Presentation rejected.', 'var(--yellow)');
     else toast('Error: ' + (err.message || err), 'var(--red)');
   }
 }
@@ -591,9 +549,9 @@ function showQR(payload, licenseId) {
     document.body.removeChild(tempDiv);
   }, 100);
 
-  // Show truncated signature for reference
+  // Show truncated presentation token for reference
   document.getElementById('qr-sig-preview').textContent =
-    'sig: ' + currentSignature.slice(0, 20) + '…' + currentSignature.slice(-8);
+    'token: ' + currentSignature.slice(0, 20) + '…' + currentSignature.slice(-8);
 
   startQRTimer(300);
 }
@@ -628,17 +586,17 @@ function copyQRData() {
 // ── Verify ────────────────────────────────────────────────────────────────────
 async function verifyPresentation() {
   const challenge_id = document.getElementById('inp-challenge').value.trim();
-  const eth_address  = document.getElementById('inp-holder-addr').value.trim();
-  const signature    = document.getElementById('inp-signature').value.trim();
+  const holder_id    = document.getElementById('inp-holder-addr').value.trim();
+  const presentation_token = document.getElementById('inp-signature').value.trim();
 
-  if (!challenge_id || !eth_address || !signature) {
+  if (!challenge_id || !holder_id || !presentation_token) {
     toast('Fill in all three fields', 'var(--yellow)'); return;
   }
 
   const form = new FormData();
   form.append('challenge_id', challenge_id);
-  form.append('eth_address', eth_address);
-  form.append('signature', signature);
+  form.append('holder_id', holder_id);
+  form.append('presentation_token', presentation_token);
 
   const res = await fetch('/api/wallet/present', { method: 'POST', body: form });
   const data = await res.json();
@@ -656,7 +614,7 @@ async function verifyPresentation() {
       <div class="vr-row">City / District: ${L.city} / ${L.region}</div>
       <div class="vr-row">Valid: ${L.valid_from} → ${L.valid_until}</div>
       <div class="vr-row">Issuing Authority: ${L.authority}</div>
-      <div class="vr-row">Holder: ${data.holder_address}</div>`;
+      <div class="vr-row">Holder: ${data.holder_id || data.holder_address}</div>`;
   } else {
     el.className = 'verify-result err';
     el.innerHTML = `

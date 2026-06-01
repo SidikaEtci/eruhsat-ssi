@@ -1,30 +1,17 @@
 """
-MetaMask Digital Wallet service for e-Ruhsat SSI platform.
+Aries-style Digital Wallet service for e-Ruhsat SSI platform.
 
 Architecture
 ────────────
-- Holder identity  = Ethereum address from MetaMask (no server-side key gen)
-- Holder DID       = did:ethr:0xAddress
+- Holder identity  = Aries holder id (prefer DID format)
+- Holder DID       = provided DID or derived local DID
 - VC issuance      = municipality signs with Ed25519 (existing flow)
-- VP signing       = MetaMask personal_sign (secp256k1, happens in browser)
-- Verification     = eth_account.recover_message() on the backend
-
-Flow
-────
-1. Citizen connects MetaMask in browser → address sent to POST /api/wallet/register
-2. Municipality issues VC → POST /api/wallet/{address}/offer
-3. Citizen accepts offer → POST /api/wallet/{address}/accept/{offer_id}
-4. To present: GET /api/wallet/challenge/{license_id}  → gets challenge string
-5. Browser: MetaMask signs the challenge string
-6. POST /api/wallet/present  { address, license_id, challenge_id, signature }
-7. Backend: recovers signer from signature → must match address → checks VC
+- VP presentation  = one-time backend-minted presentation token
+- Verification     = challenge + token + holder id checks on backend
 """
 import json
 import uuid
 from datetime import datetime, timedelta
-
-from eth_account import Account
-from eth_account.messages import encode_defunct
 
 import config
 from utils.wallet_storage import (
@@ -42,39 +29,36 @@ from utils.wallet_storage import (
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
-def _normalize(address: str) -> str:
-    """Lowercase + checksummed Ethereum address."""
-    return address.lower()
+def _normalize(holder_id: str) -> str:
+    """Normalize holder identifier for lookup/storage."""
+    return holder_id.strip().lower()
 
 
-def _eth_did(address: str) -> str:
-    return f"did:ethr:{address.lower()}"
-
-
-def _recover_signer(message: str, signature: str) -> str:
-    """Recover Ethereum address from a personal_sign signature."""
-    msg = encode_defunct(text=message)
-    return Account.recover_message(msg, signature=signature).lower()
+def _holder_did(holder_id: str) -> str:
+    normalized = _normalize(holder_id)
+    if normalized.startswith("did:"):
+        return normalized
+    encoded = normalized.replace(":", "-")
+    return f"did:key:{encoded}"
 
 
 # ── Wallet Service ────────────────────────────────────────────────────────────
 
 class WalletService:
-    """Manages MetaMask-connected citizen wallets for the e-Ruhsat platform."""
+    """Manages Aries-style citizen wallets for the e-Ruhsat platform."""
 
     # ── Register / Lookup ─────────────────────────────────────────────────────
 
-    def register_wallet(self, eth_address: str, display_name: str = "") -> dict:
+    def register_wallet(self, holder_id: str, display_name: str = "") -> dict:
         """
-        Register a MetaMask wallet on the backend.
-        The private key stays inside MetaMask — the backend only stores the
-        public Ethereum address and the credentials associated with it.
+        Register a holder wallet on the backend.
+        Holder id should typically be a DID from an Aries wallet.
         """
-        addr = _normalize(eth_address)
-        existing = get_wallet(addr)
+        hid = _normalize(holder_id)
+        existing = get_wallet(hid)
         if existing:
             return {
-                "address": addr,
+                "holder_id": hid,
                 "did": existing["did"],
                 "display_name": existing.get("display_name", ""),
                 "created_at": existing["created_at"],
@@ -82,30 +66,30 @@ class WalletService:
             }
 
         wallet_data = {
-            "address": addr,
-            "did": _eth_did(addr),
-            "display_name": display_name or f"Wallet {addr[:6]}…{addr[-4:]}",
+            "holder_id": hid,
+            "did": _holder_did(hid),
+            "display_name": display_name or f"Aries Holder {hid[:10]}…",
             "credentials": [],
             "pending_offers": [],
             "created_at": datetime.now().isoformat() + "Z",
         }
-        save_wallet(addr, wallet_data)
-        print(f"   [Wallet] Registered: {addr} → {_eth_did(addr)}")
+        save_wallet(hid, wallet_data)
+        print(f"   [Wallet] Registered: {hid} → {_holder_did(hid)}")
 
         return {
-            "address": addr,
-            "did": _eth_did(addr),
+            "holder_id": hid,
+            "did": _holder_did(hid),
             "display_name": wallet_data["display_name"],
             "created_at": wallet_data["created_at"],
             "already_existed": False,
         }
 
-    def get_wallet_summary(self, eth_address: str) -> dict | None:
-        wallet = get_wallet(_normalize(eth_address))
+    def get_wallet_summary(self, holder_id: str) -> dict | None:
+        wallet = get_wallet(_normalize(holder_id))
         if not wallet:
             return None
         return {
-            "address": wallet["address"],
+            "holder_id": wallet["holder_id"],
             "did": wallet["did"],
             "display_name": wallet.get("display_name", ""),
             "created_at": wallet["created_at"],
@@ -115,12 +99,12 @@ class WalletService:
 
     # ── Credential Offer (Issuer → Wallet) ────────────────────────────────────
 
-    def offer_credential(self, eth_address: str, credential: dict) -> dict:
+    def offer_credential(self, holder_id: str, credential: dict) -> dict:
         """
         Municipality sends a VC offer to the citizen's wallet.
         The citizen must explicitly accept before the VC is stored.
         """
-        addr = _normalize(eth_address)
+        hid = _normalize(holder_id)
         offer_id = str(uuid.uuid4())
         license_id = credential.get("credentialSubject", {}).get("licenseId", "unknown")
 
@@ -132,16 +116,16 @@ class WalletService:
             "offered_at": datetime.now().isoformat() + "Z",
         }
 
-        if not add_pending_offer(addr, offer):
+        if not add_pending_offer(hid, offer):
             # Wallet not registered yet — auto-register
-            self.register_wallet(addr)
-            add_pending_offer(addr, offer)
+            self.register_wallet(hid)
+            add_pending_offer(hid, offer)
 
-        print(f"   [Wallet] Offer sent to {addr}: license={license_id}")
+        print(f"   [Wallet] Offer sent to {hid}: license={license_id}")
         return {"offer_id": offer_id, "license_id": license_id}
 
-    def list_offers(self, eth_address: str) -> list:
-        offers = get_pending_offers(_normalize(eth_address))
+    def list_offers(self, holder_id: str) -> list:
+        offers = get_pending_offers(_normalize(holder_id))
         return [
             {
                 "offer_id": o["offer_id"],
@@ -152,52 +136,41 @@ class WalletService:
             for o in offers
         ]
 
-    def accept_offer(self, eth_address: str, offer_id: str) -> dict:
+    def accept_offer(self, holder_id: str, offer_id: str) -> dict:
         """Citizen accepts an offer → VC moved from pending to accepted credentials."""
-        result = accept_pending_offer(_normalize(eth_address), offer_id)
+        result = accept_pending_offer(_normalize(holder_id), offer_id)
         if not result:
             raise ValueError(f"Offer {offer_id} not found or already accepted.")
-        print(f"   [Wallet] Offer {offer_id} accepted by {eth_address[:10]}…")
+        print(f"   [Wallet] Offer {offer_id} accepted by {_normalize(holder_id)[:10]}…")
         return {"accepted": True, "license_id": result["license_id"]}
 
     # ── Challenge Generation (step 1 of VP flow) ──────────────────────────────
 
-    def create_challenge(self, eth_address: str, license_id: str) -> dict:
+    def create_challenge(self, holder_id: str, license_id: str) -> dict:
         """
-        Generate a one-time challenge string for MetaMask to sign.
-        The challenge expires in 5 minutes and can only be used once.
+        Generate a one-time Aries-style presentation challenge.
+        Returns a short-lived presentation token for QR transfer.
         """
-        addr = _normalize(eth_address)
-        credential = get_credential(addr, license_id)
+        hid = _normalize(holder_id)
+        credential = get_credential(hid, license_id)
         if not credential:
-            raise ValueError(f"Credential {license_id} not found in wallet {addr}")
+            raise ValueError(f"Credential {license_id} not found in wallet {hid}")
 
         challenge_id = str(uuid.uuid4())
+        presentation_token = str(uuid.uuid4())
         expires_at = (datetime.now() + timedelta(minutes=5)).isoformat() + "Z"
 
-        # Human-readable message — MetaMask shows this to the user before signing
-        challenge_text = (
-            f"E-Ruhsat License Presentation\n\n"
-            f"License ID: {license_id}\n"
-            f"Holder: {addr}\n"
-            f"Challenge: {challenge_id}\n"
-            f"Expires: {expires_at}\n\n"
-            f"By signing this message you authorize a one-time\n"
-            f"presentation of your license to an inspector.\n"
-            f"This signature cannot be reused."
-        )
-
         store_challenge(challenge_id, {
-            "eth_address": addr,
+            "holder_id": hid,
             "license_id": license_id,
-            "challenge_text": challenge_text,
+            "presentation_token": presentation_token,
             "expires_at": expires_at,
         })
 
         print(f"   [Wallet] Challenge created for {license_id}, id={challenge_id[:8]}…")
         return {
             "challenge_id": challenge_id,
-            "challenge_text": challenge_text,
+            "presentation_token": presentation_token,
             "expires_at": expires_at,
         }
 
@@ -206,16 +179,17 @@ class WalletService:
     def verify_presentation(
         self,
         challenge_id: str,
-        eth_address: str,
-        signature: str,
+        holder_id: str,
+        presentation_token: str,
     ) -> dict:
         """
-        Verify a MetaMask-signed Verifiable Presentation.
+        Verify an Aries-style Verifiable Presentation.
 
         Checks:
           1. Challenge exists and has not been used before (anti-replay)
           2. Challenge has not expired
-          3. Recovered signer matches the claimed holder address
+          3. Holder id matches original challenge binding
+          4. Presentation token matches one-time challenge token
           4. Embedded VC issuer signature is valid (Ed25519)
           5. VC has not expired
         """
@@ -239,29 +213,25 @@ class WalletService:
                 "message": "This QR code has expired. Please generate a new one.",
             }
 
-        # 3. Recover signer from MetaMask signature
-        addr = _normalize(eth_address)
-        try:
-            recovered = _recover_signer(challenge["challenge_text"], signature)
-        except Exception as exc:
+        # 3. Holder id must match the one challenge was created for
+        hid = _normalize(holder_id)
+        if hid != challenge.get("holder_id"):
             return {
                 "valid": False,
-                "reason": "signature_error",
-                "message": f"Could not parse signature: {exc}",
+                "reason": "holder_mismatch",
+                "message": "Presentation holder does not match challenge holder.",
             }
 
-        if recovered != addr:
+        # 4. One-time presentation token check
+        if presentation_token != challenge.get("presentation_token"):
             return {
                 "valid": False,
-                "reason": "signer_mismatch",
-                "message": (
-                    f"Signature was made by {recovered}, "
-                    f"but the credential belongs to {addr}."
-                ),
+                "reason": "token_invalid",
+                "message": "Presentation token is invalid.",
             }
 
-        # 4 & 5. Verify the embedded VC (issuer signature + expiry)
-        credential = get_credential(addr, challenge["license_id"])
+        # 5 & 6. Verify the embedded VC (issuer signature + expiry)
+        credential = get_credential(hid, challenge["license_id"])
         if not credential:
             return {
                 "valid": False,
@@ -276,9 +246,9 @@ class WalletService:
         subject = credential.get("credentialSubject", {})
         return {
             "valid": True,
-            "message": "License verified successfully via MetaMask wallet.",
-            "holder_address": addr,
-            "holder_did": _eth_did(addr),
+            "message": "License verified successfully via Aries wallet.",
+            "holder_id": hid,
+            "holder_did": _holder_did(hid),
             "license": {
                 "license_id": subject.get("licenseId"),
                 "license_type": subject.get("licenseType"),
@@ -327,8 +297,8 @@ class WalletService:
 
     # ── Credential list ───────────────────────────────────────────────────────
 
-    def list_credentials(self, eth_address: str) -> list:
-        creds = get_credentials(_normalize(eth_address))
+    def list_credentials(self, holder_id: str) -> list:
+        creds = get_credentials(_normalize(holder_id))
         result = []
         for cred in creds:
             s = cred.get("credentialSubject", {})
