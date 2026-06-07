@@ -321,6 +321,56 @@ async def get_blockchain(city: str | None = Query(None)):
     }
 
 
+@app.get("/api/indy/stats")
+async def get_indy_stats(city: str | None = Query(None)):
+    """Get Hyperledger Indy ledger statistics."""
+    from utils.indy_ledger import IndyLedgerManager
+
+    slug = config.resolve_city_slug(city_slug=city)
+    try:
+        indy_manager = IndyLedgerManager(slug)
+        stats = indy_manager.get_ledger_stats()
+        return {
+            "success": True,
+            "city_slug": slug,
+            "stats": stats,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@app.get("/api/indy/verify/{license_id}")
+async def verify_credential_on_indy(license_id: str, city: str | None = Query(None)):
+    """Verify a credential on Hyperledger Indy ledger."""
+    from utils.indy_ledger import IndyLedgerManager, run_async
+
+    slug = config.resolve_city_slug(license_id=license_id, city_slug=city)
+    try:
+        indy_manager = IndyLedgerManager(slug)
+        result = run_async(indy_manager.verify_credential_on_ledger(license_id))
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
+@app.post("/api/indy/revoke/{license_id}")
+async def revoke_credential_on_indy(
+    license_id: str,
+    reason: str = Form(...),
+    city: str | None = Query(None),
+):
+    """Revoke a credential on Hyperledger Indy ledger."""
+    from utils.indy_ledger import IndyLedgerManager, run_async
+
+    slug = config.resolve_city_slug(license_id=license_id, city_slug=city)
+    try:
+        indy_manager = IndyLedgerManager(slug)
+        result = run_async(indy_manager.revoke_credential(license_id, reason))
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
 @app.get("/api/contract/stats")
 async def get_contract_stats(city: str | None = Query(None)):
     slug = config.resolve_city_slug(city_slug=city)

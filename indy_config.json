@@ -1,0 +1,28 @@
+{
+  "indy": {
+    "enabled": true,
+    "network": "test",
+    "pool_name": "turkey_elicense_pool",
+    "genesis_txn_path": "data/genesis_txn.json",
+    "wallet_storage_path": "data/{city_slug}/indy_wallet",
+    "auto_setup": true
+  },
+  "schema": {
+    "name": "ELicense",
+    "version": "1.0",
+    "attributes": [
+      "license_id",
+      "license_type",
+      "city",
+      "issue_date",
+      "expiry_date",
+      "district",
+      "ipfs_hash",
+      "document_hash"
+    ]
+  },
+  "credential_definition": {
+    "tag": "tag1",
+    "signature_type": "CL"
+  }
+}

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blockchain Explorer</title>
+    <title>Blockchain Explorer - Hyperledger Indy Integration</title>
     <style>
         * {
             margin: 0;
@@ -61,6 +61,66 @@
         .back-link:hover {
             background: #00cc00;
             box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        /* Indy Integration Section */
+        .indy-section {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px solid #00d4ff;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .indy-section h2 {
+            color: #00d4ff;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .indy-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .indy-stat-card {
+            background: #0f1419;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #00d4ff;
+            text-align: center;
+        }
+
+        .indy-stat-card h4 {
+            color: #888;
+            font-size: 0.8em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .indy-stat-card .value {
+            color: #00d4ff;
+            font-size: 1.2em;
+            font-weight: bold;
+            word-break: break-all;
+        }
+
+        .indy-badge {
+            display: inline-block;
+            background: #00d4ff;
+            color: #0a0e27;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 10px auto;
+            display: block;
+            width: fit-content;
         }
 
         .stats-grid {
@@ -145,6 +205,14 @@
             background: #221a14;
         }
 
+        .block.indy-integrated {
+            border-left-color: #00d4ff;
+        }
+
+        .block.indy-integrated:hover {
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
         .block-header {
             display: flex;
             justify-content: space-between;
@@ -201,6 +269,15 @@
             font-size: 0.9em;
         }
 
+        .indy-hash {
+            background: #0a0e27;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #00d4ff;
+            margin: 10px 0;
+            color: #00d4ff;
+        }
+
         .loading {
             text-align: center;
             padding: 40px;
@@ -239,6 +316,11 @@
             font-weight: bold;
         }
 
+        .indy-badge-small {
+            background: #00d4ff;
+            color: #0a0e27;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.8em;
@@ -259,8 +341,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1> ️ BLOCKCHAIN EXPLORER</h1>
-            <p data-city-subtitle>Turkey E-License Distributed Ledger</p>
+            <h1>🔗 BLOCKCHAIN EXPLORER</h1>
+            <p data-city-subtitle>Turkey E-License Distributed Ledger with Hyperledger Indy</p>
             <div style="text-align: center; margin: 12px 0;">
                 <label for="citySelect" style="color:#888;margin-right:8px;">Municipality</label>
                 <select id="citySelect" style="padding:8px 12px;border-radius:5px;border:1px solid #00ff00;background:#0a0e27;color:#00ff00;"></select>
@@ -268,6 +350,34 @@
             <div style="text-align: center;">
                 <a href="/" class="back-link">← Back to Home</a>
                 <a href="/blockchain_detailed.html" class="back-link" style="margin-left:10px">How it works</a>
+            </div>
+        </div>
+
+        <!-- Hyperledger Indy Integration Section -->
+        <div class="indy-section">
+            <h2>🏗️ HYPERLEDGER INDY INTEGRATION</h2>
+            <div class="indy-badge" id="indyStatus">Loading...</div>
+            <div class="indy-stats-grid">
+                <div class="indy-stat-card">
+                    <h4>Ledger Type</h4>
+                    <div class="value" id="indyLedgerType">-</div>
+                </div>
+                <div class="indy-stat-card">
+                    <h4>Pool Name</h4>
+                    <div class="value" id="indyPoolName">-</div>
+                </div>
+                <div class="indy-stat-card">
+                    <h4>Issuer DID</h4>
+                    <div class="value" id="indyIssuerDid" style="font-size: 0.8em;">-</div>
+                </div>
+                <div class="indy-stat-card">
+                    <h4>Schema ID</h4>
+                    <div class="value" id="indySchemaId" style="font-size: 0.7em;">-</div>
+                </div>
+                <div class="indy-stat-card">
+                    <h4>Credential Def ID</h4>
+                    <div class="value" id="indyCredDefId" style="font-size: 0.7em;">-</div>
+                </div>
             </div>
         </div>
 
@@ -303,8 +413,46 @@
 
     <script src="/web/city-settings.js"></script>
     <script>
-        CitySettings.init().then(() => loadBlockchain());
-        document.addEventListener('city-changed', () => loadBlockchain());
+        CitySettings.init().then(() => {
+            loadIndyStats();
+            loadBlockchain();
+        });
+        document.addEventListener('city-changed', () => {
+            loadIndyStats();
+            loadBlockchain();
+        });
+
+        async function loadIndyStats() {
+            try {
+                const response = await fetch(`/api/indy/stats?${CitySettings.apiQuery()}`);
+                const data = await response.json();
+                
+                if (data.success && data.stats) {
+                    const stats = data.stats;
+                    
+                    // Update status badge
+                    const statusBadge = document.getElementById('indyStatus');
+                    if (stats.ledger_type === 'indy') {
+                        statusBadge.textContent = '✅ REAL INDY NETWORK';
+                        statusBadge.style.background = '#2ecc71';
+                    } else {
+                        statusBadge.textContent = '🔧 MOCK INDY LEDGER';
+                        statusBadge.style.background = '#f39c12';
+                    }
+                    
+                    // Update stats
+                    document.getElementById('indyLedgerType').textContent = stats.ledger_type || '-';
+                    document.getElementById('indyPoolName').textContent = stats.pool_name || '-';
+                    document.getElementById('indyIssuerDid').textContent = stats.issuer_did || '-';
+                    document.getElementById('indySchemaId').textContent = stats.schema_id || '-';
+                    document.getElementById('indyCredDefId').textContent = stats.cred_def_id || '-';
+                }
+            } catch (error) {
+                console.error('Error loading Indy stats:', error);
+                document.getElementById('indyStatus').textContent = '❌ ERROR LOADING INDY STATS';
+                document.getElementById('indyStatus').style.background = '#e74c3c';
+            }
+        }
 
         async function loadBlockchain() {
             try {
@@ -356,27 +504,40 @@
                 blocks.forEach((block, index) => {
                     const isGenesis = block.block_number === 0;
                     const blockDate = new Date(block.timestamp);
+                    const hasIndyIntegration = block.data && block.data.indy_integration;
+                    const hasIndyHash = block.data && block.data.indy_hash;
+                    
+                    let blockClass = isGenesis ? 'genesis' : '';
+                    if (hasIndyIntegration) {
+                        blockClass += ' indy-integrated';
+                    }
                     
                     html += `
-                        <div class="block ${isGenesis ? 'genesis' : ''}">
+                        <div class="block ${blockClass}">
                             <div class="block-header">
                                 <div class="block-number">
-                                    ${isGenesis ? '  GENESIS BLOCK' : '  Block #' + block.block_number}
+                                    ${isGenesis ? '🎂 GENESIS BLOCK' : '⛓️ Block #' + block.block_number}
                                     ${isGenesis ? '<span class="info-badge">GENESIS</span>' : ''}
+                                    ${hasIndyIntegration ? '<span class="info-badge indy-badge-small">INDY</span>' : ''}
                                 </div>
                                 <div class="block-time">
                                     ${blockDate.toLocaleString('en-US')}
                                 </div>
                             </div>
                             
-                            <div class="hash-label">  Block Hash:</div>
+                            <div class="hash-label">🔐 Block Hash:</div>
                             <div class="hash">${block.hash}</div>
                             
-                            <div class="hash-label">  Previous Hash:</div>
+                            <div class="hash-label">🔗 Previous Hash:</div>
                             <div class="hash">${block.previous_hash}</div>
                             
+                            ${hasIndyHash ? `
+                                <div class="hash-label">🏗️ Indy Credential Hash:</div>
+                                <div class="indy-hash">${block.data.indy_hash}</div>
+                            ` : ''}
+                            
                             <div class="block-data">
-                                <div class="hash-label">  Block Data:</div>
+                                <div class="hash-label">📄 Block Data:</div>
                                 <pre>${JSON.stringify(block.data, null, 2)}</pre>
                             </div>
                         </div>
@@ -401,6 +562,8 @@
         
         // Auto-refresh every 5 seconds
         setInterval(loadBlockchain, 5000);
+        // Refresh Indy stats every 10 seconds
+        setInterval(loadIndyStats, 10000);
     </script>
 </body>
 </html>

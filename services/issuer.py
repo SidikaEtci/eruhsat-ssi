@@ -10,6 +10,7 @@ from utils.crypto import CryptoManager
 from utils.ipfs_manager import IPFSManager
 from utils.qr_generator import QRCodeManager
 from utils.verifiable_credentials import VerifiableCredentialManager
+from utils.indy_ledger import IndyLedgerManager, run_async
 
 
 class LicenseIssuer:
@@ -62,6 +63,20 @@ class LicenseIssuer:
             paths["qr_codes_dir"],
         )
 
+        # Write to Indy ledger (Hyperledger Indy integration)
+        try:
+            indy_manager = IndyLedgerManager(city_slug)
+            indy_result = run_async(indy_manager.write_credential_to_ledger(credential))
+            if indy_result.get("success"):
+                print(f"   ✓ Credential written to Hyperledger Indy")
+                license_data["indy_hash"] = indy_result.get("credential_hash")
+                license_data["indy_schema_id"] = indy_result.get("schema_id")
+                license_data["indy_cred_def_id"] = indy_result.get("cred_def_id")
+        except Exception as e:
+            print(f"   Warning: Failed to write to Indy ledger: {e}")
+            # Continue with local storage even if Indy fails
+
+        # Also write to local blockchain logger for redundancy
         blockchain = BlockchainLogger(city_slug)
         blockchain.add_block(
             {
@@ -69,6 +84,8 @@ class LicenseIssuer:
                 "city_slug": city_slug,
                 "credential": credential,
                 "ipfs_hash": license_data.get("ipfs_hash", ""),
+                "indy_integration": True,
+                "indy_hash": license_data.get("indy_hash", ""),
             }
         )
 
@@ -82,6 +99,9 @@ class LicenseIssuer:
             "ipfs_hash": license_data.get("ipfs_hash"),
             "qr_url": f"/data/{city_slug}/qr_codes/{license_data['license_id']}.png",
             "credential": credential,
+            "indy_hash": license_data.get("indy_hash"),
+            "indy_schema_id": license_data.get("indy_schema_id"),
+            "indy_cred_def_id": license_data.get("indy_cred_def_id"),
         }
 
     def _save_to_db(self, data: dict, qr_path: str, db_path):

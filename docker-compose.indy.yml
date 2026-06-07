@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # Von Network for Indy testing
+  von-network:
+    image: ghcr.io/hyperledger/indy-plenum:latest
+    container_name: von-network
+    ports:
+      - "9000:8000"  # Web interface
+      - "9708:9708"  # Node port
+      - "9709:9709"  # Client port
+    environment:
+      - NETWORK_NAME=turkey_elicense_testnet
+      - GENESIS_TXN=1
+    volumes:
+      - ./data/von_data:/indy/data
+    networks:
+      - indy-network
+    command: >
+      bash -c "
+      /indy/manage/start_genesis_transaction &&
+      /indy/manage/start_node &&
+      tail -f /dev/null"
+
+  # E-License API with Indy support
+  elicense-api:
+    build: .
+    container_name: elicense-api
+    ports:
+      - "8000:8000"
+    environment:
+      - CITY_SLUG=konya
+      - MULTI_CITY=true
+      - INDY_ENABLED=true
+      - INDY_NETWORK=test
+      - IPFS_HOST=ipfs
+      - IPFS_PORT=5001
+    volumes:
+      - ./data:/app/data
+      - ./indy_config.json:/app/indy_config.json
+    depends_on:
+      - von-network
+      - ipfs
+    networks:
+      - indy-network
+    command: uvicorn api:app --host 0.0.0.0 --port 8000
+
+  # IPFS for document storage
+  ipfs:
+    image: ipfs/go-ipfs:latest
+    container_name: ipfs
+    ports:
+      - "4001:4001"
+      - "5001:5001"
+      - "8080:8080"
+    volumes:
+      - ./data/ipfs_data:/data/ipfs
+    networks:
+      - indy-network
+
+networks:
+  indy-network:
+    driver: bridge
+
+volumes:
+  von_data:
+  ipfs_data:

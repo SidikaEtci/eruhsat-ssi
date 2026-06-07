@@ -1,0 +1,742 @@
+{
+  "network": "turkey_elicense_testnet",
+  "version": "1.0",
+  "nodes": [
+    {
+      "name": "adana_node",
+      "host": "localhost",
+      "port": 9708,
+      "client_port": 9709,
+      "pool_name": "adana_pool",
+      "issuer_did": "did:indy:tr:adana:municipality"
+    },
+    {
+      "name": "adiyaman_node",
+      "host": "localhost",
+      "port": 9718,
+      "client_port": 9719,
+      "pool_name": "adiyaman_pool",
+      "issuer_did": "did:indy:tr:adiyaman:municipality"
+    },
+    {
+      "name": "afyonkarahisar_node",
+      "host": "localhost",
+      "port": 9728,
+      "client_port": 9729,
+      "pool_name": "afyonkarahisar_pool",
+      "issuer_did": "did:indy:tr:afyonkarahisar:municipality"
+    },
+    {
+      "name": "agri_node",
+      "host": "localhost",
+      "port": 9738,
+      "client_port": 9739,
+      "pool_name": "agri_pool",
+      "issuer_did": "did:indy:tr:agri:municipality"
+    },
+    {
+      "name": "amasya_node",
+      "host": "localhost",
+      "port": 9748,
+      "client_port": 9749,
+      "pool_name": "amasya_pool",
+      "issuer_did": "did:indy:tr:amasya:municipality"
+    },
+    {
+      "name": "ankara_node",
+      "host": "localhost",
+      "port": 9758,
+      "client_port": 9759,
+      "pool_name": "ankara_pool",
+      "issuer_did": "did:indy:tr:ankara:municipality"
+    },
+    {
+      "name": "antalya_node",
+      "host": "localhost",
+      "port": 9768,
+      "client_port": 9769,
+      "pool_name": "antalya_pool",
+      "issuer_did": "did:indy:tr:antalya:municipality"
+    },
+    {
+      "name": "artvin_node",
+      "host": "localhost",
+      "port": 9778,
+      "client_port": 9779,
+      "pool_name": "artvin_pool",
+      "issuer_did": "did:indy:tr:artvin:municipality"
+    },
+    {
+      "name": "aydin_node",
+      "host": "localhost",
+      "port": 9788,
+      "client_port": 9789,
+      "pool_name": "aydin_pool",
+      "issuer_did": "did:indy:tr:aydin:municipality"
+    },
+    {
+      "name": "balikesir_node",
+      "host": "localhost",
+      "port": 9798,
+      "client_port": 9799,
+      "pool_name": "balikesir_pool",
+      "issuer_did": "did:indy:tr:balikesir:municipality"
+    },
+    {
+      "name": "bilecik_node",
+      "host": "localhost",
+      "port": 9808,
+      "client_port": 9809,
+      "pool_name": "bilecik_pool",
+      "issuer_did": "did:indy:tr:bilecik:municipality"
+    },
+    {
+      "name": "bingol_node",
+      "host": "localhost",
+      "port": 9818,
+      "client_port": 9819,
+      "pool_name": "bingol_pool",
+      "issuer_did": "did:indy:tr:bingol:municipality"
+    },
+    {
+      "name": "bitlis_node",
+      "host": "localhost",
+      "port": 9828,
+      "client_port": 9829,
+      "pool_name": "bitlis_pool",
+      "issuer_did": "did:indy:tr:bitlis:municipality"
+    },
+    {
+      "name": "bolu_node",
+      "host": "localhost",
+      "port": 9838,
+      "client_port": 9839,
+      "pool_name": "bolu_pool",
+      "issuer_did": "did:indy:tr:bolu:municipality"
+    },
+    {
+      "name": "burdur_node",
+      "host": "localhost",
+      "port": 9848,
+      "client_port": 9849,
+      "pool_name": "burdur_pool",
+      "issuer_did": "did:indy:tr:burdur:municipality"
+    },
+    {
+      "name": "bursa_node",
+      "host": "localhost",
+      "port": 9858,
+      "client_port": 9859,
+      "pool_name": "bursa_pool",
+      "issuer_did": "did:indy:tr:bursa:municipality"
+    },
+    {
+      "name": "canakkale_node",
+      "host": "localhost",
+      "port": 9868,
+      "client_port": 9869,
+      "pool_name": "canakkale_pool",
+      "issuer_did": "did:indy:tr:canakkale:municipality"
+    },
+    {
+      "name": "cankiri_node",
+      "host": "localhost",
+      "port": 9878,
+      "client_port": 9879,
+      "pool_name": "cankiri_pool",
+      "issuer_did": "did:indy:tr:cankiri:municipality"
+    },
+    {
+      "name": "corum_node",
+      "host": "localhost",
+      "port": 9888,
+      "client_port": 9889,
+      "pool_name": "corum_pool",
+      "issuer_did": "did:indy:tr:corum:municipality"
+    },
+    {
+      "name": "denizli_node",
+      "host": "localhost",
+      "port": 9898,
+      "client_port": 9899,
+      "pool_name": "denizli_pool",
+      "issuer_did": "did:indy:tr:denizli:municipality"
+    },
+    {
+      "name": "diyarbakir_node",
+      "host": "localhost",
+      "port": 9908,
+      "client_port": 9909,
+      "pool_name": "diyarbakir_pool",
+      "issuer_did": "did:indy:tr:diyarbakir:municipality"
+    },
+    {
+      "name": "edirne_node",
+      "host": "localhost",
+      "port": 9918,
+      "client_port": 9919,
+      "pool_name": "edirne_pool",
+      "issuer_did": "did:indy:tr:edirne:municipality"
+    },
+    {
+      "name": "elazig_node",
+      "host": "localhost",
+      "port": 9928,
+      "client_port": 9929,
+      "pool_name": "elazig_pool",
+      "issuer_did": "did:indy:tr:elazig:municipality"
+    },
+    {
+      "name": "erzincan_node",
+      "host": "localhost",
+      "port": 9938,
+      "client_port": 9939,
+      "pool_name": "erzincan_pool",
+      "issuer_did": "did:indy:tr:erzincan:municipality"
+    },
+    {
+      "name": "erzurum_node",
+      "host": "localhost",
+      "port": 9948,
+      "client_port": 9949,
+      "pool_name": "erzurum_pool",
+      "issuer_did": "did:indy:tr:erzurum:municipality"
+    },
+    {
+      "name": "eskisehir_node",
+      "host": "localhost",
+      "port": 9958,
+      "client_port": 9959,
+      "pool_name": "eskisehir_pool",
+      "issuer_did": "did:indy:tr:eskisehir:municipality"
+    },
+    {
+      "name": "gaziantep_node",
+      "host": "localhost",
+      "port": 9968,
+      "client_port": 9969,
+      "pool_name": "gaziantep_pool",
+      "issuer_did": "did:indy:tr:gaziantep:municipality"
+    },
+    {
+      "name": "giresun_node",
+      "host": "localhost",
+      "port": 9978,
+      "client_port": 9979,
+      "pool_name": "giresun_pool",
+      "issuer_did": "did:indy:tr:giresun:municipality"
+    },
+    {
+      "name": "gumushane_node",
+      "host": "localhost",
+      "port": 9988,
+      "client_port": 9989,
+      "pool_name": "gumushane_pool",
+      "issuer_did": "did:indy:tr:gumushane:municipality"
+    },
+    {
+      "name": "hakkari_node",
+      "host": "localhost",
+      "port": 9998,
+      "client_port": 9999,
+      "pool_name": "hakkari_pool",
+      "issuer_did": "did:indy:tr:hakkari:municipality"
+    },
+    {
+      "name": "hatay_node",
+      "host": "localhost",
+      "port": 10008,
+      "client_port": 10009,
+      "pool_name": "hatay_pool",
+      "issuer_did": "did:indy:tr:hatay:municipality"
+    },
+    {
+      "name": "isparta_node",
+      "host": "localhost",
+      "port": 10018,
+      "client_port": 10019,
+      "pool_name": "isparta_pool",
+      "issuer_did": "did:indy:tr:isparta:municipality"
+    },
+    {
+      "name": "mersin_node",
+      "host": "localhost",
+      "port": 10028,
+      "client_port": 10029,
+      "pool_name": "mersin_pool",
+      "issuer_did": "did:indy:tr:mersin:municipality"
+    },
+    {
+      "name": "istanbul_node",
+      "host": "localhost",
+      "port": 10038,
+      "client_port": 10039,
+      "pool_name": "istanbul_pool",
+      "issuer_did": "did:indy:tr:istanbul:municipality"
+    },
+    {
+      "name": "izmir_node",
+      "host": "localhost",
+      "port": 10048,
+      "client_port": 10049,
+      "pool_name": "izmir_pool",
+      "issuer_did": "did:indy:tr:izmir:municipality"
+    },
+    {
+      "name": "kars_node",
+      "host": "localhost",
+      "port": 10058,
+      "client_port": 10059,
+      "pool_name": "kars_pool",
+      "issuer_did": "did:indy:tr:kars:municipality"
+    },
+    {
+      "name": "kastamonu_node",
+      "host": "localhost",
+      "port": 10068,
+      "client_port": 10069,
+      "pool_name": "kastamonu_pool",
+      "issuer_did": "did:indy:tr:kastamonu:municipality"
+    },
+    {
+      "name": "kayseri_node",
+      "host": "localhost",
+      "port": 10078,
+      "client_port": 10079,
+      "pool_name": "kayseri_pool",
+      "issuer_did": "did:indy:tr:kayseri:municipality"
+    },
+    {
+      "name": "kirklareli_node",
+      "host": "localhost",
+      "port": 10088,
+      "client_port": 10089,
+      "pool_name": "kirklareli_pool",
+      "issuer_did": "did:indy:tr:kirklareli:municipality"
+    },
+    {
+      "name": "kirsehir_node",
+      "host": "localhost",
+      "port": 10098,
+      "client_port": 10099,
+      "pool_name": "kirsehir_pool",
+      "issuer_did": "did:indy:tr:kirsehir:municipality"
+    },
+    {
+      "name": "kocaeli_node",
+      "host": "localhost",
+      "port": 10108,
+      "client_port": 10109,
+      "pool_name": "kocaeli_pool",
+      "issuer_did": "did:indy:tr:kocaeli:municipality"
+    },
+    {
+      "name": "konya_node",
+      "host": "localhost",
+      "port": 10118,
+      "client_port": 10119,
+      "pool_name": "konya_pool",
+      "issuer_did": "did:indy:tr:konya:municipality"
+    },
+    {
+      "name": "kutahya_node",
+      "host": "localhost",
+      "port": 10128,
+      "client_port": 10129,
+      "pool_name": "kutahya_pool",
+      "issuer_did": "did:indy:tr:kutahya:municipality"
+    },
+    {
+      "name": "malatya_node",
+      "host": "localhost",
+      "port": 10138,
+      "client_port": 10139,
+      "pool_name": "malatya_pool",
+      "issuer_did": "did:indy:tr:malatya:municipality"
+    },
+    {
+      "name": "manisa_node",
+      "host": "localhost",
+      "port": 10148,
+      "client_port": 10149,
+      "pool_name": "manisa_pool",
+      "issuer_did": "did:indy:tr:manisa:municipality"
+    },
+    {
+      "name": "kahramanmaras_node",
+      "host": "localhost",
+      "port": 10158,
+      "client_port": 10159,
+      "pool_name": "kahramanmaras_pool",
+      "issuer_did": "did:indy:tr:kahramanmaras:municipality"
+    },
+    {
+      "name": "mardin_node",
+      "host": "localhost",
+      "port": 10168,
+      "client_port": 10169,
+      "pool_name": "mardin_pool",
+      "issuer_did": "did:indy:tr:mardin:municipality"
+    },
+    {
+      "name": "mugla_node",
+      "host": "localhost",
+      "port": 10178,
+      "client_port": 10179,
+      "pool_name": "mugla_pool",
+      "issuer_did": "did:indy:tr:mugla:municipality"
+    },
+    {
+      "name": "mus_node",
+      "host": "localhost",
+      "port": 10188,
+      "client_port": 10189,
+      "pool_name": "mus_pool",
+      "issuer_did": "did:indy:tr:mus:municipality"
+    },
+    {
+      "name": "nevsehir_node",
+      "host": "localhost",
+      "port": 10198,
+      "client_port": 10199,
+      "pool_name": "nevsehir_pool",
+      "issuer_did": "did:indy:tr:nevsehir:municipality"
+    },
+    {
+      "name": "nigde_node",
+      "host": "localhost",
+      "port": 10208,
+      "client_port": 10209,
+      "pool_name": "nigde_pool",
+      "issuer_did": "did:indy:tr:nigde:municipality"
+    },
+    {
+      "name": "ordu_node",
+      "host": "localhost",
+      "port": 10218,
+      "client_port": 10219,
+      "pool_name": "ordu_pool",
+      "issuer_did": "did:indy:tr:ordu:municipality"
+    },
+    {
+      "name": "rize_node",
+      "host": "localhost",
+      "port": 10228,
+      "client_port": 10229,
+      "pool_name": "rize_pool",
+      "issuer_did": "did:indy:tr:rize:municipality"
+    },
+    {
+      "name": "sakarya_node",
+      "host": "localhost",
+      "port": 10238,
+      "client_port": 10239,
+      "pool_name": "sakarya_pool",
+      "issuer_did": "did:indy:tr:sakarya:municipality"
+    },
+    {
+      "name": "samsun_node",
+      "host": "localhost",
+      "port": 10248,
+      "client_port": 10249,
+      "pool_name": "samsun_pool",
+      "issuer_did": "did:indy:tr:samsun:municipality"
+    },
+    {
+      "name": "siirt_node",
+      "host": "localhost",
+      "port": 10258,
+      "client_port": 10259,
+      "pool_name": "siirt_pool",
+      "issuer_did": "did:indy:tr:siirt:municipality"
+    },
+    {
+      "name": "sinop_node",
+      "host": "localhost",
+      "port": 10268,
+      "client_port": 10269,
+      "pool_name": "sinop_pool",
+      "issuer_did": "did:indy:tr:sinop:municipality"
+    },
+    {
+      "name": "sivas_node",
+      "host": "localhost",
+      "port": 10278,
+      "client_port": 10279,
+      "pool_name": "sivas_pool",
+      "issuer_did": "did:indy:tr:sivas:municipality"
+    },
+    {
+      "name": "tekirdag_node",
+      "host": "localhost",
+      "port": 10288,
+      "client_port": 10289,
+      "pool_name": "tekirdag_pool",
+      "issuer_did": "did:indy:tr:tekirdag:municipality"
+    },
+    {
+      "name": "tokat_node",
+      "host": "localhost",
+      "port": 10298,
+      "client_port": 10299,
+      "pool_name": "tokat_pool",
+      "issuer_did": "did:indy:tr:tokat:municipality"
+    },
+    {
+      "name": "trabzon_node",
+      "host": "localhost",
+      "port": 10308,
+      "client_port": 10309,
+      "pool_name": "trabzon_pool",
+      "issuer_did": "did:indy:tr:trabzon:municipality"
+    },
+    {
+      "name": "tunceli_node",
+      "host": "localhost",
+      "port": 10318,
+      "client_port": 10319,
+      "pool_name": "tunceli_pool",
+      "issuer_did": "did:indy:tr:tunceli:municipality"
+    },
+    {
+      "name": "sanliurfa_node",
+      "host": "localhost",
+      "port": 10328,
+      "client_port": 10329,
+      "pool_name": "sanliurfa_pool",
+      "issuer_did": "did:indy:tr:sanliurfa:municipality"
+    },
+    {
+      "name": "usak_node",
+      "host": "localhost",
+      "port": 10338,
+      "client_port": 10339,
+      "pool_name": "usak_pool",
+      "issuer_did": "did:indy:tr:usak:municipality"
+    },
+    {
+      "name": "van_node",
+      "host": "localhost",
+      "port": 10348,
+      "client_port": 10349,
+      "pool_name": "van_pool",
+      "issuer_did": "did:indy:tr:van:municipality"
+    },
+    {
+      "name": "yozgat_node",
+      "host": "localhost",
+      "port": 10358,
+      "client_port": 10359,
+      "pool_name": "yozgat_pool",
+      "issuer_did": "did:indy:tr:yozgat:municipality"
+    },
+    {
+      "name": "zonguldak_node",
+      "host": "localhost",
+      "port": 10368,
+      "client_port": 10369,
+      "pool_name": "zonguldak_pool",
+      "issuer_did": "did:indy:tr:zonguldak:municipality"
+    },
+    {
+      "name": "aksaray_node",
+      "host": "localhost",
+      "port": 10378,
+      "client_port": 10379,
+      "pool_name": "aksaray_pool",
+      "issuer_did": "did:indy:tr:aksaray:municipality"
+    },
+    {
+      "name": "bayburt_node",
+      "host": "localhost",
+      "port": 10388,
+      "client_port": 10389,
+      "pool_name": "bayburt_pool",
+      "issuer_did": "did:indy:tr:bayburt:municipality"
+    },
+    {
+      "name": "karaman_node",
+      "host": "localhost",
+      "port": 10398,
+      "client_port": 10399,
+      "pool_name": "karaman_pool",
+      "issuer_did": "did:indy:tr:karaman:municipality"
+    },
+    {
+      "name": "kirikkale_node",
+      "host": "localhost",
+      "port": 10408,
+      "client_port": 10409,
+      "pool_name": "kirikkale_pool",
+      "issuer_did": "did:indy:tr:kirikkale:municipality"
+    },
+    {
+      "name": "batman_node",
+      "host": "localhost",
+      "port": 10418,
+      "client_port": 10419,
+      "pool_name": "batman_pool",
+      "issuer_did": "did:indy:tr:batman:municipality"
+    },
+    {
+      "name": "sirnak_node",
+      "host": "localhost",
+      "port": 10428,
+      "client_port": 10429,
+      "pool_name": "sirnak_pool",
+      "issuer_did": "did:indy:tr:sirnak:municipality"
+    },
+    {
+      "name": "bartin_node",
+      "host": "localhost",
+      "port": 10438,
+      "client_port": 10439,
+      "pool_name": "bartin_pool",
+      "issuer_did": "did:indy:tr:bartin:municipality"
+    },
+    {
+      "name": "ardahan_node",
+      "host": "localhost",
+      "port": 10448,
+      "client_port": 10449,
+      "pool_name": "ardahan_pool",
+      "issuer_did": "did:indy:tr:ardahan:municipality"
+    },
+    {
+      "name": "igdir_node",
+      "host": "localhost",
+      "port": 10458,
+      "client_port": 10459,
+      "pool_name": "igdir_pool",
+      "issuer_did": "did:indy:tr:igdir:municipality"
+    },
+    {
+      "name": "yalova_node",
+      "host": "localhost",
+      "port": 10468,
+      "client_port": 10469,
+      "pool_name": "yalova_pool",
+      "issuer_did": "did:indy:tr:yalova:municipality"
+    },
+    {
+      "name": "karabuk_node",
+      "host": "localhost",
+      "port": 10478,
+      "client_port": 10479,
+      "pool_name": "karabuk_pool",
+      "issuer_did": "did:indy:tr:karabuk:municipality"
+    },
+    {
+      "name": "kilis_node",
+      "host": "localhost",
+      "port": 10488,
+      "client_port": 10489,
+      "pool_name": "kilis_pool",
+      "issuer_did": "did:indy:tr:kilis:municipality"
+    },
+    {
+      "name": "osmaniye_node",
+      "host": "localhost",
+      "port": 10498,
+      "client_port": 10499,
+      "pool_name": "osmaniye_pool",
+      "issuer_did": "did:indy:tr:osmaniye:municipality"
+    },
+    {
+      "name": "duzce_node",
+      "host": "localhost",
+      "port": 10508,
+      "client_port": 10509,
+      "pool_name": "duzce_pool",
+      "issuer_did": "did:indy:tr:duzce:municipality"
+    }
+  ],
+  "metadata": {
+    "description": "Turkey Municipal E-License Hyperledger Indy Test Network",
+    "created": "2024-01-01T00:00:00Z",
+    "supported_cities": [
+      "adana",
+      "adiyaman",
+      "afyonkarahisar",
+      "agri",
+      "amasya",
+      "ankara",
+      "antalya",
+      "artvin",
+      "aydin",
+      "balikesir",
+      "bilecik",
+      "bingol",
+      "bitlis",
+      "bolu",
+      "burdur",
+      "bursa",
+      "canakkale",
+      "cankiri",
+      "corum",
+      "denizli",
+      "diyarbakir",
+      "edirne",
+      "elazig",
+      "erzincan",
+      "erzurum",
+      "eskisehir",
+      "gaziantep",
+      "giresun",
+      "gumushane",
+      "hakkari",
+      "hatay",
+      "isparta",
+      "mersin",
+      "istanbul",
+      "izmir",
+      "kars",
+      "kastamonu",
+      "kayseri",
+      "kirklareli",
+      "kirsehir",
+      "kocaeli",
+      "konya",
+      "kutahya",
+      "malatya",
+      "manisa",
+      "kahramanmaras",
+      "mardin",
+      "mugla",
+      "mus",
+      "nevsehir",
+      "nigde",
+      "ordu",
+      "rize",
+      "sakarya",
+      "samsun",
+      "siirt",
+      "sinop",
+      "sivas",
+      "tekirdag",
+      "tokat",
+      "trabzon",
+      "tunceli",
+      "sanliurfa",
+      "usak",
+      "van",
+      "yozgat",
+      "zonguldak",
+      "aksaray",
+      "bayburt",
+      "karaman",
+      "kirikkale",
+      "batman",
+      "sirnak",
+      "bartin",
+      "ardahan",
+      "igdir",
+      "yalova",
+      "karabuk",
+      "kilis",
+      "osmaniye",
+      "duzce"
+    ],
+    "default_city": "konya"
+  }
+}

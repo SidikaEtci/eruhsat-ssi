@@ -953,5 +953,291 @@
     },
     "previous_hash": "5757025ebe417187b6de9136f1f11c14a175cf47a83a5b39d2e164d948bcb623",
     "hash": "1f9dbeabe8a07ab2cd4b8b40590491aa1fc464e84cce512d7baa72108e489204"
+  },
+  {
+    "block_number": 26,
+    "timestamp": "2026-06-07T14:44:11.522425",
+    "data": {
+      "action": "ISSUE_LICENSE",
+      "city_slug": "konya",
+      "credential": {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://konya.bel.tr/credentials/v1"
+        ],
+        "type": [
+          "VerifiableCredential",
+          "LicenseCredential"
+        ],
+        "issuer": {
+          "id": "did:indy:tr:konya:municipality",
+          "name": "Konya Metropolitan Municipality"
+        },
+        "issuanceDate": "2026-06-07T14:44:11.208519Z",
+        "expirationDate": "2027-06-07T14:44:11.208531Z",
+        "credentialSubject": {
+          "id": "did:indy:tr:konya:534a4a8eafcd8489",
+          "licenseId": "2026-KON-050",
+          "licenseType": "Cafe Operating License",
+          "businessName": "Tekinler Cafe",
+          "city": "Konya",
+          "citySlug": "konya",
+          "region": "Karatay",
+          "address": "Ardıçlı Mah. Rauf Orbay Cad. 42250, Selçuklu/KONYA",
+          "validFrom": "1999-01-01",
+          "validUntil": "2029-10-10"
+        },
+        "proof": {
+          "type": "Ed25519Signature2020",
+          "created": "2026-06-07T14:44:11.209945Z",
+          "verificationMethod": "did:indy:tr:konya:municipality#keys-1",
+          "proofPurpose": "assertionMethod",
+          "proofValue": "DT4T+rzrsglCKyIgMYOkG9XfCsndG79z5Sfh7Ut/0mEX1QQeN8WBykEg9EhVvU77YQbWg3rJRgfxf3b9LbPuDA=="
+        }
+      },
+      "ipfs_hash": "QmSw2antPPYH7i1Q4PYnBXwvTsj7biCPeYzfuPFRhykfJx"
+    },
+    "previous_hash": "1f9dbeabe8a07ab2cd4b8b40590491aa1fc464e84cce512d7baa72108e489204",
+    "hash": "c5a9082670028673416313d56280590ceff296e7cfbc2fb0c774315c416bb83f"
+  },
+  {
+    "block_number": 27,
+    "timestamp": "2026-06-07T16:12:16.638351",
+    "data": {
+      "action": "ISSUE_LICENSE",
+      "city_slug": "konya",
+      "credential": {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://konya.bel.tr/credentials/v1"
+        ],
+        "type": [
+          "VerifiableCredential",
+          "LicenseCredential"
+        ],
+        "issuer": {
+          "id": "did:indy:tr:konya:municipality",
+          "name": "Konya Metropolitan Municipality"
+        },
+        "issuanceDate": "2026-06-07T16:12:16.444707Z",
+        "expirationDate": "2027-06-07T16:12:16.444720Z",
+        "credentialSubject": {
+          "id": "did:indy:tr:konya:254aa248acb47dd6",
+          "licenseId": "2024-TEST-001",
+          "licenseType": "Test Cafe License",
+          "businessName": "Test Cafe",
+          "city": "Konya",
+          "citySlug": "konya",
+          "region": "Selçuklu",
+          "address": "Test Street 123, Konya",
+          "validFrom": "2024-01-01",
+          "validUntil": "2025-01-01"
+        },
+        "proof": {
+          "type": "Ed25519Signature2020",
+          "created": "2026-06-07T16:12:16.445366Z",
+          "verificationMethod": "did:indy:tr:konya:municipality#keys-1",
+          "proofPurpose": "assertionMethod",
+          "proofValue": "8p5SLqoRej+R9UyMvmA/ElKnPn+tPj7LKFqtjHpRXGiOCcURyO4ZkVwVcT+K31+UNWPZwS/eylY2j+W+W5WqBA=="
+        }
+      },
+      "ipfs_hash": "",
+      "indy_integration": true,
+      "indy_hash": ""
+    },
+    "previous_hash": "c5a9082670028673416313d56280590ceff296e7cfbc2fb0c774315c416bb83f",
+    "hash": "40875c5706ec2ae2c40693ff7735a8c4560fce129c1ec7676668a84854b4a080"
+  },
+  {
+    "block_number": 28,
+    "timestamp": "2026-06-07T16:21:47.037548",
+    "data": {
+      "action": "ISSUE_LICENSE",
+      "city_slug": "konya",
+      "credential": {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://konya.bel.tr/credentials/v1"
+        ],
+        "type": [
+          "VerifiableCredential",
+          "LicenseCredential"
+        ],
+        "issuer": {
+          "id": "did:indy:tr:konya:municipality",
+          "name": "Konya Metropolitan Municipality"
+        },
+        "issuanceDate": "2026-06-07T16:21:46.857686Z",
+        "expirationDate": "2027-06-07T16:21:46.857706Z",
+        "credentialSubject": {
+          "id": "did:indy:tr:konya:254aa248acb47dd6",
+          "licenseId": "2024-TEST-8506",
+          "licenseType": "Test Cafe License",
+          "businessName": "Test Cafe",
+          "city": "Konya",
+          "citySlug": "konya",
+          "region": "Selçuklu",
+          "address": "Test Street 123, Konya",
+          "validFrom": "2024-01-01",
+          "validUntil": "2025-01-01"
+        },
+        "proof": {
+          "type": "Ed25519Signature2020",
+          "created": "2026-06-07T16:21:46.861169Z",
+          "verificationMethod": "did:indy:tr:konya:municipality#keys-1",
+          "proofPurpose": "assertionMethod",
+          "proofValue": "p/gKhlulgw6kAy+51jekMY72fUjfdsHqL7Vu13bxSKOiubl8JUEpWiRj9ZCPnWrI9XkkDUTgQXPssI5Ll/wEAQ=="
+        }
+      },
+      "ipfs_hash": "",
+      "indy_integration": true,
+      "indy_hash": ""
+    },
+    "previous_hash": "40875c5706ec2ae2c40693ff7735a8c4560fce129c1ec7676668a84854b4a080",
+    "hash": "6fdf64bf24048f196c90d8bb51945b00f86e4fd633d4f7709820961eb8db6289"
+  },
+  {
+    "block_number": 29,
+    "timestamp": "2026-06-07T16:24:16.987697",
+    "data": {
+      "action": "ISSUE_LICENSE",
+      "city_slug": "konya",
+      "credential": {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://konya.bel.tr/credentials/v1"
+        ],
+        "type": [
+          "VerifiableCredential",
+          "LicenseCredential"
+        ],
+        "issuer": {
+          "id": "did:indy:tr:konya:municipality",
+          "name": "Konya Metropolitan Municipality"
+        },
+        "issuanceDate": "2026-06-07T16:24:16.927082Z",
+        "expirationDate": "2027-06-07T16:24:16.927097Z",
+        "credentialSubject": {
+          "id": "did:indy:tr:konya:254aa248acb47dd6",
+          "licenseId": "2024-TEST-8656",
+          "licenseType": "Test Cafe License",
+          "businessName": "Test Cafe",
+          "city": "Konya",
+          "citySlug": "konya",
+          "region": "Selçuklu",
+          "address": "Test Street 123, Konya",
+          "validFrom": "2024-01-01",
+          "validUntil": "2025-01-01"
+        },
+        "proof": {
+          "type": "Ed25519Signature2020",
+          "created": "2026-06-07T16:24:16.927775Z",
+          "verificationMethod": "did:indy:tr:konya:municipality#keys-1",
+          "proofPurpose": "assertionMethod",
+          "proofValue": "Nd4PAw3Axn3IoSplNEH9a9qs+rYHi2GqI9N3XqmNbUnPs6NcwIlB1XNykkQipP7Wdrsey83HRuFIgstQamWdAA=="
+        }
+      },
+      "ipfs_hash": "",
+      "indy_integration": true,
+      "indy_hash": ""
+    },
+    "previous_hash": "6fdf64bf24048f196c90d8bb51945b00f86e4fd633d4f7709820961eb8db6289",
+    "hash": "088581c8ee17e25be2db294c9c4ba486eb1b46decd9d056fcb60864e300dab69"
+  },
+  {
+    "block_number": 30,
+    "timestamp": "2026-06-07T16:30:06.742342",
+    "data": {
+      "action": "ISSUE_LICENSE",
+      "city_slug": "konya",
+      "credential": {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://konya.bel.tr/credentials/v1"
+        ],
+        "type": [
+          "VerifiableCredential",
+          "LicenseCredential"
+        ],
+        "issuer": {
+          "id": "did:indy:tr:konya:municipality",
+          "name": "Konya Metropolitan Municipality"
+        },
+        "issuanceDate": "2026-06-07T16:30:06.680046Z",
+        "expirationDate": "2027-06-07T16:30:06.680056Z",
+        "credentialSubject": {
+          "id": "did:indy:tr:konya:254aa248acb47dd6",
+          "licenseId": "2024-TEST-9006",
+          "licenseType": "Test Cafe License",
+          "businessName": "Test Cafe",
+          "city": "Konya",
+          "citySlug": "konya",
+          "region": "Selçuklu",
+          "address": "Test Street 123, Konya",
+          "validFrom": "2024-01-01",
+          "validUntil": "2025-01-01"
+        },
+        "proof": {
+          "type": "Ed25519Signature2020",
+          "created": "2026-06-07T16:30:06.680676Z",
+          "verificationMethod": "did:indy:tr:konya:municipality#keys-1",
+          "proofPurpose": "assertionMethod",
+          "proofValue": "56RCUDHyfzbDf2tfyWagQJB48mRXAjjoPwjoFJ20mFAkGvjqC+IZbLLycJHuG4zqbk4c6cB0EdoI9NbSq8hHDA=="
+        }
+      },
+      "ipfs_hash": "",
+      "indy_integration": true,
+      "indy_hash": ""
+    },
+    "previous_hash": "088581c8ee17e25be2db294c9c4ba486eb1b46decd9d056fcb60864e300dab69",
+    "hash": "461c1daf02cea7316b64f9b782824ad0f3e4b62c08c1c2ce2208b991a63d1d87"
+  },
+  {
+    "block_number": 31,
+    "timestamp": "2026-06-07T16:31:16.873379",
+    "data": {
+      "action": "ISSUE_LICENSE",
+      "city_slug": "konya",
+      "credential": {
+        "@context": [
+          "https://www.w3.org/2018/credentials/v1",
+          "https://konya.bel.tr/credentials/v1"
+        ],
+        "type": [
+          "VerifiableCredential",
+          "LicenseCredential"
+        ],
+        "issuer": {
+          "id": "did:indy:tr:konya:municipality",
+          "name": "Konya Metropolitan Municipality"
+        },
+        "issuanceDate": "2026-06-07T16:31:16.833059Z",
+        "expirationDate": "2027-06-07T16:31:16.833071Z",
+        "credentialSubject": {
+          "id": "did:indy:tr:konya:534a4a8eafcd8489",
+          "licenseId": "2026-TEST-4201",
+          "licenseType": "Restaurant Operating License",
+          "businessName": "Tekinler Cafe",
+          "city": "Konya",
+          "citySlug": "konya",
+          "region": "Selçuklu",
+          "address": "Ardıçlı Mah. Rauf Orbay Cad. 42250, Selçuklu/KONYA",
+          "validFrom": "2020-01-01",
+          "validUntil": "2027-01-01"
+        },
+        "proof": {
+          "type": "Ed25519Signature2020",
+          "created": "2026-06-07T16:31:16.833179Z",
+          "verificationMethod": "did:indy:tr:konya:municipality#keys-1",
+          "proofPurpose": "assertionMethod",
+          "proofValue": "VnpsPXtoZzhmlONLjY9JeXQ+DyncTEZ/ozAGanBSZXQ+6um4eOShk8Qu8BihNfGm2U2ucAnWF2l/2MBiTLQEDg=="
+        }
+      },
+      "ipfs_hash": "QmaZMLbxtV2KaeXq7x3BSB4WpEE5w1TPpJZTeLmtTpoukG",
+      "indy_integration": true,
+      "indy_hash": ""
+    },
+    "previous_hash": "461c1daf02cea7316b64f9b782824ad0f3e4b62c08c1c2ce2208b991a63d1d87",
+    "hash": "ca478a01b93e161d05745f701ead9618abacda9bbbc3a9a4dcb29fc62d4e25a6"
   }
 ]

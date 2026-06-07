@@ -1,0 +1,13 @@
+# Hyperledger Indy Integration Dependencies
+# Install with: pip install -r requirements-indy.txt
+
+# Core Indy libraries
+indy-vdr==0.3.3
+indy-credx==1.0.0
+aries-askar==0.3.0
+
+# Additional utilities for Indy integration
+python-dotenv>=1.0.0
+
+# Note: The main requirements.txt already includes these packages
+# This file is provided for convenience and documentation

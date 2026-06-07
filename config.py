@@ -57,6 +57,11 @@ DATA_ROOT.mkdir(exist_ok=True, parents=True)
 GENESIS_TXN_PATH = "/tmp/genesis.txn"
 POOL_NAME = ACTIVE_CITY["pool_name"]
 
+# Hyperledger Indy configuration
+INDY_ENABLED = True  # Set to False to disable Indy integration
+INDY_NETWORK = "test"  # Options: "test", "local", "production"
+INDY_POOL_NAME = POOL_NAME
+
 # IPFS configuration
 IPFS_HOST = os.environ.get("IPFS_HOST", "127.0.0.1")
 IPFS_PORT = int(os.environ.get("IPFS_PORT", "5001"))
